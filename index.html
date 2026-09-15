@@ -7,7 +7,7 @@
   
   <!-- TÍTULO E ÍCONE DA ABA DO NAVEGADOR -->
   <title>Soluciona Acústica</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='12' fill='%235C0E1E'/><text x='50%' y='55%' font-family='serif' font-size='50' font-weight='bold' fill='%23B89A45' dominant-baseline='middle' text-anchor='middle'>SA</text></svg>"/>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='12' fill='%235C0E1E'/%3E%3Ctext x='50%' y='55%' font-family='serif' font-size='50' font-weight='bold' fill='%23B89A45' dominant-baseline='middle' text-anchor='middle'%3ESA%3C/text%3E%3C/svg%3E"/>
   
   <!-- IMPORTAÇÃO DAS FONTES DO GOOGLE (Playfair para títulos, Inter para textos) -->
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
@@ -404,6 +404,10 @@
       <!-- Botões interativos da barra de cima -->
       <button class="btn btn-outline-gold" onclick="fazerLogout()" style="border-color: transparent; color: var(--cinza2)">Sair</button>
       <button class="btn btn-outline-gold" onclick="limparForm()">Limpar</button>
+      
+      <!-- NOVO BOTÃO WHATSAPP -->
+      <button class="btn btn-outline-gold" onclick="enviarWhatsApp()">📱 WhatsApp</button>
+      
       <button class="btn btn-vinho" onclick="window.print()">🖨 Imprimir / PDF</button>
     </div>
   </header>
@@ -1004,6 +1008,38 @@ function limparForm(){
   
   renderItens();
   render();
+}
+
+// ─── ENVIAR RESUMO PELO WHATSAPP ─────────────────────────────
+function enviarWhatsApp() {
+  const cliente = g('cliente').trim() || 'Cliente';
+  const num = g('numProposta').trim() || 'S/N';
+  // Pega o telefone que foi preenchido no formulário para o cliente e tira os traços e parênteses
+  const telefone = g('telefone').replace(/\D/g, ''); 
+  const totalText = document.getElementById('totalGeral').textContent;
+
+  // Montando o texto da mensagem (O * deixa o texto em negrito no Zap)
+  let msg = `Olá, ${cliente}! Tudo bem?\n\n`;
+  msg += `Aqui é da *Soluciona Acústica*. Sua proposta técnica (Nº ${num}) já está pronta.\n`;
+  msg += `O valor total do projeto ficou em *${totalText}*.\n\n`;
+  
+  // Adicionei o telefone (11) 95348-1602 aqui como contato da Geisiane
+  msg += `Estou enviando o arquivo PDF com todos os detalhes aqui abaixo. Qualquer dúvida, estou à disposição no WhatsApp (11) 95348-1602!`;
+
+  // Transforma o texto para o formato que a internet entende (com %20 no lugar dos espaços)
+  const textoCodificado = encodeURIComponent(msg);
+  
+  // Se a Geisiane tiver digitado o telefone do cliente no formulário, já abre na conversa da pessoa
+  // Se não tiver digitado, abre o WhatsApp para ela escolher o contato manualmente
+  let url = '';
+  if (telefone && telefone.length >= 10) {
+    url = `https://wa.me/55${telefone}?text=${textoCodificado}`; 
+  } else {
+    url = `https://wa.me/?text=${textoCodificado}`;
+  }
+  
+  // Abre o link em uma nova aba
+  window.open(url, '_blank');
 }
 
 // ─── EVENTOS INICIAIS (O que o site faz na hora que carrega) ─
