@@ -1017,33 +1017,39 @@ function limparForm(){
 
 // ─── ENVIAR RESUMO PELO WHATSAPP ─────────────────────────────
 function enviarWhatsApp() {
-  const cliente = g('cliente').trim() || 'Cliente';
-  const num = g('numProposta').trim() || 'S/N';
-  // Pega o telefone que foi preenchido no formulário para o cliente e tira os traços e parênteses
+  // 1. Busca os dados para verificação
+  const cliente = g('cliente').trim();
+  const num = g('numProposta').trim();
   const telefone = g('telefone').replace(/\D/g, ''); 
+  
+  // Calcula se o valor total é maior que zero
+  const totalValor = itens.reduce((s,it)=>s + (parseFloat(it.qtd)||0)*(parseFloat(it.unit)||0), 0);
+
+  // 2. TRAVA DE SEGURANÇA (Bloqueia se faltar dados)
+  if (!cliente || !num || !telefone || totalValor === 0) {
+    alert("⚠️ ATENÇÃO: Preencha o Nome do Cliente, o Nº da Proposta, o Telefone e adicione os Valores dos itens antes de enviar para o WhatsApp!");
+    return; // O "return" faz a função parar e proíbe a abertura do WhatsApp
+  }
+
+  // 3. Se passou pela trava, segue com o envio normal
+  const clienteNome = cliente || 'Cliente';
+  const numProp = num || 'S/N';
   const totalText = document.getElementById('totalGeral').textContent;
 
-  // Montando o texto da mensagem (O * deixa o texto em negrito no Zap)
-  let msg = `Olá, ${cliente}! Tudo bem?\n\n`;
-  msg += `Aqui é da *Soluciona Acústica*. Sua proposta técnica (Nº ${num}) já está pronta.\n`;
+  let msg = `Olá, ${clienteNome}! Tudo bem?\n\n`;
+  msg += `Aqui é da *Soluciona Acústica*. Sua proposta técnica (Nº ${numProp}) já está pronta.\n`;
   msg += `O valor total do projeto ficou em *${totalText}*.\n\n`;
-  
-  // Adicionei o telefone (11) 95348-1602 aqui como contato da Geisiane
   msg += `Estou enviando o arquivo PDF com todos os detalhes aqui abaixo. Qualquer dúvida, estou à disposição no WhatsApp (11) 95348-1602!`;
 
-  // Transforma o texto para o formato que a internet entende (com %20 no lugar dos espaços)
   const textoCodificado = encodeURIComponent(msg);
   
-  // Se a Geisiane tiver digitado o telefone do cliente no formulário, já abre na conversa da pessoa
-  // Se não tiver digitado, abre o WhatsApp para ela escolher o contato manualmente
   let url = '';
-  if (telefone && telefone.length >= 10) {
+  if (telefone.length >= 10) {
     url = `https://wa.me/55${telefone}?text=${textoCodificado}`; 
   } else {
     url = `https://wa.me/?text=${textoCodificado}`;
   }
   
-  // Abre o link em uma nova aba
   window.open(url, '_blank');
 }
 
