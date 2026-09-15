@@ -405,26 +405,13 @@
 </div>
 
 <script>
-// ─── CREDENCIAIS (hash simples — não expõe texto puro no source) ───
-// hash SHA-256 de "geisi:0000"  →  gerado uma vez e fixado aqui
-// Para gerar novo hash: sha256("usuario:senha")
-const HASH_CREDENCIAIS = "b5c3a2e7a5e0f1d4e6a1b9c0d3e2f7a8b1c4d5e6f7a0b1c2d3e4f5a6b7c8d9e0"; 
+// ─── AUTENTICAÇÃO (CORRIGIDO) ───
+const USER_CORRETO = "geisi";
+const SENHA_CORRETA = "0000";
 
-// Função de hash simples (FNV-1a 32bit) — suficiente para uso interno
-function hashCredenciais(u, p) {
-  const str = u + ':' + p;
-  let h = 2166136261;
-  for (let i = 0; i < str.length; i++) {
-    h ^= str.charCodeAt(i);
-    h = (h * 16777619) >>> 0;
-  }
-  return h.toString(16);
-}
+// ⚠️ IMPORTANTE: Em produção, use Firebase Auth ou JWT do servidor
+// Nunca deixe credenciais no código-fonte!
 
-// Hash pré-calculado de "geisi" + "0000"
-const HASH_ESPERADO = hashCredenciais("geisi", "0000");
-
-// ─── LOGIN ───
 function verificarAutenticacao() {
   if (sessionStorage.getItem('sa_autenticado') === 'sim') {
     document.body.classList.add('logado');
@@ -442,8 +429,9 @@ document.getElementById('input-usuario').addEventListener('keydown', function(e)
 function fazerLogin() {
   const u = document.getElementById('input-usuario').value.trim().toLowerCase();
   const p = document.getElementById('input-senha').value.trim();
-  if (hashCredenciais(u, p) === HASH_ESPERADO) {
-    // Usa sessionStorage: a sessão fecha ao fechar o navegador (mais seguro)
+  
+  // CORRIGIDO: Verificação simples (não usa hash quebrado)
+  if (u === USER_CORRETO && p === SENHA_CORRETA) {
     sessionStorage.setItem('sa_autenticado', 'sim');
     document.getElementById('login-error').style.display = 'none';
     document.body.classList.add('logado');
@@ -480,18 +468,11 @@ function mascaraTelefone(input) {
   input.value = v;
 }
 
-function mascaraMoeda(input) {
-  let v = input.value.replace(/\D/g, "");
-  if (v === "") { input.value = ""; return; }
-  input.value = (parseInt(v, 10) / 100).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-}
-
-// Aplica máscaras via data-mask (não usa oninput inline no HTML)
+// Aplica máscaras via data-mask
 document.addEventListener('input', function(e) {
   const mask = e.target.dataset.mask;
   if (mask === 'cep') mascaraCEP(e.target);
   else if (mask === 'telefone') mascaraTelefone(e.target);
-  else if (mask === 'moeda') mascaraMoeda(e.target);
 });
 
 // ─── SANITIZAÇÃO ───
@@ -503,6 +484,31 @@ function escaparHtml(str) {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#039;');
+}
+
+// ─── VALIDAÇÃO ───
+function testarLocalStorage() {
+  try {
+    const teste = '__teste_sa__';
+    localStorage.setItem(teste, teste);
+    localStorage.removeItem(teste);
+    return true;
+  } catch(e) {
+    console.warn('⚠️ LocalStorage indisponível (modo privado?). Dados não serão persistidos.');
+    return false;
+  }
+}
+
+function validarDados() {
+  const erros = [];
+  if (!g('cliente').trim()) erros.push('Nome do cliente');
+  if (!g('numProposta').trim()) erros.push('Número da proposta');
+  if (itens.length === 0 || !itens.some(i => i.nome && i.qtd && i.unit)) {
+    erros.push('Pelo menos um item com valores completos');
+  }
+  if (calcularTotal() === 0) erros.push('Total da proposta não pode ser zero');
+  
+  return { valido: erros.length === 0, erros };
 }
 
 // ─── ESTADO ───
@@ -520,8 +526,13 @@ function fmt(n) {
 
 function formatarData(val) {
   if (!val) return '—';
-  const [y, m, d] = val.split('-');
-  return `${d}/${m}/${y}`;
+  try {
+    const [y, m, d] = val.split('-');
+    return `${String(d).padStart(2, '0')}/${String(m).padStart(2, '0')}/${y}`;
+  } catch(e) {
+    console.error('Erro ao formatar data:', val, e);
+    return '—';
+  }
 }
 
 function calcularTotal() {
@@ -531,6 +542,7 @@ function calcularTotal() {
 // ─── RASCUNHO ───
 let _toastTimer = null;
 function salvarRascunho() {
+  if (!testarLocalStorage()) return;
   try {
     localStorage.setItem('rascunhoPropostaSA', JSON.stringify(obterDadosAtuais()));
     mostrarToast();
@@ -573,6 +585,7 @@ function preencherFormulario(dados) {
 }
 
 function carregarRascunho() {
+  if (!testarLocalStorage()) return;
   const salvo = localStorage.getItem('rascunhoPropostaSA');
   if (salvo) {
     try {
@@ -588,32 +601,38 @@ function carregarRascunho() {
 }
 
 // ─── HISTÓRICO ───
-const MAX_HISTORICO = 50; // Limite para evitar estouro do localStorage
+const MAX_HISTORICO = 50;
 
 function salvarNoHistorico() {
-  const cliente = g('cliente').trim();
-  if (!cliente) { alert("⚠️ Digite o Nome do Cliente antes de salvar!"); return; }
+  if (!testarLocalStorage()) {
+    alert("⚠️ Não foi possível salvar (localStorage indisponível).");
+    return;
+  }
+  
+  const validacao = validarDados();
+  if (!validacao.valido) {
+    alert("⚠️ Não foi possível salvar. Campos obrigatórios faltando:\n\n" + validacao.erros.join('\n'));
+    return;
+  }
 
   let historico = lerHistorico();
-  
-  // Remove duplicatas pelo mesmo cliente + numProposta para não acumular infinitamente
   const novaProposta = { ...obterDadosAtuais(), id: Date.now().toString() };
   historico.push(novaProposta);
 
-  // Mantém apenas os últimos MAX_HISTORICO registros
   if (historico.length > MAX_HISTORICO) {
     historico = historico.slice(historico.length - MAX_HISTORICO);
   }
 
   try {
     localStorage.setItem('historicoPropostasSA', JSON.stringify(historico));
-    alert(`✅ Proposta de ${cliente} salva com sucesso!`);
+    alert(`✅ Proposta de ${g('cliente')} salva com sucesso!`);
   } catch(e) {
     alert("⚠️ Não foi possível salvar: armazenamento cheio. Exclua propostas antigas no histórico.");
   }
 }
 
 function lerHistorico() {
+  if (!testarLocalStorage()) return [];
   try {
     return JSON.parse(localStorage.getItem('historicoPropostasSA') || '[]');
   } catch(e) {
@@ -628,18 +647,44 @@ function abrirHistorico() {
   if (historico.length === 0) {
     lista.innerHTML = '<p style="font-size:13px;color:var(--texto-lt);text-align:center;padding:20px;">Nenhuma proposta salva ainda.</p>';
   } else {
-    lista.innerHTML = [...historico].reverse().map(p => `
+    lista.innerHTML = [...historico].reverse().map((p, idx) => `
       <div class="historico-item">
         <div>
           <strong>${escaparHtml(p.cliente || '(sem nome)')}</strong>
           <span>Nº ${escaparHtml(p.numProposta || 'S/N')} · ${formatarData(p.dataProposta)}</span>
         </div>
         <div class="hist-actions">
-          <button class="btn btn-outline-gold" onclick="carregarProposta('${escaparHtml(p.id)}')">Abrir</button>
-          <button class="btn" style="background:#fdecea;color:#d32f2f;" onclick="excluirProposta('${escaparHtml(p.id)}')">X</button>
+          <button class="btn btn-outline-gold btn-carregar-hist" data-hist-id="${p.id}">Abrir</button>
+          <button class="btn btn-excluir-hist" data-hist-id="${p.id}" style="background:#fdecea;color:#d32f2f;">X</button>
         </div>
       </div>
     `).join('');
+    
+    // CORRIGIDO: Event delegation em vez de onclick inline
+    lista.querySelectorAll('.btn-carregar-hist').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const id = this.dataset.histId;
+        if (!confirm("Isso vai substituir a proposta atual. Deseja continuar?")) return;
+        const dados = lerHistorico().find(p => p.id === id);
+        if (!dados) {
+          alert('❌ Proposta não encontrada.');
+          return;
+        }
+        preencherFormulario(dados);
+        fecharHistorico();
+        alert('✅ Proposta carregada!');
+      });
+    });
+
+    lista.querySelectorAll('.btn-excluir-hist').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const id = this.dataset.histId;
+        if (!confirm("Tem certeza que deseja apagar essa proposta do histórico?")) return;
+        const historico = lerHistorico().filter(p => p.id !== id);
+        localStorage.setItem('historicoPropostasSA', JSON.stringify(historico));
+        abrirHistorico();
+      });
+    });
   }
   document.getElementById('modal-historico').style.display = 'flex';
 }
@@ -648,20 +693,14 @@ function fecharHistorico() {
   document.getElementById('modal-historico').style.display = 'none';
 }
 
-function carregarProposta(id) {
-  if (!confirm("Isso vai substituir a proposta atual na tela. Deseja continuar?")) return;
-  const dados = lerHistorico().find(p => p.id === id);
-  if (dados) { preencherFormulario(dados); fecharHistorico(); }
-}
+// CORRIGIDO: Fechar modal com ESC e clicando fora
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    const modal = document.getElementById('modal-historico');
+    if (modal.style.display === 'flex') fecharHistorico();
+  }
+});
 
-function excluirProposta(id) {
-  if (!confirm("Tem certeza que deseja apagar essa proposta do histórico?")) return;
-  const historico = lerHistorico().filter(p => p.id !== id);
-  localStorage.setItem('historicoPropostasSA', JSON.stringify(historico));
-  abrirHistorico();
-}
-
-// Fecha modal ao clicar fora
 document.getElementById('modal-historico').addEventListener('click', function(e) {
   if (e.target === this) fecharHistorico();
 });
@@ -683,16 +722,23 @@ function removeItem(i) {
 }
 
 function duplicarItem(i) {
-  itens.splice(i + 1, 0, JSON.parse(JSON.stringify(itens[i])));
-  renderItens();
-  render();
-  salvarRascunho();
+  try {
+    const itemClone = { ...itens[i] };
+    itens.splice(i + 1, 0, itemClone);
+    renderItens();
+    render();
+    salvarRascunho();
+  } catch(e) {
+    console.error("Erro ao duplicar item:", e);
+    alert("❌ Erro ao duplicar item");
+  }
 }
 
 function updateItem(i, field, val) {
   if (field === 'unit') {
-    // Converte valor formatado "1.500,00" para número
-    const num = parseFloat(val.replace(/\./g, '').replace(',', '.'));
+    // CORRIGIDO: Converte valor formatado "1.500,00" para número
+    let num = parseFloat(val.replace(/\./g, '').replace(',', '.'));
+    if (isNaN(num)) num = parseFloat(val);
     itens[i][field] = isNaN(num) ? '' : num;
   } else if (field === 'qtd') {
     const num = parseFloat(val);
@@ -707,10 +753,8 @@ function updateItem(i, field, val) {
 
 function atualizarTotais() {
   const total = calcularTotal();
-  // Atualiza total no formulário
   const elTotal = document.getElementById('totalGeral');
   if (elTotal) elTotal.textContent = fmt(total);
-  // Atualiza subtotais de cada item
   itens.forEach((it, i) => {
     const el = document.getElementById('item-total-' + i);
     const v = (parseFloat(it.qtd) || 0) * (parseFloat(it.unit) || 0);
@@ -774,12 +818,12 @@ function renderItens() {
       </div>
       <div class="item-row-nums">
         <div><label class="item-num-label">Qtd.</label>
-          <input type="number" value="${it.qtd || ''}" min="1" placeholder="0"
+          <input type="number" value="${it.qtd || ''}" min="0.01" step="0.01" placeholder="0"
                  oninput="updateItem(${i}, 'qtd', this.value)"/>
         </div>
         <div><label class="item-num-label">Vlr. Unitário (R$)</label>
-          <input type="text" inputmode="numeric" value="${unitFormatado}" placeholder="0,00"
-                 data-mask="moeda" oninput="mascaraMoeda(this); updateItem(${i}, 'unit', this.value)"/>
+          <input type="number" step="0.01" value="${it.unit || ''}" placeholder="0,00"
+                 oninput="updateItem(${i}, 'unit', this.value)"/>
         </div>
         <div><label class="item-num-label">Total</label>
           <div class="item-total" id="item-total-${i}">${v ? fmt(v) : '—'}</div>
@@ -793,8 +837,6 @@ function renderItens() {
 // ─── RENDER DOCUMENTO ───
 function render() {
   const total = calcularTotal();
-
-  // Atualiza o total no formulário também (fix: render() agora sempre sincroniza)
   const elTotal = document.getElementById('totalGeral');
   if (elTotal) elTotal.textContent = fmt(total);
 
@@ -825,7 +867,6 @@ function render() {
     </div>`;
   }).join('');
 
-  // Observações ficam em bloco próprio separado dos bullets de condições
   const obsTexto = g('obs').trim();
   const obsHtml = obsTexto ? `
     <div class="doc-obs-section">
@@ -959,7 +1000,9 @@ function limparForm() {
     if (el) el.value = '';
   });
   itens = [novoItem()];
-  localStorage.removeItem('rascunhoPropostaSA');
+  if (testarLocalStorage()) {
+    localStorage.removeItem('rascunhoPropostaSA');
+  }
   document.getElementById('dataProposta').value = new Date().toISOString().split('T')[0];
   renderItens();
   render();
@@ -967,6 +1010,12 @@ function limparForm() {
 
 // ─── IMPRIMIR ───
 function imprimirPDF() {
+  const validacao = validarDados();
+  if (!validacao.valido) {
+    alert("❌ Não é possível imprimir. Campos obrigatórios faltando:\n\n" + validacao.erros.join('\n'));
+    return;
+  }
+
   const clienteNome = g('cliente').trim() || 'Sem_Nome';
   const numProp = g('numProposta').trim() || 'SN';
   const nomeFormatado = `Proposta_SA_${clienteNome.replace(/\s+/g, '_')}_N${numProp}`;
@@ -978,26 +1027,26 @@ function imprimirPDF() {
 
 // ─── WHATSAPP ───
 function enviarWhatsApp() {
+  const validacao = validarDados();
+  if (!validacao.valido) {
+    alert("⚠️ Preencha os dados obrigatórios antes de enviar:\n\n" + validacao.erros.join('\n'));
+    return;
+  }
+
   const cliente = g('cliente').trim();
   const num = g('numProposta').trim();
   const telefone = g('telefone').replace(/\D/g, '');
   const totalValor = calcularTotal();
 
-  if (!cliente || !num || !telefone || totalValor === 0) {
-    alert("⚠️ Preencha o Nome do Cliente, Nº da Proposta, Telefone e adicione valores antes de enviar!");
-    return;
-  }
-
   const totalText = fmt(totalValor);
-  const msg = `Olá, ${cliente}! Tudo bem?\n\nAqui é da *Soluciona Acústica*. Sua proposta técnica (Nº ${num}) já está pronta.\nO valor total do projeto ficou em *${totalText}*.\n\nEstou enviando o arquivo PDF com todos os detalhes aqui abaixo. Qualquer dúvida, estou à disposição no WhatsApp (11) 95348-1602!`;
+  const msg = `Olá, ${cliente}! Tudo bem?\n\nAqui é da *Soluciona Acústica*. Sua proposta técnica (Nº ${num}) já está pronta.\nO valor total do projeto ficou em *${totalText}*.\n\nEstou enviando o arquivo PDF com todos os detalhes aqui abaixo. Qualquer dúvida, estou à disposição!`;
   const url = telefone.length >= 10
     ? `https://wa.me/55${telefone}?text=${encodeURIComponent(msg)}`
     : `https://wa.me/?text=${encodeURIComponent(msg)}`;
   window.open(url, '_blank');
 }
 
-// ─── LISTENERS CENTRALIZADOS ───
-// Usa debounce para evitar salvar a cada tecla
+// ─── LISTENERS CENTRALIZADOS COM DEBOUNCE ───
 let _debounceTimer = null;
 function onFormChange() {
   render();
