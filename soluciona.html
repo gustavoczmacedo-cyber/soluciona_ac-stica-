@@ -1,20 +1,31 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+  <!-- CONFIGURAÇÕES BÁSICAS DA PÁGINA (Invisível para o usuário) -->
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  
+  <!-- TÍTULO E ÍCONE DA ABA DO NAVEGADOR -->
   <title>Soluciona Acústica</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='12' fill='%235C0E1E'/><text x='50%' y='55%' font-family='serif' font-size='50' font-weight='bold' fill='%23B89A45' dominant-baseline='middle' text-anchor='middle'>SA</text></svg>"/>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='12' fill='%235C0E1E'/%3E%3Ctext x='50%' y='55%' font-family='serif' font-size='50' font-weight='bold' fill='%23B89A45' dominant-baseline='middle' text-anchor='middle'%3ESA%3C/text%3E%3C/svg%3E"/>
+  <!-- IMPORTAÇÃO DAS FONTES DO GOOGLE (Playfair para títulos, Inter para textos) -->
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  
+  <!-- INÍCIO DO CSS (Onde estilizamos as cores, tamanhos e visual do site) -->
   <style>
+    /* Zera os espaçamentos padrão do navegador */
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    
+    /* VARIÁVEIS DE CORES (Se quiser mudar o tom de vinho ou dourado de todo o site de uma vez, é só mudar aqui) */
     :root{
       --vinho:#5C0E1E;--vinho-dk:#3A0812;--ouro:#B89A45;--ouro-lt:#D4B86A;
       --offwhite:#F8F5F0;--cinza:#E8E4DC;--cinza2:#D0C8BC;--texto:#1A1008;--texto-lt:#5A4A35;
     }
+    
+    /* Estilo geral do corpo do site (fundo acinzentado e fonte padrão) */
     body{font-family:'Inter',sans-serif;background:#f0ece4;color:var(--texto);min-height:100vh}
 
-    /* ── TELA DE LOGIN PREMIUM ── */
+    /* ── ESTILOS DA TELA DE LOGIN ── */
     #login-screen {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       background: linear-gradient(135deg, var(--vinho-dk) 0%, var(--vinho) 100%);
@@ -52,16 +63,18 @@
     }
     .btn-login:hover { background: var(--vinho-dk); }
 
+    /* Mensagem de erro vermelha no login */
     #login-error {
       color: #d32f2f; background: #fdecea; padding: 10px; border-radius: 4px;
       font-size: 13px; margin-top: 16px; display: none; font-weight: 500;
     }
     
-    /* Quando logado, esconde o login e mostra o app */
+    /* ── LÓGICA VISUAL DO LOGIN ── */
+    /* Se o usuário estiver logado, esconde a tela de login. Se não, esconde o sistema. */
     body.logado #login-screen { display: none; }
     body:not(.logado) .app-container { display: none; }
 
-    /* ── HEADER ── */
+    /* ── BARRA SUPERIOR (HEADER) ── */
     header{
       background:var(--vinho-dk);padding:0 32px;height:60px;
       display:flex;align-items:center;justify-content:space-between;
@@ -74,6 +87,8 @@
       font-family:'Playfair Display',serif;color:var(--ouro);font-size:12px;font-weight:700;line-height:1.1;
     }
     .logo span{font-family:'Playfair Display',serif;color:var(--ouro-lt);font-size:12px;letter-spacing:2px;text-transform:uppercase}
+    
+    /* Botões do Header (Sair, Limpar, Imprimir) */
     .header-actions{display:flex;gap:10px}
     .btn{
       padding:8px 20px;font-size:13px;font-weight:500;cursor:pointer;
@@ -86,17 +101,20 @@
     .btn-vinho{background:var(--vinho);color:#fff}
     .btn-vinho:hover{background:#7a1428}
 
-    /* ── LAYOUT ── */
+    /* ── ESTRUTURA PRINCIPAL (Lado a lado) ── */
+    /* Divide a tela em duas colunas: 480px para o formulário e o resto para o preview */
     .app{display:grid;grid-template-columns:480px 1fr;height:calc(100vh - 60px);overflow:hidden}
 
-    /* ── FORMULÁRIO ── */
+    /* ── PAINEL DO FORMULÁRIO (Coluna Esquerda) ── */
     .form-panel{
       background:#fff;overflow-y:auto;padding:28px 28px 48px;
       border-right:1px solid var(--cinza);
     }
+    /* Estilo da barra de rolagem do formulário */
     .form-panel::-webkit-scrollbar{width:5px}
     .form-panel::-webkit-scrollbar-thumb{background:var(--cinza2);border-radius:3px}
 
+    /* Estilos dos campos de texto, inputs e caixas do formulário */
     .form-section{margin-bottom:28px}
     .form-section-title{
       font-size:11px;letter-spacing:2.5px;text-transform:uppercase;
@@ -119,10 +137,12 @@
     .field input:focus,.field textarea:focus,.field select:focus{border-color:var(--ouro)}
     .field textarea{resize:vertical;min-height:72px}
     .field select option{font-family:'Inter',sans-serif}
+    
+    /* Organização em linhas (2 ou 3 colunas) */
     .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
     .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
 
-    /* itens da proposta */
+    /* ── ITENS DA PROPOSTA (Caixas de produtos adicionados) ── */
     .itens-header{ display:none; }
     .item-row{
       background:#faf8f5;border:1.5px solid var(--cinza);
@@ -148,14 +168,18 @@
     }
     .item-num-label{font-size:10px;color:var(--texto-lt);letter-spacing:.3px;margin-bottom:4px;font-weight:500}
     .item-row input,.item-row textarea{padding:7px 10px;font-size:12px}
-    /* remove setas do input number */
+    
+    /* Esconde as setinhas de aumentar/diminuir do campo numérico */
     .item-row input[type=number]{-moz-appearance:textfield}
     .item-row input[type=number]::-webkit-inner-spin-button,
     .item-row input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+    
     .item-total{
       font-size:12px;font-weight:600;color:var(--vinho);
       padding:7px 4px;text-align:right;
     }
+    
+    /* Botão de remover item (X vermelho) */
     .btn-rm{
       position:absolute;top:-10px;right:-10px;
       width:22px;height:22px;background:#fff;border:1.5px solid var(--cinza2);
@@ -164,6 +188,8 @@
       font-family:'Inter',sans-serif;
     }
     .btn-rm:hover{border-color:var(--vinho);color:var(--vinho);background:#fff8f8}
+    
+    /* Botão de adicionar novo item */
     .btn-add-item{
       display:inline-flex;align-items:center;gap:6px;
       background:none;border:1.5px dashed var(--cinza2);
@@ -172,6 +198,8 @@
       margin-top:4px;
     }
     .btn-add-item:hover{border-color:var(--ouro);color:var(--ouro)}
+    
+    /* Caixa que mostra o Valor Total Geral */
     .total-preview{
       background:var(--offwhite);padding:12px 16px;
       display:flex;justify-content:space-between;align-items:center;
@@ -180,17 +208,18 @@
     .total-preview span{font-size:12px;color:var(--texto-lt)}
     .total-preview strong{font-size:1.1rem;color:var(--vinho);font-family:'Playfair Display',serif}
 
-    /* ── PREVIEW PANEL ── */
+    /* ── PAINEL DE VISUALIZAÇÃO (Coluna Direita com fundo cinza) ── */
     .preview-panel{background:#e8e4dc;overflow-y:auto;padding:32px}
     .preview-panel::-webkit-scrollbar{width:5px}
     .preview-panel::-webkit-scrollbar-thumb{background:var(--cinza2);border-radius:3px}
 
-    /* ── PROPOSTA (documento) ── */
+    /* ── DOCUMENTO DA PROPOSTA (O layout do PDF/Papel branco) ── */
     .proposta-doc{
       background:#fff;max-width:760px;margin:0 auto;
       box-shadow:0 4px 32px rgba(0,0,0,.12);
     }
 
+    /* Cabeçalho do documento (faixa vinho superior) */
     .doc-header{
       background:var(--vinho-dk);padding:36px 48px 28px;
       display:flex;align-items:center;justify-content:space-between;
@@ -210,8 +239,10 @@
     }
     .doc-header-info .doc-meta{color:#c8b89a;font-size:12px;margin-top:6px;line-height:1.8}
 
+    /* Corpo interno do documento */
     .doc-body{padding:40px 48px}
 
+    /* Grade que mostra os dados da Empresa x Cliente */
     .doc-empresa-grid{
       display:grid;grid-template-columns:1fr 1fr;gap:24px;
       padding-bottom:28px;border-bottom:1px solid var(--cinza);
@@ -224,16 +255,16 @@
     .doc-empresa-grid p{color:var(--texto-lt);line-height:1.9}
     .doc-empresa-grid p strong{color:var(--texto);font-weight:500}
 
+    /* Títulos e textos das seções da proposta (Apresentação, etc) */
     .doc-section-title{
       font-family:'Playfair Display',serif;font-size:1rem;font-weight:600;
       color:var(--vinho);margin-bottom:12px;
       padding-bottom:8px;border-bottom:2px solid var(--cinza);
     }
     .doc-section{margin-bottom:28px}
-
     .doc-text{font-size:12.5px;color:var(--texto-lt);line-height:1.8;margin-bottom:8px}
 
-    /* specs table */
+    /* Tabela de especificações dos produtos adicionados */
     .doc-specs{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:8px}
     .doc-specs tr{border-bottom:1px solid var(--cinza)}
     .doc-specs td{padding:10px 12px;vertical-align:top}
@@ -243,7 +274,7 @@
     }
     .doc-specs td:last-child{color:var(--texto-lt)}
 
-    /* itens/preço */
+    /* Lista de preços e linha do total no final do documento */
     .doc-itens-header{
       display:grid;grid-template-columns:1fr 60px 110px 110px;
       gap:8px;background:var(--vinho);
@@ -268,7 +299,7 @@
       color:var(--vinho);font-weight:700;
     }
 
-    /* condições */
+    /* Caixas de condições de pagamento e prazos */
     .doc-cond-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:8px}
     .doc-cond-box{background:#faf8f5;padding:14px 16px;border-left:3px solid var(--ouro)}
     .doc-cond-box h4{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--ouro);margin-bottom:8px}
@@ -276,7 +307,7 @@
     .doc-cond-box li{font-size:12px;color:var(--texto-lt);padding:3px 0 3px 14px;position:relative;line-height:1.5}
     .doc-cond-box li::before{content:'–';position:absolute;left:0;color:var(--ouro)}
 
-    /* passos */
+    /* Seção de próximos passos com os números grandes */
     .doc-passos{display:grid;grid-template-columns:1fr 1fr;gap:10px}
     .doc-passo{
       display:flex;gap:12px;align-items:flex-start;
@@ -288,7 +319,7 @@
     }
     .doc-passo p{font-size:12px;color:var(--texto-lt);line-height:1.5}
 
-    /* footer do doc */
+    /* Rodapé do documento com contatos */
     .doc-footer{
       background:var(--vinho-dk);padding:22px 48px;
       text-align:center;
@@ -300,7 +331,7 @@
       font-size:13px;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;
     }
 
-    /* ── RESPONSIVIDADE (Celulares e Tablets) ── */
+    /* ── RESPONSIVIDADE (Faz o site funcionar em telas de celulares e tablets) ── */
     @media (max-width: 900px) {
       .app {
         grid-template-columns: 1fr;
@@ -312,35 +343,18 @@
         border-bottom: 2px solid var(--cinza);
         max-height: 50vh;
       }
-      .preview-panel {
-        padding: 16px;
-      }
-      .doc-body {
-        padding: 24px 20px;
-      }
-      .doc-header {
-        padding: 24px 20px;
-        flex-direction: column;
-        text-align: center;
-        gap: 16px;
-      }
-      .doc-header-info {
-        text-align: center;
-      }
-      .doc-empresa-grid, .doc-cond-grid, .doc-passos {
-        grid-template-columns: 1fr;
-      }
-      .doc-item-row > div {
-        grid-template-columns: 1fr !important;
-        gap: 4px !important;
-      }
-      .doc-item-row .num, .doc-item-row .val {
-        text-align: left !important;
-      }
+      .preview-panel { padding: 16px; }
+      .doc-body { padding: 24px 20px; }
+      .doc-header { padding: 24px 20px; flex-direction: column; text-align: center; gap: 16px; }
+      .doc-header-info { text-align: center; }
+      .doc-empresa-grid, .doc-cond-grid, .doc-passos { grid-template-columns: 1fr; }
+      .doc-item-row > div { grid-template-columns: 1fr !important; gap: 4px !important; }
+      .doc-item-row .num, .doc-item-row .val { text-align: left !important; }
       .doc-itens-header { display: none; }
     }
 
-    /* ── PRINT ── */
+    /* ── REGRAS DE IMPRESSÃO (O que acontece quando você clica em "Imprimir/PDF") ── */
+    /* Esconde botões, header, login e fundo escuro para o PDF ficar limpo */
     @media print{
       body{background:#fff}
       header,.form-panel,.preview-panel > :not(.proposta-doc), #login-screen {display:none!important}
@@ -353,6 +367,7 @@
 <body>
 
 <!-- ════ TELA DE LOGIN ════ -->
+<!-- Tudo dentro desta div é a tela de bloqueio inicial -->
 <div id="login-screen">
   <div class="login-box">
     <div class="logo-mark">S<br>A</div>
@@ -375,26 +390,30 @@
 </div>
 
 <!-- ════ SISTEMA (Só aparece após logar) ════ -->
+<!-- A div principal que engloba o gerador em si -->
 <div class="app-container">
+  
+  <!-- CABEÇALHO DO SISTEMA -->
   <header>
     <div class="logo">
       <div class="logo-mark">S<br>A</div>
       <span>Soluciona Acústica</span>
     </div>
     <div class="header-actions">
-      <!-- Botão de sair -->
+      <!-- Botões interativos da barra de cima -->
       <button class="btn btn-outline-gold" onclick="fazerLogout()" style="border-color: transparent; color: var(--cinza2)">Sair</button>
       <button class="btn btn-outline-gold" onclick="limparForm()">Limpar</button>
       <button class="btn btn-vinho" onclick="window.print()">🖨 Imprimir / PDF</button>
     </div>
   </header>
 
+  <!-- O CORPO DIVIDIDO (Esquerda Formulário / Direita Visualização) -->
   <div class="app">
 
-    <!-- ════ FORMULÁRIO ════ -->
+    <!-- ════ FORMULÁRIO (COLUNA ESQUERDA) ════ -->
     <div class="form-panel">
 
-      <!-- Dados da proposta -->
+      <!-- Seção: Dados da proposta -->
       <div class="form-section">
         <div class="form-section-title">Dados da Proposta</div>
         <div class="row2">
@@ -413,7 +432,7 @@
         </div>
       </div>
 
-      <!-- Cliente -->
+      <!-- Seção: Cliente -->
       <div class="form-section">
         <div class="form-section-title">Dados do Cliente</div>
         <div class="field">
@@ -422,24 +441,23 @@
         </div>
         <div class="row3">
           <div class="field">
-            <!-- Máscara de CEP -->
+            <!-- Dispara a máscara de CEP ao digitar -->
             <label>CEP da Obra</label>
             <input type="text" id="cep" placeholder="00000-000" maxlength="9" oninput="mascaraCEP(this); render()"/>
           </div>
           <div class="field">
-            <!-- Máscara de Telefone -->
+            <!-- Dispara a máscara de Telefone ao digitar -->
             <label>Telefone</label>
             <input type="text" id="telefone" placeholder="(11) 99999-9999" maxlength="15" oninput="mascaraTelefone(this); render()"/>
           </div>
           <div class="field">
-            <!-- E-mail / Gmail -->
             <label>E-mail</label>
             <input type="email" id="email" placeholder="cliente@gmail.com" oninput="render()"/>
           </div>
         </div>
       </div>
 
-      <!-- Itens / Preço -->
+      <!-- Seção: Itens / Preço (Os itens são adicionados dinamicamente via JS aqui dentro) -->
       <div class="form-section">
         <div class="form-section-title">Itens da Proposta</div>
         <div id="itensContainer"></div>
@@ -450,7 +468,7 @@
         </div>
       </div>
 
-      <!-- Condições -->
+      <!-- Seção: Condições -->
       <div class="form-section">
         <div class="form-section-title">Condições Comerciais</div>
         <div class="field">
@@ -458,7 +476,6 @@
           <input type="text" id="prazo" value="" oninput="render()"/>
         </div>
         
-        <!-- Instalação (Botão de Seleção) -->
         <div class="field">
           <label>Instalação</label>
           <select id="instalacao" onchange="render()">
@@ -468,7 +485,6 @@
           </select>
         </div>
 
-        <!-- Forma de Pagamento (Botão de Seleção) -->
         <div class="field">
           <label>Forma de pagamento</label>
           <select id="pagamento" onchange="render()">
@@ -491,7 +507,7 @@
         </div>
       </div>
 
-      <!-- Garantia -->
+      <!-- Seção: Garantia -->
       <div class="form-section">
         <div class="form-section-title">Garantia</div>
         <div class="row2">
@@ -500,7 +516,6 @@
             <input type="text" id="garantia" value="" oninput="render()"/>
           </div>
           <div class="field">
-            <!-- Calendário -->
             <label>Contado a partir de</label>
             <input type="date" id="garantiaBase" oninput="render()"/>
           </div>
@@ -513,23 +528,27 @@
 
     </div><!-- /form-panel -->
 
-    <!-- ════ PREVIEW ════ -->
+    <!-- ════ PREVIEW (COLUNA DIREITA) ════ -->
     <div class="preview-panel">
+      <!-- Esta é a div onde o JavaScript desenha o documento final para visualização e PDF -->
       <div class="proposta-doc" id="proposta-doc">
-        <!-- renderizado por JS -->
+        <!-- O conteúdo aqui será injetado pela função render() do JavaScript -->
       </div>
     </div>
 
   </div><!-- /app -->
 </div><!-- /app-container -->
 
+
+<!-- ════ INÍCIO DOS CÓDIGOS DE COMPORTAMENTO (JAVASCRIPT) ════ -->
 <script>
 // ─── LÓGICA DE LOGIN ─────────────────────────────────────────
 
-// USUÁRIO E SENHA DE ACESSO
+// USUÁRIO E SENHA DE ACESSO DEFINIDOS AQUI
 const USUARIO_CORRETO = "geisi";
 const SENHA_CORRETA = "0000";
 
+// Função que checa se o navegador lembra que a pessoa já logou antes
 function verificarAutenticacao() {
   const autenticado = localStorage.getItem('sa_autenticado');
   if (autenticado === 'sim') {
@@ -537,11 +556,13 @@ function verificarAutenticacao() {
   }
 }
 
+// Função que ocorre quando você clica em "Entrar no sistema"
 function fazerLogin() {
-  // .trim() remove espaços vazios acidentais e .toLowerCase() ignora maiúsculas
+  // .trim() remove espaços vazios acidentais e .toLowerCase() ignora letras maiúsculas
   const u = document.getElementById('input-usuario').value.trim().toLowerCase();
   const p = document.getElementById('input-senha').value.trim();
 
+  // Se acertar, salva a memória e mostra o sistema. Se errar, mostra a mensagem de erro vermelha
   if (u === USUARIO_CORRETO && p === SENHA_CORRETA) {
     localStorage.setItem('sa_autenticado', 'sim');
     document.getElementById('login-error').style.display = 'none';
@@ -551,6 +572,7 @@ function fazerLogin() {
   }
 }
 
+// Apaga a memória de login e recarrega a tela inicial
 function fazerLogout() {
   if(confirm("Deseja realmente sair do sistema?")) {
     localStorage.removeItem('sa_autenticado');
@@ -560,17 +582,20 @@ function fazerLogout() {
   }
 }
 
-// Roda a verificação assim que a página abre
+// Executa a verificação assim que a página é aberta
 verificarAutenticacao();
 
 
-// ─── MÁSCARAS DE INPUT ───────────────────────────────────────
+// ─── MÁSCARAS DE INPUT (Formatação automática dos campos) ───
+
+// Formata o CEP para XXXXX-XXX
 function mascaraCEP(input) {
   let v = input.value.replace(/\D/g, ""); 
   v = v.replace(/^(\d{5})(\d)/, "$1-$2"); 
   input.value = v;
 }
 
+// Formata o telefone para (XX) XXXXX-XXXX
 function mascaraTelefone(input) {
   let v = input.value.replace(/\D/g, ""); 
   v = v.replace(/^(\d{2})(\d)/g, "($1) $2"); 
@@ -578,6 +603,7 @@ function mascaraTelefone(input) {
   input.value = v;
 }
 
+// Formata a digitação para dinheiro (Reais)
 function mascaraMoeda(input) {
   let v = input.value.replace(/\D/g, "");
   if (v === "") { input.value = ""; return; }
@@ -585,7 +611,9 @@ function mascaraMoeda(input) {
   input.value = v;
 }
 
-// ─── LOCAL STORAGE (AUTO-SALVAMENTO DOS DADOS) ───────────────
+// ─── LOCAL STORAGE (SISTEMA DE AUTO-SALVAMENTO) ──────────────
+
+// Pega tudo que está escrito no formulário e salva na memória invisível do navegador
 function salvarRascunho() {
   const dados = {
     numProposta: g('numProposta'),
@@ -608,11 +636,13 @@ function salvarRascunho() {
   localStorage.setItem('rascunhoPropostaSA', JSON.stringify(dados));
 }
 
+// Quando a página abre, ele checa se tem algo salvo na memória para não perder dados ao fechar a aba
 function carregarRascunho() {
   const salvo = localStorage.getItem('rascunhoPropostaSA');
   if (salvo) {
     try {
       const dados = JSON.parse(salvo);
+      // Preenche campo por campo com o que estava salvo
       document.getElementById('numProposta').value = dados.numProposta || '';
       document.getElementById('dataProposta').value = dados.dataProposta || new Date().toISOString().split('T')[0];
       document.getElementById('vendedor').value = dados.vendedor || '';
@@ -629,6 +659,7 @@ function carregarRascunho() {
       document.getElementById('garantiaBase').value = dados.garantiaBase || '';
       document.getElementById('garantiaExc').value = dados.garantiaExc || '';
       
+      // Carrega os itens salvos
       if (dados.itens && dados.itens.length > 0) {
         itens = dados.itens;
       }
@@ -636,15 +667,19 @@ function carregarRascunho() {
       console.error("Erro ao carregar rascunho", e);
     }
   } else {
+    // Se não tiver nada salvo, ele coloca a data de hoje automaticamente
     document.getElementById('dataProposta').value = new Date().toISOString().split('T')[0];
   }
 }
 
-// ─── ITENS ───────────────────────────────────────────────────
+// ─── LÓGICA DE ITENS E PREÇOS ────────────────────────────────
+
+// Cria uma lista de produtos padrão começando com um item vazio
 let itens = [
   { nome: '', localizacao: '', produto: '', composicao: '', espessura: '', largura: '', altura: '', acabamento: '', linha: '', qtd: '', unit: '' }
 ];
 
+// Quando clica em "+ Adicionar item", ele empurra um novo item vazio para a lista
 function addItem(){
   itens.push({ nome: '', localizacao: '', produto: '', composicao: '', espessura: '', largura: '', altura: '', acabamento: '', linha: '', qtd: '', unit: '' });
   renderItens();
@@ -652,6 +687,7 @@ function addItem(){
   salvarRascunho();
 }
 
+// Remove o item da lista ao clicar no X
 function removeItem(i){
   itens.splice(i,1);
   renderItens();
@@ -659,6 +695,7 @@ function removeItem(i){
   salvarRascunho();
 }
 
+// Atualiza o valor interno da lista sempre que você digita algo nos campos do item
 function updateItem(i, field, val){
   if (field === 'unit') {
     itens[i][field] = val ? parseFloat(val.replace(/\./g, '').replace(',', '.')) : '';
@@ -673,6 +710,7 @@ function updateItem(i, field, val){
   salvarRascunho();
 }
 
+// Calcula o valor de (Quantidade * Preço) e atualiza o "Total Geral"
 function atualizarTotais(){
   const total = itens.reduce((s,it)=>s + (parseFloat(it.qtd)||0)*(parseFloat(it.unit)||0), 0);
   document.getElementById('totalGeral').textContent = fmt(total);
@@ -683,6 +721,7 @@ function atualizarTotais(){
   });
 }
 
+// Responsável por desenhar as caixas de itens na coluna ESQUERDA (Formulário)
 function renderItens(){
   const c = document.getElementById('itensContainer');
   c.innerHTML = itens.map((it,i)=>{
@@ -774,19 +813,27 @@ function renderItens(){
   atualizarTotais();
 }
 
+// Atalho para formatar um número como moeda brasileira (R$)
 function fmt(n){
   return 'R$ ' + Number(n).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
 }
 
-// ─── RENDER PROPOSTA ─────────────────────────────────────────
+// ─── O CORAÇÃO DO SISTEMA (RENDERIZAÇÃO DO DOCUMENTO) ────────
+
+// Atalho para não ficar repetindo código ao buscar o valor de um campo
 function g(id){ return (document.getElementById(id)||{}).value||''; }
 
+// FUNÇÃO RENDER: Pega tudo o que você preencheu e "desenha" a coluna da DIREITA (O Documento)
 function render(){
+  // 1. Calcula o total final
   const total = itens.reduce((s,it)=>s + (parseFloat(it.qtd)||0)*(parseFloat(it.unit)||0), 0);
 
+  // 2. Transforma a lista de caixinhas em linhas da tabela de preço para o PDF
   const itensDocs = itens.map((it,idx)=>{
     const v = (parseFloat(it.qtd)||0)*(parseFloat(it.unit)||0);
     const temSpecs = it.localizacao||it.produto||it.composicao||it.espessura||it.largura||it.altura||it.acabamento||it.linha;
+    
+    // Constrói a tabela de características apenas se houver características preenchidas
     const specsHtml = temSpecs ? `
       <table class="doc-specs" style="margin:8px 0 0">
         ${it.localizacao?`<tr><td>Localização</td><td>${it.localizacao}</td></tr>`:''}
@@ -798,6 +845,8 @@ function render(){
         ${it.acabamento?`<tr><td>Acabamento</td><td>${it.acabamento}</td></tr>`:''}
         ${it.linha?`<tr><td>Linha</td><td>${it.linha}</td></tr>`:''}
       </table>` : '';
+      
+    // Retorna a linha completa do item formatada para o documento
     return `
     <div class="doc-item-row" style="display:block;padding:14px">
       <div style="display:grid;grid-template-columns:1fr 60px 110px 110px;gap:8px;align-items:start">
@@ -810,10 +859,12 @@ function render(){
     </div>`;
   }).join('');
 
+  // 3. Trata as observações adicionais para criar listas em bullet points no PDF
   const obs = g('obs').split('\n').filter(Boolean).map(l=>`<li>${l.trim()}</li>`).join('');
 
+  // 4. Injeta todo o código HTML do documento final na tela de Preview
   document.getElementById('proposta-doc').innerHTML = `
-    <!-- CABEÇALHO -->
+    <!-- CABEÇALHO DO DOCUMENTO -->
     <div class="doc-header">
       <div>
         <div class="doc-logo-mark">S<br>A</div>
@@ -828,10 +879,8 @@ function render(){
       </div>
     </div>
 
-    <!-- CORPO -->
+    <!-- CORPO DO DOCUMENTO (EMPRESA E CLIENTE) -->
     <div class="doc-body">
-
-      <!-- Empresa / Cliente -->
       <div class="doc-empresa-grid">
         <div>
           <div class="col-title">Empresa</div>
@@ -856,20 +905,19 @@ function render(){
         </div>
       </div>
 
-      <!-- Apresentação -->
+      <!-- TEXTOS PADRÃO DA PROPOSTA -->
       <div class="doc-section">
         <div class="doc-section-title">Apresentação</div>
         <p class="doc-text">Em atenção à sua solicitação, apresentamos nossa Proposta Técnica e Comercial para fornecimento e instalação de porta acústica sob medida, desenvolvida para proporcionar isolamento sonoro eficiente, acabamento de alto padrão e durabilidade superior.</p>
         <p class="doc-text">A Soluciona Acústica é especializada na fabricação de portas antirruído de alto desempenho, oferecendo soluções completas para residências, estúdios, escritórios e ambientes corporativos.</p>
       </div>
 
-      <!-- Desempenho -->
       <div class="doc-section">
         <div class="doc-section-title">Desempenho</div>
         <p class="doc-text">O desempenho de isolamento acústico pode variar conforme as condições do ambiente (paredes, piso, teto e aberturas vizinhas). A porta proporciona redução significativa de ruído, ideal para quem busca conforto acústico sem abrir mão da estética.</p>
       </div>
 
-      <!-- Itens / Valor -->
+      <!-- RENDERIZA A TABELA DE PREÇOS GERADA NO PASSO 2 -->
       <div class="doc-section">
         <div class="doc-section-title">Proposta Comercial</div>
         <div class="doc-itens-header">
@@ -882,7 +930,7 @@ function render(){
         </div>
       </div>
 
-      <!-- Condições -->
+      <!-- INFORMAÇÕES PREENCHIDAS DE PAGAMENTO E PRAZO -->
       <div class="doc-section">
         <div class="doc-section-title">Condições Comerciais</div>
         <div class="doc-cond-grid">
@@ -903,14 +951,14 @@ function render(){
         </div>
       </div>
 
-      <!-- Garantia -->
+      <!-- INFORMAÇÕES DE GARANTIA -->
       <div class="doc-section">
         <div class="doc-section-title">Garantia</div>
         <p class="doc-text">Garantia de <strong>${g('garantia')||'—'}</strong> contra defeitos de fabricação e instalação, contados a partir de <strong>${g('garantiaBase') ? formatarData(g('garantiaBase')) : 'data da entrega'}</strong>.</p>
         ${g('garantiaExc') ? `<p class="doc-text" style="font-size:11.5px;color:#9a8a72">Não cobre: ${g('garantiaExc')}</p>` : ''}
       </div>
 
-      <!-- Próximos Passos -->
+      <!-- PRÓXIMOS PASSOS ESTÁTICOS -->
       <div class="doc-section">
         <div class="doc-section-title">Próximos Passos</div>
         <div class="doc-passos">
@@ -923,7 +971,7 @@ function render(){
 
     </div><!-- /doc-body -->
 
-    <!-- RODAPÉ -->
+    <!-- RODAPÉ FINAL DO DOCUMENTO -->
     <div class="doc-footer">
       <div class="doc-footer-title">Contato</div>
       <p>
@@ -936,12 +984,14 @@ function render(){
   `;
 }
 
+// Inverte a data de AAAA-MM-DD para o padrão brasileiro DD/MM/AAAA
 function formatarData(val){
   if(!val) return '—';
   const [y,m,d] = val.split('-');
   return d+'/'+m+'/'+y;
 }
 
+// Ocorre quando você clica em "Limpar": apaga tudo e limpa a memória do navegador
 function limparForm(){
   if(!confirm('Limpar todos os campos?')) return;
   document.querySelectorAll('.form-panel input:not(#input-usuario):not(#input-senha), .form-panel textarea, .form-panel select')
@@ -955,11 +1005,12 @@ function limparForm(){
   render();
 }
 
-// ─── INIT ────────────────────────────────────────────────────
-carregarRascunho();
-renderItens();
-render();
+// ─── EVENTOS INICIAIS (O que o site faz na hora que carrega) ─
+carregarRascunho(); // Puxa os dados antigos se houver
+renderItens();      // Pinta os blocos de produtos na esquerda
+render();           // Pinta o documento final na direita
 
+// "Observadores": Ficam olhando para o formulário. Se você digitar algo (input) ou alterar uma lista (change), ele chama o render() e salva.
 document.querySelector('.form-panel').addEventListener('input', () => {
   render();
   salvarRascunho();
