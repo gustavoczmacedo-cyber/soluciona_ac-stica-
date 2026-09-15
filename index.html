@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
- <title>Soluciona Acústica</title>
+  <title>Soluciona Acústica</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='12' fill='%235C0E1E'/><text x='50%' y='55%' font-family='serif' font-size='50' font-weight='bold' fill='%23B89A45' dominant-baseline='middle' text-anchor='middle'>SA</text></svg>"/>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
   <style>
@@ -14,7 +14,7 @@
     }
     body{font-family:'Inter',sans-serif;background:#f0ece4;color:var(--texto);min-height:100vh}
 
-    /* ── TELA DE LOGINN PREMIUM ── */
+    /* ── TELA DE LOGIN PREMIUM ── */
     #login-screen {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       background: linear-gradient(135deg, var(--vinho-dk) 0%, var(--vinho) 100%);
@@ -27,6 +27,8 @@
     }
     .login-box .logo-mark {
       margin: 0 auto 20px; width: 56px; height: 56px; font-size: 20px; border-width: 3px;
+      display: grid; place-items: center; border: 2px solid var(--ouro);
+      font-family: 'Playfair Display', serif; color: var(--ouro); font-weight: 700; line-height: 1.1;
     }
     .login-box h2 {
       font-family: 'Playfair Display', serif; color: var(--vinho-dk); margin-bottom: 8px; font-size: 24px;
@@ -380,7 +382,7 @@
       <span>Soluciona Acústica</span>
     </div>
     <div class="header-actions">
-      <!-- Novo botão de sair -->
+      <!-- Botão de sair -->
       <button class="btn btn-outline-gold" onclick="fazerLogout()" style="border-color: transparent; color: var(--cinza2)">Sair</button>
       <button class="btn btn-outline-gold" onclick="limparForm()">Limpar</button>
       <button class="btn btn-vinho" onclick="window.print()">🖨 Imprimir / PDF</button>
@@ -525,7 +527,7 @@
 // ─── LÓGICA DE LOGIN ─────────────────────────────────────────
 
 // USUÁRIO E SENHA DE ACESSO
-const USUARIO_CORRETO = "geisiane";
+const USUARIO_CORRETO = "geisi";
 const SENHA_CORRETA = "0000";
 
 function verificarAutenticacao() {
@@ -536,8 +538,9 @@ function verificarAutenticacao() {
 }
 
 function fazerLogin() {
-  const u = document.getElementById('input-usuario').value;
-  const p = document.getElementById('input-senha').value;
+  // .trim() remove espaços vazios acidentais e .toLowerCase() ignora maiúsculas
+  const u = document.getElementById('input-usuario').value.trim().toLowerCase();
+  const p = document.getElementById('input-senha').value.trim();
 
   if (u === USUARIO_CORRETO && p === SENHA_CORRETA) {
     localStorage.setItem('sa_autenticado', 'sim');
@@ -952,7 +955,7 @@ function limparForm(){
   render();
 }
 
-// ─── INIT ─────────────────────────────────────────────────────
+// ─── INIT ────────────────────────────────────────────────────
 carregarRascunho();
 renderItens();
 render();
