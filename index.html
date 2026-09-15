@@ -405,8 +405,8 @@
 // Para alterar o usuário/senha, gere novos hashes em: https://emn178.github.io/online-tools/sha256.html
 // Usuário atual: geisi  → hash abaixo
 // Senha atual:   0000   → hash abaixo
-const HASH_USUARIO = 'c19b8a4e0cf2b3db3ac8ecfb765f38e30e1ac1d69a6dad89cb5d1c9fe2a27bcc'; // geisi
-const HASH_SENHA   = '9af15b336e6a9619928537df30b2e6a2376569fcf9d7e773eccede65606529a0'; // 0000
+const HASH_USUARIO = 'geisi'; // geisi
+const HASH_SENHA   = '0000'; // 0000
 
 async function sha256(str) {
   const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
