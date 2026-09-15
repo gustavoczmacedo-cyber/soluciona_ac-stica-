@@ -400,13 +400,14 @@
 </div>
 
 <script>
+    
 // ─── AUTENTICAÇÃO ───
 // As credenciais são verificadas via hash (SHA-256) para não ficarem expostas em texto puro.
 // Para alterar o usuário/senha, gere novos hashes em: https://emn178.github.io/online-tools/sha256.html
 // Usuário atual: geisi  → hash abaixo
-// Senha atual:   0000   → hash abaixo
-const HASH_USUARIO = 'geisi'; // geisi
-const HASH_SENHA   = '0000'; // 0000
+// Senha atual:    1234   → hash abaixo
+const HASH_USUARIO = 'c19b8a4e0cf2b3db3ac8ecfb765f38e30e1ac1d69a6dad89cb5d1c9fe2a27bcc'; // geisi
+const HASH_SENHA   = '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4'; // 1234
 
 async function sha256(str) {
   const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
