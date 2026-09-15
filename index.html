@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Gerador de Propostas – Soluciona Acústica</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --vinho:#5C0E1E;--vinho-dk:#3A0812;--ouro:#B89A45;--ouro-lt:#D4B86A;
+      --offwhite:#F8F5F0;--cinza:#E8E4DC;--cinza2:#D0C8BC;--texto:#1A1008;--texto-lt:#5A4A35;
+    }
+    body{font-family:'Inter',sans-serif;background:#f0ece4;color:var(--texto);min-height:100vh}
+
+    /* ── HEADER ── */
+    header{
+      background:var(--vinho-dk);padding:0 32px;height:60px;
+      display:flex;align-items:center;justify-content:space-between;
+      position:sticky;top:0;z-index:50;
+    }
+    .logo{display:flex;align-items:center;gap:12px}
+    .logo-mark{
+      width:34px;height:34px;border:2px solid var(--ouro);
+      display:grid;place-items:center;
+      font-family:'Playfair Display',serif;color:var(--ouro);font-size:12px;font-weight:700;line-height:1.1;
+    }
+    .logo span{font-family:'Playfair Display',serif;color:var(--ouro-lt);font-size:12px;letter-spacing:2px;text-transform:uppercase}
+    .header-actions{display:flex;gap:10px}
+    .btn{
+      padding:8px 20px;font-size:13px;font-weight:500;cursor:pointer;
+      border:none;letter-spacing:.3px;transition:all .18s;font-family:'Inter',sans-serif;
+    }
+    .btn-gold{background:var(--ouro);color:var(--vinho-dk)}
+    .btn-gold:hover{background:var(--ouro-lt)}
+    .btn-outline-gold{background:transparent;border:1.5px solid var(--ouro);color:var(--ouro)}
+    .btn-outline-gold:hover{background:var(--ouro);color:var(--vinho-dk)}
+    .btn-vinho{background:var(--vinho);color:#fff}
+    .btn-vinho:hover{background:#7a1428}
+
+    /* ── LAYOUT ── */
+    .app{display:grid;grid-template-columns:480px 1fr;height:calc(100vh - 60px);overflow:hidden}
+
+    /* ── FORMULÁRIO ── */
+    .form-panel{
+      background:#fff;overflow-y:auto;padding:28px 28px 48px;
+      border-right:1px solid var(--cinza);
+    }
+    .form-panel::-webkit-scrollbar{width:5px}
+    .form-panel::-webkit-scrollbar-thumb{background:var(--cinza2);border-radius:3px}
+
+    .form-section{margin-bottom:28px}
+    .form-section-title{
+      font-size:11px;letter-spacing:2.5px;text-transform:uppercase;
+      color:var(--ouro);font-weight:600;
+      padding-bottom:10px;border-bottom:1px solid var(--cinza);
+      margin-bottom:16px;
+    }
+    .field{margin-bottom:14px}
+    .field label{
+      display:block;font-size:11px;font-weight:500;
+      color:var(--texto-lt);letter-spacing:.3px;margin-bottom:5px;
+    }
+    .field input,.field textarea,.field select{
+      width:100%;border:1.5px solid var(--cinza);
+      padding:9px 12px;font-size:13px;
+      font-family:'Inter',sans-serif;color:var(--texto);
+      background:#fff;outline:none;
+      transition:border-color .18s;border-radius:0;
+    }
+    .field input:focus,.field textarea:focus,.field select:focus{border-color:var(--ouro)}
+    .field textarea{resize:vertical;min-height:72px}
+    .field select option{font-family:'Inter',sans-serif}
+    .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+
+    /* itens da proposta */
+    .itens-header{ display:none; }
+    .item-row{
+      background:#faf8f5;border:1.5px solid var(--cinza);
+      padding:16px;margin-bottom:18px;
+      display:flex;flex-direction:column;gap:10px;
+      position:relative;
+    }
+    .item-row-header{
+      display:flex;align-items:center;
+      padding-bottom:10px;border-bottom:1px solid var(--cinza);
+      margin-bottom:2px;
+    }
+    .item-num-badge{
+      font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;
+      color:var(--vinho);background:rgba(92,14,30,.08);padding:3px 10px;
+    }
+    .item-specs-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .item-dims-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+    .item-row-nums{
+      display:grid;grid-template-columns:90px 1fr 120px;
+      gap:10px;align-items:end;
+      padding-top:10px;border-top:1px solid var(--cinza);margin-top:2px;
+    }
+    .item-num-label{font-size:10px;color:var(--texto-lt);letter-spacing:.3px;margin-bottom:4px;font-weight:500}
+    .item-row input,.item-row textarea{padding:7px 10px;font-size:12px}
+    /* remove setas do input number */
+    .item-row input[type=number]{-moz-appearance:textfield}
+    .item-row input[type=number]::-webkit-inner-spin-button,
+    .item-row input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+    .item-total{
+      font-size:12px;font-weight:600;color:var(--vinho);
+      padding:7px 4px;text-align:right;
+    }
+    .btn-rm{
+      position:absolute;top:-10px;right:-10px;
+      width:22px;height:22px;background:#fff;border:1.5px solid var(--cinza2);
+      color:#b09070;cursor:pointer;font-size:13px;line-height:1;
+      display:grid;place-items:center;transition:all .15s;border-radius:50%;
+      font-family:'Inter',sans-serif;
+    }
+    .btn-rm:hover{border-color:var(--vinho);color:var(--vinho);background:#fff8f8}
+    .btn-add-item{
+      display:inline-flex;align-items:center;gap:6px;
+      background:none;border:1.5px dashed var(--cinza2);
+      color:var(--texto-lt);font-size:12px;padding:7px 14px;
+      cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s;
+      margin-top:4px;
+    }
+    .btn-add-item:hover{border-color:var(--ouro);color:var(--ouro)}
+    .total-preview{
+      background:var(--offwhite);padding:12px 16px;
+      display:flex;justify-content:space-between;align-items:center;
+      margin-top:10px;border-left:3px solid var(--ouro);
+    }
+    .total-preview span{font-size:12px;color:var(--texto-lt)}
+    .total-preview strong{font-size:1.1rem;color:var(--vinho);font-family:'Playfair Display',serif}
+
+    /* ── PREVIEW PANEL ── */
+    .preview-panel{background:#e8e4dc;overflow-y:auto;padding:32px}
+    .preview-panel::-webkit-scrollbar{width:5px}
+    .preview-panel::-webkit-scrollbar-thumb{background:var(--cinza2);border-radius:3px}
+
+    /* ── PROPOSTA (documento) ── */
+    .proposta-doc{
+      background:#fff;max-width:760px;margin:0 auto;
+      box-shadow:0 4px 32px rgba(0,0,0,.12);
+    }
+
+    .doc-header{
+      background:var(--vinho-dk);padding:36px 48px 28px;
+      display:flex;align-items:center;justify-content:space-between;
+    }
+    .doc-logo-mark{
+      width:56px;height:56px;border:2.5px solid var(--ouro);
+      display:grid;place-items:center;
+      font-family:'Playfair Display',serif;color:var(--ouro);font-size:19px;font-weight:700;
+    }
+    .doc-logo-name{
+      font-family:'Playfair Display',serif;color:var(--ouro-lt);
+      font-size:11px;letter-spacing:3px;text-transform:uppercase;margin-top:8px;text-align:center;
+    }
+    .doc-header-info{text-align:right}
+    .doc-header-info .doc-title{
+      font-family:'Playfair Display',serif;color:#fff;font-size:1rem;font-weight:600;letter-spacing:.5px;
+    }
+    .doc-header-info .doc-meta{color:#c8b89a;font-size:12px;margin-top:6px;line-height:1.8}
+
+    .doc-body{padding:40px 48px}
+
+    .doc-empresa-grid{
+      display:grid;grid-template-columns:1fr 1fr;gap:24px;
+      padding-bottom:28px;border-bottom:1px solid var(--cinza);
+      margin-bottom:28px;font-size:12.5px;
+    }
+    .doc-empresa-grid .col-title{
+      font-size:10px;letter-spacing:2px;text-transform:uppercase;
+      color:var(--ouro);font-weight:600;margin-bottom:10px;
+    }
+    .doc-empresa-grid p{color:var(--texto-lt);line-height:1.9}
+    .doc-empresa-grid p strong{color:var(--texto);font-weight:500}
+
+    .doc-section-title{
+      font-family:'Playfair Display',serif;font-size:1rem;font-weight:600;
+      color:var(--vinho);margin-bottom:12px;
+      padding-bottom:8px;border-bottom:2px solid var(--cinza);
+    }
+    .doc-section{margin-bottom:28px}
+
+    .doc-text{font-size:12.5px;color:var(--texto-lt);line-height:1.8;margin-bottom:8px}
+
+    /* specs table */
+    .doc-specs{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:8px}
+    .doc-specs tr{border-bottom:1px solid var(--cinza)}
+    .doc-specs td{padding:10px 12px;vertical-align:top}
+    .doc-specs td:first-child{
+      font-weight:600;color:var(--vinho);width:36%;
+      background:#faf8f5;
+    }
+    .doc-specs td:last-child{color:var(--texto-lt)}
+
+    /* itens/preço */
+    .doc-itens-header{
+      display:grid;grid-template-columns:1fr 60px 110px 110px;
+      gap:8px;background:var(--vinho);
+      padding:10px 14px;font-size:11px;color:rgba(255,255,255,.85);
+      font-weight:500;letter-spacing:.3px;
+    }
+    .doc-item-row{
+      display:grid;grid-template-columns:1fr 60px 110px 110px;
+      gap:8px;padding:12px 14px;
+      border-bottom:1px solid var(--cinza);font-size:12.5px;
+    }
+    .doc-item-row:nth-child(even){background:#faf8f5}
+    .doc-item-row .num{text-align:center}
+    .doc-item-row .val{text-align:right}
+    .doc-total-row{
+      display:flex;justify-content:flex-end;align-items:center;gap:20px;
+      padding:16px 14px;border-top:2.5px solid var(--vinho);margin-top:2px;
+    }
+    .doc-total-row .lbl{font-size:12px;color:var(--texto-lt)}
+    .doc-total-row .val{
+      font-family:'Playfair Display',serif;font-size:1.6rem;
+      color:var(--vinho);font-weight:700;
+    }
+
+    /* condições */
+    .doc-cond-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:8px}
+    .doc-cond-box{background:#faf8f5;padding:14px 16px;border-left:3px solid var(--ouro)}
+    .doc-cond-box h4{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--ouro);margin-bottom:8px}
+    .doc-cond-box ul{list-style:none;padding:0}
+    .doc-cond-box li{font-size:12px;color:var(--texto-lt);padding:3px 0 3px 14px;position:relative;line-height:1.5}
+    .doc-cond-box li::before{content:'–';position:absolute;left:0;color:var(--ouro)}
+
+    /* passos */
+    .doc-passos{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .doc-passo{
+      display:flex;gap:12px;align-items:flex-start;
+      background:#faf8f5;padding:12px 14px;
+    }
+    .doc-passo-num{
+      font-family:'Playfair Display',serif;font-size:1.4rem;color:var(--cinza2);
+      font-weight:700;line-height:1;flex-shrink:0;width:24px;
+    }
+    .doc-passo p{font-size:12px;color:var(--texto-lt);line-height:1.5}
+
+    /* footer do doc */
+    .doc-footer{
+      background:var(--vinho-dk);padding:22px 48px;
+      text-align:center;
+    }
+    .doc-footer p{color:#c8b89a;font-size:11.5px;line-height:1.9}
+    .doc-footer a{color:var(--ouro-lt);text-decoration:none}
+    .doc-footer .doc-footer-title{
+      font-family:'Playfair Display',serif;color:var(--ouro);
+      font-size:13px;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;
+    }
+
+    /* ── RESPONSIVIDADE (Celulares e Tablets) ── */
+    @media (max-width: 900px) {
+      .app {
+        grid-template-columns: 1fr;
+        height: auto;
+        overflow-y: visible;
+      }
+      .form-panel {
+        border-right: none;
+        border-bottom: 2px solid var(--cinza);
+        max-height: 50vh;
+      }
+      .preview-panel {
+        padding: 16px;
+      }
+      .doc-body {
+        padding: 24px 20px;
+      }
+      .doc-header {
+        padding: 24px 20px;
+        flex-direction: column;
+        text-align: center;
+        gap: 16px;
+      }
+      .doc-header-info {
+        text-align: center;
+      }
+      .doc-empresa-grid, .doc-cond-grid, .doc-passos {
+        grid-template-columns: 1fr;
+      }
+      .doc-item-row > div {
+        grid-template-columns: 1fr !important;
+        gap: 4px !important;
+      }
+      .doc-item-row .num, .doc-item-row .val {
+        text-align: left !important;
+      }
+      .doc-itens-header { display: none; }
+    }
+
+    /* ── PRINT ── */
+    @media print{
+      body{background:#fff}
+      header,.form-panel,.preview-panel > :not(.proposta-doc){display:none!important}
+      .app{display:block;height:auto;overflow:visible;}
+      .preview-panel{padding:0;background:#fff;overflow:visible}
+      .proposta-doc{box-shadow:none;max-width:100%}
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-mark">S<br>A</div>
+    <span>Soluciona Acústica</span>
+  </div>
+  <div class="header-actions">
+    <button class="btn btn-outline-gold" onclick="limparForm()">Limpar</button>
+    <button class="btn btn-vinho" onclick="window.print()">🖨 Imprimir / PDF</button>
+  </div>
+</header>
+
+<div class="app">
+
+  <!-- ════ FORMULÁRIO ════ -->
+  <div class="form-panel">
+
+    <!-- Dados da proposta -->
+    <div class="form-section">
+      <div class="form-section-title">Dados da Proposta</div>
+      <div class="row2">
+        <div class="field">
+          <label>Nº da Proposta</label>
+          <input type="text" id="numProposta" value="" oninput="render()"/>
+        </div>
+        <div class="field">
+          <label>Data</label>
+          <input type="date" id="dataProposta" oninput="render()"/>
+        </div>
+      </div>
+      <div class="field">
+        <label>Vendedor Responsável</label>
+        <input type="text" id="vendedor" value="" oninput="render()"/>
+      </div>
+    </div>
+
+    <!-- Cliente -->
+    <div class="form-section">
+      <div class="form-section-title">Dados do Cliente</div>
+      <div class="field">
+        <label>Nome do Cliente</label>
+        <input type="text" id="cliente" placeholder="Nome completo" oninput="render()"/>
+      </div>
+      <div class="row3">
+        <div class="field">
+          <!-- Máscara de CEP -->
+          <label>CEP da Obra</label>
+          <input type="text" id="cep" placeholder="00000-000" maxlength="9" oninput="mascaraCEP(this); render()"/>
+        </div>
+        <div class="field">
+          <!-- Máscara de Telefone -->
+          <label>Telefone</label>
+          <input type="text" id="telefone" placeholder="(11) 99999-9999" maxlength="15" oninput="mascaraTelefone(this); render()"/>
+        </div>
+        <div class="field">
+          <!-- E-mail / Gmail -->
+          <label>E-mail</label>
+          <input type="email" id="email" placeholder="cliente@gmail.com" oninput="render()"/>
+        </div>
+      </div>
+    </div>
+
+    <!-- Itens / Preço -->
+    <div class="form-section">
+      <div class="form-section-title">Itens da Proposta</div>
+      <div id="itensContainer"></div>
+      <button class="btn-add-item" onclick="addItem()">+ Adicionar item</button>
+      <div class="total-preview">
+        <span>Total geral</span>
+        <strong id="totalGeral">R$ 0,00</strong>
+      </div>
+    </div>
+
+    <!-- Condições -->
+    <div class="form-section">
+      <div class="form-section-title">Condições Comerciais</div>
+      <div class="field">
+        <label>Prazo de entrega</label>
+        <input type="text" id="prazo" value="" oninput="render()"/>
+      </div>
+      
+      <!-- Instalação (Botão de Seleção) -->
+      <div class="field">
+        <label>Instalação</label>
+        <select id="instalacao" onchange="render()">
+          <option value="">Selecione...</option>
+          <option value="Sim">Sim</option>
+          <option value="Não">Não</option>
+        </select>
+      </div>
+
+      <!-- Forma de Pagamento (Botão de Seleção) -->
+      <div class="field">
+        <label>Forma de pagamento</label>
+        <select id="pagamento" onchange="render()">
+          <option value="">Selecione...</option>
+          <option value="Pix">Pix</option>
+          <option value="Cartão de crédito">Cartão de crédito</option>
+          <option value="Cartão de débito">Cartão de débito</option>
+          <option value="Boleto">Boleto</option>
+          <option value="Dinheiro">Dinheiro</option>
+        </select>
+      </div>
+      
+      <div class="field">
+        <label>Validade da proposta</label>
+        <input type="text" id="validade" value="" oninput="render()"/>
+      </div>
+      <div class="field">
+        <label>Observações adicionais</label>
+        <textarea id="obs" placeholder="Ex: serviços de alvenaria não inclusos..." oninput="render()"></textarea>
+      </div>
+    </div>
+
+    <!-- Garantia -->
+    <div class="form-section">
+      <div class="form-section-title">Garantia</div>
+      <div class="row2">
+        <div class="field">
+          <label>Período de garantia</label>
+          <input type="text" id="garantia" value="" oninput="render()"/>
+        </div>
+        <div class="field">
+          <!-- Calendário -->
+          <label>Contado a partir de</label>
+          <input type="date" id="garantiaBase" oninput="render()"/>
+        </div>
+      </div>
+      <div class="field">
+        <label>O que não cobre</label>
+        <textarea id="garantiaExc" oninput="render()"></textarea>
+      </div>
+    </div>
+
+  </div><!-- /form-panel -->
+
+  <!-- ════ PREVIEW ════ -->
+  <div class="preview-panel">
+    <div class="proposta-doc" id="proposta-doc">
+      <!-- renderizado por JS -->
+    </div>
+  </div>
+
+</div><!-- /app -->
+
+<script>
+// ─── MÁSCARAS DE INPUT ───────────────────────────────────────
+function mascaraCEP(input) {
+  let v = input.value.replace(/\D/g, ""); 
+  v = v.replace(/^(\d{5})(\d)/, "$1-$2"); 
+  input.value = v;
+}
+
+function mascaraTelefone(input) {
+  let v = input.value.replace(/\D/g, ""); 
+  v = v.replace(/^(\d{2})(\d)/g, "($1) $2"); 
+  v = v.replace(/(\d)(\d{4})$/, "$1-$2"); 
+  input.value = v;
+}
+
+// Nova Máscara de Moeda (estilo app de banco)
+function mascaraMoeda(input) {
+  let v = input.value.replace(/\D/g, "");
+  if (v === "") { input.value = ""; return; }
+  // Converte para número e formata para Real (pt-BR)
+  v = (parseInt(v, 10) / 100).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  input.value = v;
+}
+
+// ─── LOCAL STORAGE (AUTO-SALVAMENTO) ─────────────────────────
+function salvarRascunho() {
+  const dados = {
+    numProposta: g('numProposta'),
+    dataProposta: g('dataProposta'),
+    vendedor: g('vendedor'),
+    cliente: g('cliente'),
+    cep: g('cep'),
+    telefone: g('telefone'),
+    email: g('email'),
+    prazo: g('prazo'),
+    instalacao: g('instalacao'),
+    pagamento: g('pagamento'),
+    validade: g('validade'),
+    obs: g('obs'),
+    garantia: g('garantia'),
+    garantiaBase: g('garantiaBase'),
+    garantiaExc: g('garantiaExc'),
+    itens: itens
+  };
+  localStorage.setItem('rascunhoPropostaSA', JSON.stringify(dados));
+}
+
+function carregarRascunho() {
+  const salvo = localStorage.getItem('rascunhoPropostaSA');
+  if (salvo) {
+    try {
+      const dados = JSON.parse(salvo);
+      document.getElementById('numProposta').value = dados.numProposta || '';
+      document.getElementById('dataProposta').value = dados.dataProposta || new Date().toISOString().split('T')[0];
+      document.getElementById('vendedor').value = dados.vendedor || '';
+      document.getElementById('cliente').value = dados.cliente || '';
+      document.getElementById('cep').value = dados.cep || '';
+      document.getElementById('telefone').value = dados.telefone || '';
+      document.getElementById('email').value = dados.email || '';
+      document.getElementById('prazo').value = dados.prazo || '';
+      document.getElementById('instalacao').value = dados.instalacao || '';
+      document.getElementById('pagamento').value = dados.pagamento || '';
+      document.getElementById('validade').value = dados.validade || '';
+      document.getElementById('obs').value = dados.obs || '';
+      document.getElementById('garantia').value = dados.garantia || '';
+      document.getElementById('garantiaBase').value = dados.garantiaBase || '';
+      document.getElementById('garantiaExc').value = dados.garantiaExc || '';
+      
+      if (dados.itens && dados.itens.length > 0) {
+        itens = dados.itens;
+      }
+    } catch (e) {
+      console.error("Erro ao carregar rascunho", e);
+    }
+  } else {
+    document.getElementById('dataProposta').value = new Date().toISOString().split('T')[0];
+  }
+}
+
+// ─── ITENS ───────────────────────────────────────────────────
+let itens = [
+  { nome: '', localizacao: '', produto: '', composicao: '', espessura: '', largura: '', altura: '', acabamento: '', linha: '', qtd: '', unit: '' }
+];
+
+function addItem(){
+  itens.push({ nome: '', localizacao: '', produto: '', composicao: '', espessura: '', largura: '', altura: '', acabamento: '', linha: '', qtd: '', unit: '' });
+  renderItens();
+  render();
+  salvarRascunho();
+}
+
+function removeItem(i){
+  itens.splice(i,1);
+  renderItens();
+  render();
+  salvarRascunho();
+}
+
+function updateItem(i, field, val){
+  // Se for o campo unitário, transformamos o texto formatado (1.500,00) de volta para número real (1500.00)
+  if (field === 'unit') {
+    itens[i][field] = val ? parseFloat(val.replace(/\./g, '').replace(',', '.')) : '';
+  } else if (field === 'qtd') {
+    itens[i][field] = val ? parseFloat(val) : '';
+  } else {
+    itens[i][field] = val; 
+  }
+  
+  atualizarTotais();
+  render();
+  salvarRascunho();
+}
+
+function atualizarTotais(){
+  const total = itens.reduce((s,it)=>s + (parseFloat(it.qtd)||0)*(parseFloat(it.unit)||0), 0);
+  document.getElementById('totalGeral').textContent = fmt(total);
+  itens.forEach((it,i)=>{
+    const el = document.getElementById('item-total-'+i);
+    const v = (parseFloat(it.qtd)||0)*(parseFloat(it.unit)||0);
+    if(el) el.textContent = v ? fmt(v) : '—';
+  });
+}
+
+function renderItens(){
+  const c = document.getElementById('itensContainer');
+  c.innerHTML = itens.map((it,i)=>{
+    const v = (parseFloat(it.qtd)||0)*(parseFloat(it.unit)||0);
+    return `
+    <div class="item-row">
+      <div class="item-row-header">
+        <span class="item-num-badge">Item ${i+1}</span>
+      </div>
+      <button class="btn-rm" onclick="removeItem(${i})" title="Remover">×</button>
+
+      <div class="field">
+        <label>Nome do produto</label>
+        <input type="text" value="${it.nome||''}" placeholder="Ex: Porta acústica sala de reunião"
+          oninput="updateItem(${i}, 'nome', this.value)" style="width:100%"/>
+      </div>
+
+      <div class="item-specs-grid">
+        <div class="field">
+          <label>Localização</label>
+          <input type="text" value="${it.localizacao||''}" placeholder="Ex: Sala principal"
+            oninput="updateItem(${i}, 'localizacao', this.value)" style="width:100%"/>
+        </div>
+        <div class="field">
+          <label>Característica do produto</label>
+          <input type="text" value="${it.produto||''}" placeholder="Ex: Porta acústica em madeira"
+            oninput="updateItem(${i}, 'produto', this.value)" style="width:100%"/>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Composição / Descrição técnica</label>
+        <textarea placeholder="Ex: Miolo de lã acústica, dupla vedação..." rows="3"
+          oninput="updateItem(${i}, 'composicao', this.value)" style="width:100%">${it.composicao||''}</textarea>
+      </div>
+
+      <div class="item-dims-grid">
+        <div class="field">
+          <label>Espessura</label>
+          <input type="text" value="${it.espessura||''}" placeholder="70 mm"
+            oninput="updateItem(${i}, 'espessura', this.value)" style="width:100%"/>
+        </div>
+        <div class="field">
+          <label>Largura</label>
+          <input type="text" value="${it.largura||''}" placeholder="82 cm"
+            oninput="updateItem(${i}, 'largura', this.value)" style="width:100%"/>
+        </div>
+        <div class="field">
+          <label>Altura</label>
+          <input type="text" value="${it.altura||''}" placeholder="2,10 m"
+            oninput="updateItem(${i}, 'altura', this.value)" style="width:100%"/>
+        </div>
+      </div>
+
+      <div class="item-specs-grid">
+        <div class="field">
+          <label>Acabamento</label>
+          <input type="text" value="${it.acabamento||''}" placeholder="Ex: Formica TX branco"
+            oninput="updateItem(${i}, 'acabamento', this.value)" style="width:100%"/>
+        </div>
+        <div class="field">
+          <label>Linha</label>
+          <input type="text" value="${it.linha||''}" placeholder="Ex: Premium, Studio..."
+            oninput="updateItem(${i}, 'linha', this.value)" style="width:100%"/>
+        </div>
+      </div>
+
+      <div class="item-row-nums">
+        <div>
+          <label class="item-num-label">Qtd.</label>
+          <input type="number" value="${it.qtd||''}" min="1" placeholder="0"
+            oninput="updateItem(${i}, 'qtd', this.value)"/>
+        </div>
+        <div>
+          <!-- CAMPO DE VALOR UNITÁRIO COM MÁSCARA -->
+          <label class="item-num-label">Vlr. Unitário (R$)</label>
+          <input type="text" inputmode="numeric" 
+            value="${it.unit ? Number(it.unit).toLocaleString('pt-BR',{minimumFractionDigits:2, maximumFractionDigits:2}) : ''}" 
+            placeholder="0,00"
+            oninput="mascaraMoeda(this); updateItem(${i}, 'unit', this.value)"/>
+        </div>
+        <div>
+          <label class="item-num-label">Total</label>
+          <div class="item-total" id="item-total-${i}">${v ? fmt(v) : '—'}</div>
+        </div>
+      </div>
+    </div>
+  `}).join('');
+
+  atualizarTotais();
+}
+
+function fmt(n){
+  return 'R$ ' + Number(n).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+
+// ─── RENDER PROPOSTA ─────────────────────────────────────────
+function g(id){ return (document.getElementById(id)||{}).value||''; }
+
+function render(){
+  const total = itens.reduce((s,it)=>s + (parseFloat(it.qtd)||0)*(parseFloat(it.unit)||0), 0);
+
+  const itensDocs = itens.map((it,idx)=>{
+    const v = (parseFloat(it.qtd)||0)*(parseFloat(it.unit)||0);
+    const temSpecs = it.localizacao||it.produto||it.composicao||it.espessura||it.largura||it.altura||it.acabamento||it.linha;
+    const specsHtml = temSpecs ? `
+      <table class="doc-specs" style="margin:8px 0 0">
+        ${it.localizacao?`<tr><td>Localização</td><td>${it.localizacao}</td></tr>`:''}
+        ${it.produto?`<tr><td>Característica</td><td>${it.produto}</td></tr>`:''}
+        ${it.composicao?`<tr><td>Composição</td><td>${it.composicao.replace(/\n/g,'<br>')}</td></tr>`:''}
+        ${it.espessura?`<tr><td>Espessura</td><td>${it.espessura}</td></tr>`:''}
+        ${it.largura?`<tr><td>Largura</td><td>${it.largura}</td></tr>`:''}
+        ${it.altura?`<tr><td>Altura</td><td>${it.altura}</td></tr>`:''}
+        ${it.acabamento?`<tr><td>Acabamento</td><td>${it.acabamento}</td></tr>`:''}
+        ${it.linha?`<tr><td>Linha</td><td>${it.linha}</td></tr>`:''}
+      </table>` : '';
+    return `
+    <div class="doc-item-row" style="display:block;padding:14px">
+      <div style="display:grid;grid-template-columns:1fr 60px 110px 110px;gap:8px;align-items:start">
+        <strong style="font-size:12.5px">${it.nome||('Item '+(idx+1))}</strong>
+        <span class="num" style="text-align:center">${it.qtd||'—'}</span>
+        <span class="val" style="text-align:right">${it.unit?fmt(parseFloat(it.unit)):'—'}</span>
+        <span class="val" style="text-align:right">${v?fmt(v):'—'}</span>
+      </div>
+      ${specsHtml}
+    </div>`;
+  }).join('');
+
+  const obs = g('obs').split('\n').filter(Boolean).map(l=>`<li>${l.trim()}</li>`).join('');
+
+  document.getElementById('proposta-doc').innerHTML = `
+    <!-- CABEÇALHO -->
+    <div class="doc-header">
+      <div>
+        <div class="doc-logo-mark">S<br>A</div>
+        <div class="doc-logo-name">Soluciona Acústica</div>
+      </div>
+      <div class="doc-header-info">
+        <div class="doc-title">Proposta Técnica / Comercial</div>
+        <div class="doc-meta">
+          Data: ${formatarData(g('dataProposta'))}<br>
+          Nº da Proposta: <strong style="color:#fff">${g('numProposta')||'—'}</strong>
+        </div>
+      </div>
+    </div>
+
+    <!-- CORPO -->
+    <div class="doc-body">
+
+      <!-- Empresa / Cliente -->
+      <div class="doc-empresa-grid">
+        <div>
+          <div class="col-title">Empresa</div>
+          <p>
+            <strong>Soluciona Acústica</strong><br>
+            CNPJ: 51.955.166/0001-00<br>
+            contato@solucionaacustica.com.br<br>
+            (11) 98328-7659 / (11) 95348-1602<br>
+            www.solucionaacustica.com.br<br>
+            Rua Salesópolis, 205 – Itaquaquecetuba/SP
+          </p>
+        </div>
+        <div>
+          <div class="col-title">Cliente</div>
+          <p>
+            <strong>${g('cliente')||'—'}</strong><br>
+            ${g('cep') ? 'CEP: '+g('cep')+'<br>' : ''}
+            ${g('telefone') ? 'Tel: '+g('telefone')+'<br>' : ''}
+            ${g('email') ? 'E-mail: '+g('email')+'<br>' : ''}
+            Vendedor: ${g('vendedor')||'—'}
+          </p>
+        </div>
+      </div>
+
+      <!-- Apresentação -->
+      <div class="doc-section">
+        <div class="doc-section-title">Apresentação</div>
+        <p class="doc-text">Em atenção à sua solicitação, apresentamos nossa Proposta Técnica e Comercial para fornecimento e instalação de porta acústica sob medida, desenvolvida para proporcionar isolamento sonoro eficiente, acabamento de alto padrão e durabilidade superior.</p>
+        <p class="doc-text">A Soluciona Acústica é especializada na fabricação de portas antirruído de alto desempenho, oferecendo soluções completas para residências, estúdios, escritórios e ambientes corporativos.</p>
+      </div>
+
+      <!-- Desempenho -->
+      <div class="doc-section">
+        <div class="doc-section-title">Desempenho</div>
+        <p class="doc-text">O desempenho de isolamento acústico pode variar conforme as condições do ambiente (paredes, piso, teto e aberturas vizinhas). A porta proporciona redução significativa de ruído, ideal para quem busca conforto acústico sem abrir mão da estética.</p>
+      </div>
+
+      <!-- Itens / Valor -->
+      <div class="doc-section">
+        <div class="doc-section-title">Proposta Comercial</div>
+        <div class="doc-itens-header">
+          <span>Descrição</span><span>Qtd.</span><span style="text-align:right">Vlr Unit.</span><span style="text-align:right">Total</span>
+        </div>
+        ${itensDocs}
+        <div class="doc-total-row">
+          <span class="lbl">Valor total da proposta</span>
+          <span class="val">${fmt(total)}</span>
+        </div>
+      </div>
+
+      <!-- Condições -->
+      <div class="doc-section">
+        <div class="doc-section-title">Condições Comerciais</div>
+        <div class="doc-cond-grid">
+          <div class="doc-cond-box">
+            <h4>Entrega & Instalação</h4>
+            <ul>
+              <li>${g('prazo')||'—'}</li>
+              <li>Instalação: ${g('instalacao')||'—'}</li>
+              ${obs}
+            </ul>
+          </div>
+          <div class="doc-cond-box">
+            <h4>Pagamento</h4>
+            <ul><li>${g('pagamento')||'—'}</li></ul>
+            <h4 style="margin-top:14px">Validade</h4>
+            <ul><li>${g('validade')||'—'}</li></ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Garantia -->
+      <div class="doc-section">
+        <div class="doc-section-title">Garantia</div>
+        <p class="doc-text">Garantia de <strong>${g('garantia')||'—'}</strong> contra defeitos de fabricação e instalação, contados a partir de <strong>${g('garantiaBase') ? formatarData(g('garantiaBase')) : 'data da entrega'}</strong>.</p>
+        ${g('garantiaExc') ? `<p class="doc-text" style="font-size:11.5px;color:#9a8a72">Não cobre: ${g('garantiaExc')}</p>` : ''}
+      </div>
+
+      <!-- Próximos Passos -->
+      <div class="doc-section">
+        <div class="doc-section-title">Próximos Passos</div>
+        <div class="doc-passos">
+          <div class="doc-passo"><div class="doc-passo-num">1</div><p>Aprovação desta proposta via e-mail ou WhatsApp</p></div>
+          <div class="doc-passo"><div class="doc-passo-num">2</div><p>Agendamento da visita técnica para medições finais</p></div>
+          <div class="doc-passo"><div class="doc-passo-num">3</div><p>Confirmação do pedido e pagamento do sinal</p></div>
+          <div class="doc-passo"><div class="doc-passo-num">4</div><p>Início da fabricação e instalação conforme cronograma acordado</p></div>
+        </div>
+      </div>
+
+    </div><!-- /doc-body -->
+
+    <!-- RODAPÉ -->
+    <div class="doc-footer">
+      <div class="doc-footer-title">Contato</div>
+      <p>
+        Soluciona Acústica – Departamento Comercial<br>
+        E-mail: <a href="mailto:contato@solucionaacustica.com.br">contato@solucionaacustica.com.br</a><br>
+        WhatsApp: (11) 98328-7659 / (11) 95348-1602<br>
+        <a href="https://www.solucionaacustica.com.br">www.solucionaacustica.com.br</a>
+      </p>
+    </div>
+  `;
+}
+
+function formatarData(val){
+  if(!val) return '—';
+  const [y,m,d] = val.split('-');
+  return d+'/'+m+'/'+y;
+}
+
+function limparForm(){
+  if(!confirm('Limpar todos os campos?')) return;
+  document.querySelectorAll('.form-panel input, .form-panel textarea, .form-panel select')
+    .forEach(el=>el.value='');
+  itens=[{ nome: '', localizacao: '', produto: '', composicao: '', espessura: '', largura: '', altura: '', acabamento: '', linha: '', qtd: '', unit: '' }];
+  localStorage.removeItem('rascunhoPropostaSA');
+  
+  document.getElementById('dataProposta').value = new Date().toISOString().split('T')[0];
+  
+  renderItens();
+  render();
+}
+
+// ─── INIT ─────────────────────────────────────────────────────
+carregarRascunho();
+renderItens();
+render();
+
+document.querySelector('.form-panel').addEventListener('input', () => {
+  render();
+  salvarRascunho();
+});
+document.querySelector('.form-panel').addEventListener('change', () => {
+  render();
+  salvarRascunho();
+});
+</script>
+</body>
+</html>
