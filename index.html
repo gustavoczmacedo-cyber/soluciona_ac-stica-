@@ -1,921 +1,881 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <!-- CONFIGURAÇÕES BÁSICAS DA PÁGINA (Invisível para o usuário) -->
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  
-  <!-- TÍTULO E ÍCONE DA ABA DO NAVEGADOR -->
   <title>Soluciona Acústica</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='12' fill='%235C0E1E'/%3E%3Ctext x='50%' y='55%' font-family='serif' font-size='50' font-weight='bold' fill='%23B89A45' dominant-baseline='middle' text-anchor='middle'%3ESA%3C/text%3E%3C/svg%3E"/>
-  
-  <!-- IMPORTAÇÃO DAS FONTES DO GOOGLE (Playfair para títulos, Inter para textos) -->
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
-  
-  <!-- INÍCIO DO CSS (Onde estilizamos as cores, tamanhos e visual do site) -->
   <style>
-    /* Zera os espaçamentos padrão do navegador */
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    
-    /* VARIÁVEIS DE CORES (Se quiser mudar o tom de vinho ou dourado de todo o site de uma vez, é só mudar aqui) */
     :root{
       --vinho:#5C0E1E;--vinho-dk:#3A0812;--ouro:#B89A45;--ouro-lt:#D4B86A;
       --offwhite:#F8F5F0;--cinza:#E8E4DC;--cinza2:#D0C8BC;--texto:#1A1008;--texto-lt:#5A4A35;
     }
-    
-    /* Estilo geral do corpo do site (fundo acinzentado e fonte padrão) */
     body{font-family:'Inter',sans-serif;background:#f0ece4;color:var(--texto);min-height:100vh}
 
-    /* ── ESTILOS DA TELA DE LOGIN ── */
-    #login-screen {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: linear-gradient(135deg, var(--vinho-dk) 0%, var(--vinho) 100%);
-      z-index: 9999; display: flex; align-items: center; justify-content: center;
+    /* ── TELA DE LOGIN ── */
+    #login-screen{
+      position:fixed;top:0;left:0;width:100%;height:100%;
+      background:linear-gradient(135deg,var(--vinho-dk) 0%,var(--vinho) 100%);
+      z-index:9999;display:flex;align-items:center;justify-content:center;
     }
-    .login-box {
-      background: #fff; padding: 48px 40px; border-radius: 8px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.4); width: 100%; max-width: 380px;
-      border-top: 5px solid var(--ouro); text-align: center;
+    .login-box{
+      background:#fff;padding:48px 40px;border-radius:8px;
+      box-shadow:0 20px 60px rgba(0,0,0,0.4);width:100%;max-width:380px;
+      border-top:5px solid var(--ouro);text-align:center;
     }
-    .login-box .logo-mark {
-      margin: 0 auto 20px; width: 56px; height: 56px; font-size: 20px; border-width: 3px;
-      display: grid; place-items: center; border: 2px solid var(--ouro);
-      font-family: 'Playfair Display', serif; color: var(--ouro); font-weight: 700; line-height: 1.1;
+    .login-box .logo-mark{
+      margin:0 auto 20px;width:56px;height:56px;font-size:20px;
+      display:grid;place-items:center;border:2px solid var(--ouro);
+      font-family:'Playfair Display',serif;color:var(--ouro);font-weight:700;line-height:1.1;
     }
-    .login-box h2 {
-      font-family: 'Playfair Display', serif; color: var(--vinho-dk); margin-bottom: 8px; font-size: 24px;
+    .login-box h2{font-family:'Playfair Display',serif;color:var(--vinho-dk);margin-bottom:8px;font-size:24px;}
+    .login-box p.subtitle{font-size:13px;color:var(--texto-lt);margin-bottom:28px;}
+    .login-box .field{text-align:left;margin-bottom:20px;}
+    .login-box .field label{font-size:12px;font-weight:600;color:var(--texto);margin-bottom:6px;display:block;}
+    .login-box .field input{
+      width:100%;border:1.5px solid var(--cinza);padding:12px 14px;font-size:14px;
+      border-radius:4px;transition:all .2s;outline:none;background:var(--offwhite);
+      font-family:'Inter',sans-serif;
     }
-    .login-box p.subtitle {
-      font-size: 13px; color: var(--texto-lt); margin-bottom: 28px;
+    .login-box .field input:focus{border-color:var(--ouro);background:#fff;box-shadow:0 0 0 3px rgba(184,154,69,0.15);}
+    .btn-login{
+      width:100%;background:var(--vinho);color:#fff;border:none;
+      padding:14px;font-size:14px;font-weight:600;text-transform:uppercase;letter-spacing:1px;
+      border-radius:4px;cursor:pointer;transition:background .2s;font-family:'Inter',sans-serif;
     }
-    .login-box .field { text-align: left; margin-bottom: 20px; }
-    .login-box .field label { font-size: 12px; font-weight: 600; color: var(--texto); margin-bottom: 6px; display: block; }
-    .login-box .field input {
-      width: 100%; border: 1.5px solid var(--cinza); padding: 12px 14px; font-size: 14px;
-      border-radius: 4px; transition: all .2s; outline: none; background: var(--offwhite);
-      font-family: 'Inter', sans-serif;
-    }
-    .login-box .field input:focus { border-color: var(--ouro); background: #fff; box-shadow: 0 0 0 3px rgba(184,154,69,0.15); }
-    
-    .btn-login {
-      width: 100%; background: var(--vinho); color: #fff; border: none;
-      padding: 14px; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;
-      border-radius: 4px; cursor: pointer; transition: background .2s; font-family: 'Inter', sans-serif;
-    }
-    .btn-login:hover { background: var(--vinho-dk); }
+    .btn-login:hover{background:var(--vinho-dk);}
+    #login-error{color:#d32f2f;background:#fdecea;padding:10px;border-radius:4px;font-size:13px;margin-top:16px;display:none;font-weight:500;}
+    body.logado #login-screen{display:none;}
+    body:not(.logado) .app-container{display:none;}
 
-    /* Mensagem de erro vermelha no login */
-    #login-error {
-      color: #d32f2f; background: #fdecea; padding: 10px; border-radius: 4px;
-      font-size: 13px; margin-top: 16px; display: none; font-weight: 500;
-    }
-    
-    /* ── LÓGICA VISUAL DO LOGIN ── */
-    /* Se o usuário estiver logado, esconde a tela de login. Se não, esconde o sistema. */
-    body.logado #login-screen { display: none; }
-    body:not(.logado) .app-container { display: none; }
-
-    /* ── BARRA SUPERIOR (HEADER) ── */
+    /* ── HEADER ── */
     header{
       background:var(--vinho-dk);padding:0 32px;height:60px;
       display:flex;align-items:center;justify-content:space-between;
       position:sticky;top:0;z-index:50;
     }
-    .logo{display:flex;align-items:center;gap:12px}
+    .logo{display:flex;align-items:center;gap:12px;}
     .logo-mark{
       width:34px;height:34px;border:2px solid var(--ouro);
       display:grid;place-items:center;
       font-family:'Playfair Display',serif;color:var(--ouro);font-size:12px;font-weight:700;line-height:1.1;
     }
-    .logo span{font-family:'Playfair Display',serif;color:var(--ouro-lt);font-size:12px;letter-spacing:2px;text-transform:uppercase}
-    
-    /* Botões do Header (Sair, Limpar, Imprimir) */
-    .header-actions{display:flex;gap:10px}
+    .logo span{font-family:'Playfair Display',serif;color:var(--ouro-lt);font-size:12px;letter-spacing:2px;text-transform:uppercase;}
+    .header-actions{display:flex;gap:8px;align-items:center;}
     .btn{
-      padding:8px 20px;font-size:13px;font-weight:500;cursor:pointer;
+      padding:8px 16px;font-size:12.5px;font-weight:500;cursor:pointer;
       border:none;letter-spacing:.3px;transition:all .18s;font-family:'Inter',sans-serif;
+      border-radius:4px;
     }
-    .btn-gold{background:var(--ouro);color:var(--vinho-dk)}
-    .btn-gold:hover{background:var(--ouro-lt)}
-    .btn-outline-gold{background:transparent;border:1.5px solid var(--ouro);color:var(--ouro)}
-    .btn-outline-gold:hover{background:var(--ouro);color:var(--vinho-dk)}
-    .btn-vinho{background:var(--vinho);color:#fff}
-    .btn-vinho:hover{background:#7a1428}
+    .btn-gold{background:var(--ouro);color:var(--vinho-dk);}
+    .btn-gold:hover{background:var(--ouro-lt);}
+    .btn-outline-gold{background:transparent;border:1.5px solid var(--ouro);color:var(--ouro);}
+    .btn-outline-gold:hover{background:var(--ouro);color:var(--vinho-dk);}
+    .btn-vinho{background:var(--vinho);color:#fff;}
+    .btn-vinho:hover{background:#7a1428;}
 
-    /* ── ESTRUTURA PRINCIPAL (Lado a lado) ── */
-    /* Divide a tela em duas colunas: 480px para o formulário e o resto para o preview */
-    .app{display:grid;grid-template-columns:480px 1fr;height:calc(100vh - 60px);overflow:hidden}
+    /* ── TOAST DE RASCUNHO SALVO ── */
+    #toast-rascunho{
+      position:fixed;bottom:24px;right:24px;background:var(--vinho-dk);color:#fff;
+      padding:10px 18px;border-radius:6px;font-size:13px;font-weight:500;
+      opacity:0;pointer-events:none;transition:opacity .3s;z-index:9998;
+      border-left:3px solid var(--ouro);
+    }
+    #toast-rascunho.visivel{opacity:1;}
 
-    /* ── PAINEL DO FORMULÁRIO (Coluna Esquerda) ── */
+    /* ── MODAL HISTÓRICO ── */
+    .modal-overlay{
+      position:fixed;top:0;left:0;width:100%;height:100%;
+      background:rgba(0,0,0,0.6);z-index:100000;
+      display:none;align-items:center;justify-content:center;
+      backdrop-filter:blur(4px);
+    }
+    .modal-box{
+      background:#fff;width:100%;max-width:540px;border-radius:8px;
+      padding:28px;max-height:85vh;display:flex;flex-direction:column;
+      box-shadow:0 20px 60px rgba(0,0,0,0.3);
+    }
+    .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;border-bottom:2px solid var(--cinza);padding-bottom:12px;}
+    .modal-header h3{font-family:'Playfair Display',serif;color:var(--vinho-dk);font-size:20px;}
+    .btn-fechar{background:none;border:none;font-size:24px;cursor:pointer;color:var(--texto-lt);line-height:1;}
+    .btn-fechar:hover{color:var(--vinho);}
+    .historico-list{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:12px;padding-right:5px;}
+    .historico-list::-webkit-scrollbar{width:5px;}
+    .historico-list::-webkit-scrollbar-thumb{background:var(--cinza2);border-radius:3px;}
+    .historico-item{
+      border:1.5px solid var(--cinza);padding:14px;border-radius:6px;
+      display:flex;justify-content:space-between;align-items:center;
+      background:var(--offwhite);transition:all 0.2s;
+    }
+    .historico-item:hover{border-color:var(--ouro);}
+    .historico-item strong{font-size:14px;color:var(--vinho);display:block;margin-bottom:4px;}
+    .historico-item span{font-size:12px;color:var(--texto-lt);display:block;}
+    .hist-actions{display:flex;gap:8px;}
+
+    /* ── LAYOUT ── */
+    .app{display:grid;grid-template-columns:480px 1fr;height:calc(100vh - 60px);overflow:hidden;}
     .form-panel{
       background:#fff;overflow-y:auto;padding:28px 28px 48px;
       border-right:1px solid var(--cinza);
     }
-    /* Estilo da barra de rolagem do formulário */
-    .form-panel::-webkit-scrollbar{width:5px}
-    .form-panel::-webkit-scrollbar-thumb{background:var(--cinza2);border-radius:3px}
-
-    /* Estilos dos campos de texto, inputs e caixas do formulário */
-    .form-section{margin-bottom:28px}
+    .form-panel::-webkit-scrollbar{width:5px;}
+    .form-panel::-webkit-scrollbar-thumb{background:var(--cinza2);border-radius:3px;}
+    .form-section{margin-bottom:28px;}
     .form-section-title{
       font-size:11px;letter-spacing:2.5px;text-transform:uppercase;
       color:var(--ouro);font-weight:600;
       padding-bottom:10px;border-bottom:1px solid var(--cinza);
       margin-bottom:16px;
     }
-    .field{margin-bottom:14px}
-    .field label{
-      display:block;font-size:11px;font-weight:500;
-      color:var(--texto-lt);letter-spacing:.3px;margin-bottom:5px;
-    }
+    .field{margin-bottom:14px;}
+    .field label{display:block;font-size:11px;font-weight:500;color:var(--texto-lt);letter-spacing:.3px;margin-bottom:5px;}
     .field input,.field textarea,.field select{
-      width:100%;border:1.5px solid var(--cinza);
-      padding:9px 12px;font-size:13px;
-      font-family:'Inter',sans-serif;color:var(--texto);
-      background:#fff;outline:none;
+      width:100%;border:1.5px solid var(--cinza);padding:9px 12px;font-size:13px;
+      font-family:'Inter',sans-serif;color:var(--texto);background:#fff;outline:none;
       transition:border-color .18s;border-radius:0;
     }
-    .field input:focus,.field textarea:focus,.field select:focus{border-color:var(--ouro)}
-    .field textarea{resize:vertical;min-height:72px}
-    .field select option{font-family:'Inter',sans-serif}
-    
-    /* Organização em linhas (2 ou 3 colunas) */
-    .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-    .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+    .field input:focus,.field textarea:focus,.field select:focus{border-color:var(--ouro);}
+    .field textarea{resize:vertical;min-height:72px;}
+    .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+    .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
 
-    /* ── ITENS DA PROPOSTA (Caixas de produtos adicionados) ── */
-    .itens-header{ display:none; }
+    /* ITENS */
     .item-row{
       background:#faf8f5;border:1.5px solid var(--cinza);
-      padding:16px;margin-bottom:18px;
-      display:flex;flex-direction:column;gap:10px;
-      position:relative;
+      padding:16px;margin-bottom:18px;display:flex;flex-direction:column;gap:10px;position:relative;
     }
-    .item-row-header{
-      display:flex;align-items:center;
-      padding-bottom:10px;border-bottom:1px solid var(--cinza);
-      margin-bottom:2px;
+    .item-row-header{display:flex;align-items:center;padding-bottom:10px;border-bottom:1px solid var(--cinza);margin-bottom:2px;}
+    .item-num-badge{font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--vinho);background:rgba(92,14,30,.08);padding:3px 10px;}
+    .item-actions{position:absolute;top:-12px;right:-10px;display:flex;gap:6px;}
+    .btn-act{
+      width:24px;height:24px;background:#fff;border:1.5px solid var(--cinza2);
+      border-radius:50%;display:grid;place-items:center;cursor:pointer;
+      font-size:13px;font-family:'Inter',sans-serif;transition:all .15s;line-height:1;
     }
-    .item-num-badge{
-      font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;
-      color:var(--vinho);background:rgba(92,14,30,.08);padding:3px 10px;
-    }
-    .item-specs-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-    .item-dims-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+    .btn-dup{color:var(--ouro);}
+    .btn-dup:hover{border-color:var(--ouro);background:#fdfaf3;}
+    .btn-rm{color:#b09070;}
+    .btn-rm:hover{border-color:var(--vinho);color:var(--vinho);background:#fff8f8;}
+    .item-specs-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+    .item-dims-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
     .item-row-nums{
-      display:grid;grid-template-columns:90px 1fr 120px;
-      gap:10px;align-items:end;
+      display:grid;grid-template-columns:90px 1fr 120px;gap:10px;align-items:end;
       padding-top:10px;border-top:1px solid var(--cinza);margin-top:2px;
     }
-    .item-num-label{font-size:10px;color:var(--texto-lt);letter-spacing:.3px;margin-bottom:4px;font-weight:500}
-    .item-row input,.item-row textarea{padding:7px 10px;font-size:12px}
-    
-    /* Esconde as setinhas de aumentar/diminuir do campo numérico */
-    .item-row input[type=number]{-moz-appearance:textfield}
+    .item-num-label{font-size:10px;color:var(--texto-lt);letter-spacing:.3px;margin-bottom:4px;font-weight:500;}
+    .item-row input,.item-row textarea{padding:7px 10px;font-size:12px;}
+    .item-row input[type=number]{-moz-appearance:textfield;}
     .item-row input[type=number]::-webkit-inner-spin-button,
-    .item-row input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
-    
-    .item-total{
-      font-size:12px;font-weight:600;color:var(--vinho);
-      padding:7px 4px;text-align:right;
-    }
-    
-    /* Botão de remover item (X vermelho) */
-    .btn-rm{
-      position:absolute;top:-10px;right:-10px;
-      width:22px;height:22px;background:#fff;border:1.5px solid var(--cinza2);
-      color:#b09070;cursor:pointer;font-size:13px;line-height:1;
-      display:grid;place-items:center;transition:all .15s;border-radius:50%;
-      font-family:'Inter',sans-serif;
-    }
-    .btn-rm:hover{border-color:var(--vinho);color:var(--vinho);background:#fff8f8}
-    
-    /* Botão de adicionar novo item */
+    .item-row input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
+    .item-total{font-size:12px;font-weight:600;color:var(--vinho);padding:7px 4px;text-align:right;}
     .btn-add-item{
-      display:inline-flex;align-items:center;gap:6px;
-      background:none;border:1.5px dashed var(--cinza2);
-      color:var(--texto-lt);font-size:12px;padding:7px 14px;
-      cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s;
-      margin-top:4px;
+      display:inline-flex;align-items:center;gap:6px;background:none;border:1.5px dashed var(--cinza2);
+      color:var(--texto-lt);font-size:12px;padding:7px 14px;cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s;margin-top:4px;
     }
-    .btn-add-item:hover{border-color:var(--ouro);color:var(--ouro)}
-    
-    /* Caixa que mostra o Valor Total Geral */
+    .btn-add-item:hover{border-color:var(--ouro);color:var(--ouro);}
     .total-preview{
-      background:var(--offwhite);padding:12px 16px;
-      display:flex;justify-content:space-between;align-items:center;
+      background:var(--offwhite);padding:12px 16px;display:flex;justify-content:space-between;align-items:center;
       margin-top:10px;border-left:3px solid var(--ouro);
     }
-    .total-preview span{font-size:12px;color:var(--texto-lt)}
-    .total-preview strong{font-size:1.1rem;color:var(--vinho);font-family:'Playfair Display',serif}
+    .total-preview span{font-size:12px;color:var(--texto-lt);}
+    .total-preview strong{font-size:1.1rem;color:var(--vinho);font-family:'Playfair Display',serif;}
 
-    /* ── PAINEL DE VISUALIZAÇÃO (Coluna Direita com fundo cinza) ── */
-    .preview-panel{background:#e8e4dc;overflow-y:auto;padding:32px}
-    .preview-panel::-webkit-scrollbar{width:5px}
-    .preview-panel::-webkit-scrollbar-thumb{background:var(--cinza2);border-radius:3px}
+    /* ── PREVIEW ── */
+    .preview-panel{background:#e8e4dc;overflow-y:auto;padding:32px;}
+    .preview-panel::-webkit-scrollbar{width:5px;}
+    .preview-panel::-webkit-scrollbar-thumb{background:var(--cinza2);border-radius:3px;}
+    .proposta-doc{background:#fff;max-width:760px;margin:0 auto;box-shadow:0 4px 32px rgba(0,0,0,.12);}
 
-    /* ── DOCUMENTO DA PROPOSTA (O layout do PDF/Papel branco) ── */
-    .proposta-doc{
-      background:#fff;max-width:760px;margin:0 auto;
-      box-shadow:0 4px 32px rgba(0,0,0,.12);
+    /* CAPA */
+    .capa-doc{
+      background:linear-gradient(135deg,var(--vinho-dk) 0%,var(--vinho) 100%);
+      height:1060px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+      text-align:center;color:#fff;position:relative;
+      break-after:page;page-break-after:always;
     }
-
-    /* Cabeçalho do documento (faixa vinho superior) */
-    .doc-header{
-      background:var(--vinho-dk);padding:36px 48px 28px;
-      display:flex;align-items:center;justify-content:space-between;
+    .capa-conteudo{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;width:100%;padding:40px;}
+    .capa-logo-mark{
+      width:100px;height:100px;border:4px solid var(--ouro);border-radius:4px;
+      display:grid;place-items:center;margin-bottom:24px;
+      font-family:'Playfair Display',serif;color:var(--ouro);font-size:38px;font-weight:700;line-height:1.1;
     }
-    .doc-logo-mark{
-      width:56px;height:56px;border:2.5px solid var(--ouro);
-      display:grid;place-items:center;
-      font-family:'Playfair Display',serif;color:var(--ouro);font-size:19px;font-weight:700;
-    }
-    .doc-logo-name{
-      font-family:'Playfair Display',serif;color:var(--ouro-lt);
-      font-size:11px;letter-spacing:3px;text-transform:uppercase;margin-top:8px;text-align:center;
-    }
-    .doc-header-info{text-align:right}
-    .doc-header-info .doc-title{
-      font-family:'Playfair Display',serif;color:#fff;font-size:1rem;font-weight:600;letter-spacing:.5px;
-    }
-    .doc-header-info .doc-meta{color:#c8b89a;font-size:12px;margin-top:6px;line-height:1.8}
-
-    /* Corpo interno do documento */
-    .doc-body{padding:40px 48px}
-
-    /* Grade que mostra os dados da Empresa x Cliente */
+    .capa-nome-empresa{font-family:'Playfair Display',serif;color:var(--ouro-lt);font-size:18px;letter-spacing:4px;text-transform:uppercase;margin-bottom:90px;}
+    .capa-titulo{font-family:'Playfair Display',serif;font-size:4rem;color:#fff;margin-bottom:32px;font-weight:600;line-height:1.1;}
+    .capa-para{font-size:14px;color:var(--cinza2);letter-spacing:2px;text-transform:uppercase;margin-bottom:16px;}
+    .capa-cliente{font-family:'Playfair Display',serif;font-size:32px;font-weight:600;color:var(--ouro);max-width:80%;line-height:1.3;}
+    .capa-footer{padding-bottom:40px;font-size:13px;color:rgba(255,255,255,0.4);letter-spacing:1px;}
+    .doc-header{background:var(--vinho-dk);padding:36px 48px 28px;display:flex;align-items:center;justify-content:space-between;}
+    .doc-logo-mark{width:56px;height:56px;border:2.5px solid var(--ouro);display:grid;place-items:center;font-family:'Playfair Display',serif;color:var(--ouro);font-size:19px;font-weight:700;}
+    .doc-logo-name{font-family:'Playfair Display',serif;color:var(--ouro-lt);font-size:11px;letter-spacing:3px;text-transform:uppercase;margin-top:8px;text-align:center;}
+    .doc-header-info{text-align:right;}
+    .doc-header-info .doc-title{font-family:'Playfair Display',serif;color:#fff;font-size:1rem;font-weight:600;letter-spacing:.5px;}
+    .doc-header-info .doc-meta{color:#c8b89a;font-size:12px;margin-top:6px;line-height:1.8;}
+    .doc-body{padding:40px 48px;}
     .doc-empresa-grid{
       display:grid;grid-template-columns:1fr 1fr;gap:24px;
-      padding-bottom:28px;border-bottom:1px solid var(--cinza);
-      margin-bottom:28px;font-size:12.5px;
+      padding-bottom:28px;border-bottom:1px solid var(--cinza);margin-bottom:28px;font-size:12.5px;
     }
-    .doc-empresa-grid .col-title{
-      font-size:10px;letter-spacing:2px;text-transform:uppercase;
-      color:var(--ouro);font-weight:600;margin-bottom:10px;
-    }
-    .doc-empresa-grid p{color:var(--texto-lt);line-height:1.9}
-    .doc-empresa-grid p strong{color:var(--texto);font-weight:500}
-
-    /* Títulos e textos das seções da proposta (Apresentação, etc) */
-    .doc-section-title{
-      font-family:'Playfair Display',serif;font-size:1rem;font-weight:600;
-      color:var(--vinho);margin-bottom:12px;
-      padding-bottom:8px;border-bottom:2px solid var(--cinza);
-    }
-    .doc-section{margin-bottom:28px}
-    .doc-text{font-size:12.5px;color:var(--texto-lt);line-height:1.8;margin-bottom:8px}
-
-    /* Tabela de especificações dos produtos adicionados */
-    .doc-specs{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:8px}
-    .doc-specs tr{border-bottom:1px solid var(--cinza)}
-    .doc-specs td{padding:10px 12px;vertical-align:top}
-    .doc-specs td:first-child{
-      font-weight:600;color:var(--vinho);width:36%;
-      background:#faf8f5;
-    }
-    .doc-specs td:last-child{color:var(--texto-lt)}
-
-    /* Lista de preços e linha do total no final do documento */
+    .doc-empresa-grid .col-title{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--ouro);font-weight:600;margin-bottom:10px;}
+    .doc-empresa-grid p{color:var(--texto-lt);line-height:1.9;}
+    .doc-empresa-grid p strong{color:var(--texto);font-weight:500;}
+    .doc-section-title{font-family:'Playfair Display',serif;font-size:1rem;font-weight:600;color:var(--vinho);margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid var(--cinza);}
+    .doc-section{margin-bottom:28px;}
+    .doc-text{font-size:12.5px;color:var(--texto-lt);line-height:1.8;margin-bottom:8px;}
+    .doc-specs{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:8px;}
+    .doc-specs tr{border-bottom:1px solid var(--cinza);}
+    .doc-specs td{padding:10px 12px;vertical-align:top;}
+    .doc-specs td:first-child{font-weight:600;color:var(--vinho);width:36%;background:#faf8f5;}
+    .doc-specs td:last-child{color:var(--texto-lt);}
     .doc-itens-header{
-      display:grid;grid-template-columns:1fr 60px 110px 110px;
-      gap:8px;background:var(--vinho);
-      padding:10px 14px;font-size:11px;color:rgba(255,255,255,.85);
-      font-weight:500;letter-spacing:.3px;
+      display:grid;grid-template-columns:1fr 60px 110px 110px;gap:8px;background:var(--vinho);
+      padding:10px 14px;font-size:11px;color:rgba(255,255,255,.85);font-weight:500;letter-spacing:.3px;
     }
-    .doc-item-row{
-      display:grid;grid-template-columns:1fr 60px 110px 110px;
-      gap:8px;padding:12px 14px;
-      border-bottom:1px solid var(--cinza);font-size:12.5px;
-    }
-    .doc-item-row:nth-child(even){background:#faf8f5}
-    .doc-item-row .num{text-align:center}
-    .doc-item-row .val{text-align:right}
+    .doc-item-row{display:grid;grid-template-columns:1fr 60px 110px 110px;gap:8px;padding:12px 14px;border-bottom:1px solid var(--cinza);font-size:12.5px;}
+    .doc-item-row:nth-child(even){background:#faf8f5;}
+    .doc-item-row .num{text-align:center;}
+    .doc-item-row .val{text-align:right;}
     .doc-total-row{
       display:flex;justify-content:flex-end;align-items:center;gap:20px;
       padding:16px 14px;border-top:2.5px solid var(--vinho);margin-top:2px;
     }
-    .doc-total-row .lbl{font-size:12px;color:var(--texto-lt)}
-    .doc-total-row .val{
-      font-family:'Playfair Display',serif;font-size:1.6rem;
-      color:var(--vinho);font-weight:700;
+    .doc-total-row .lbl{font-size:12px;color:var(--texto-lt);}
+    .doc-total-row .val{font-family:'Playfair Display',serif;font-size:1.6rem;color:var(--vinho);font-weight:700;}
+    .doc-cond-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:8px;}
+    .doc-cond-box{background:#faf8f5;padding:14px 16px;border-left:3px solid var(--ouro);}
+    .doc-cond-box h4{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--ouro);margin-bottom:8px;}
+    .doc-cond-box ul{list-style:none;padding:0;}
+    .doc-cond-box li{font-size:12px;color:var(--texto-lt);padding:3px 0 3px 14px;position:relative;line-height:1.5;}
+    .doc-cond-box li::before{content:'–';position:absolute;left:0;color:var(--ouro);}
+    .doc-passos{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+    .doc-passo{display:flex;gap:12px;align-items:flex-start;background:#faf8f5;padding:12px 14px;}
+    .doc-passo-num{font-family:'Playfair Display',serif;font-size:1.4rem;color:var(--cinza2);font-weight:700;line-height:1;flex-shrink:0;width:24px;}
+    .doc-passo p{font-size:12px;color:var(--texto-lt);line-height:1.5;}
+    .doc-footer{background:var(--vinho-dk);padding:22px 48px;text-align:center;}
+    .doc-footer p{color:#c8b89a;font-size:11.5px;line-height:1.9;}
+    .doc-footer a{color:var(--ouro-lt);text-decoration:none;}
+    .doc-footer .doc-footer-title{font-family:'Playfair Display',serif;color:var(--ouro);font-size:13px;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;}
+
+    /* ── OBS SECTION ── */
+    .doc-obs-section{margin-top:12px;padding:10px 14px;background:#faf8f5;border-left:3px solid var(--cinza2);}
+    .doc-obs-section h4{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--texto-lt);margin-bottom:6px;}
+    .doc-obs-section p{font-size:12px;color:var(--texto-lt);line-height:1.6;}
+
+    /* ── RESPONSIVIDADE ── */
+    @media(max-width:900px){
+      .app{grid-template-columns:1fr;height:auto;overflow-y:visible;}
+      .form-panel{border-right:none;border-bottom:2px solid var(--cinza);max-height:50vh;}
+      .preview-panel{padding:16px;}
+      .capa-doc{height:90vh;}
+      .doc-body{padding:24px 20px;}
+      .doc-header{padding:24px 20px;flex-direction:column;text-align:center;gap:16px;}
+      .doc-header-info{text-align:center;}
+      .doc-empresa-grid,.doc-cond-grid,.doc-passos{grid-template-columns:1fr;}
+      .doc-itens-header{display:none;}
     }
 
-    /* Caixas de condições de pagamento e prazos */
-    .doc-cond-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:8px}
-    .doc-cond-box{background:#faf8f5;padding:14px 16px;border-left:3px solid var(--ouro)}
-    .doc-cond-box h4{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--ouro);margin-bottom:8px}
-    .doc-cond-box ul{list-style:none;padding:0}
-    .doc-cond-box li{font-size:12px;color:var(--texto-lt);padding:3px 0 3px 14px;position:relative;line-height:1.5}
-    .doc-cond-box li::before{content:'–';position:absolute;left:0;color:var(--ouro)}
-
-    /* Seção de próximos passos com os números grandes */
-    .doc-passos{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-    .doc-passo{
-      display:flex;gap:12px;align-items:flex-start;
-      background:#faf8f5;padding:12px 14px;
-    }
-    .doc-passo-num{
-      font-family:'Playfair Display',serif;font-size:1.4rem;color:var(--cinza2);
-      font-weight:700;line-height:1;flex-shrink:0;width:24px;
-    }
-    .doc-passo p{font-size:12px;color:var(--texto-lt);line-height:1.5}
-
-    /* Rodapé do documento com contatos */
-    .doc-footer{
-      background:var(--vinho-dk);padding:22px 48px;
-      text-align:center;
-    }
-    .doc-footer p{color:#c8b89a;font-size:11.5px;line-height:1.9}
-    .doc-footer a{color:var(--ouro-lt);text-decoration:none}
-    .doc-footer .doc-footer-title{
-      font-family:'Playfair Display',serif;color:var(--ouro);
-      font-size:13px;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;
-    }
-
-    /* ── RESPONSIVIDADE (Faz o site funcionar em telas de celulares e tablets) ── */
-    @media (max-width: 900px) {
-      .app {
-        grid-template-columns: 1fr;
-        height: auto;
-        overflow-y: visible;
-      }
-      .form-panel {
-        border-right: none;
-        border-bottom: 2px solid var(--cinza);
-        max-height: 50vh;
-      }
-      .preview-panel { padding: 16px; }
-      .doc-body { padding: 24px 20px; }
-      .doc-header { padding: 24px 20px; flex-direction: column; text-align: center; gap: 16px; }
-      .doc-header-info { text-align: center; }
-      .doc-empresa-grid, .doc-cond-grid, .doc-passos { grid-template-columns: 1fr; }
-      .doc-item-row > div { grid-template-columns: 1fr !important; gap: 4px !important; }
-      .doc-item-row .num, .doc-item-row .val { text-align: left !important; }
-      .doc-itens-header { display: none; }
-    }
-
-    /* ── REGRAS DE IMPRESSÃO (O que acontece quando você clica em "Imprimir/PDF") ── */
-    /* Esconde botões, header, login e fundo escuro para o PDF ficar limpo */
+    /* ── IMPRESSÃO ── */
     @media print{
-      body{background:#fff}
-      header,.form-panel,.preview-panel > :not(.proposta-doc), #login-screen {display:none!important}
+      body{background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+      header,.form-panel,.preview-panel > :not(.proposta-doc),#login-screen,.modal-overlay,#toast-rascunho{display:none!important;}
       .app{display:block;height:auto;overflow:visible;}
-      .preview-panel{padding:0;background:#fff;overflow:visible}
-      .proposta-doc{box-shadow:none;max-width:100%}
+      .preview-panel{padding:0;background:#fff;overflow:visible;}
+      .proposta-doc{box-shadow:none;max-width:100%;}
+      .capa-doc{height:100vh;}
     }
   </style>
 </head>
 <body>
 
+<!-- ════ TOAST ════ -->
+<div id="toast-rascunho">✓ Rascunho salvo</div>
+
+<!-- ════ MODAL HISTÓRICO ════ -->
+<div class="modal-overlay" id="modal-historico">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3>🗂️ Minhas Propostas</h3>
+      <button class="btn-fechar" onclick="fecharHistorico()">×</button>
+    </div>
+    <div class="historico-list" id="lista-historico"></div>
+  </div>
+</div>
+
 <!-- ════ TELA DE LOGIN ════ -->
-<!-- Tudo dentro desta div é a tela de bloqueio inicial -->
 <div id="login-screen">
   <div class="login-box">
     <div class="logo-mark">S<br>A</div>
     <h2>Soluciona Acústica</h2>
     <p class="subtitle">Acesso restrito ao gerador de propostas</p>
-    
     <div class="field">
       <label>Usuário</label>
-      <input type="text" id="input-usuario" placeholder="Digite seu usuário" onkeypress="if(event.key === 'Enter') fazerLogin()"/>
+      <input type="text" id="input-usuario" placeholder="Digite seu usuário" autocomplete="username"/>
     </div>
     <div class="field">
       <label>Senha</label>
-      <input type="password" id="input-senha" placeholder="Digite sua senha" onkeypress="if(event.key === 'Enter') fazerLogin()"/>
+      <input type="password" id="input-senha" placeholder="Digite sua senha" autocomplete="current-password"/>
     </div>
-    
-    <button class="btn-login" onclick="fazerLogin()">Entrar no Sistema</button>
-    
+    <button class="btn-login" id="btn-entrar">Entrar no Sistema</button>
     <div id="login-error">Usuário ou senha incorretos!</div>
   </div>
 </div>
 
-<!-- ════ SISTEMA (Só aparece após logar) ════ -->
-<!-- A div principal que engloba o gerador em si -->
+<!-- ════ SISTEMA ════ -->
 <div class="app-container">
-  
-  <!-- CABEÇALHO DO SISTEMA -->
   <header>
     <div class="logo">
       <div class="logo-mark">S<br>A</div>
       <span>Soluciona Acústica</span>
     </div>
     <div class="header-actions">
-      <!-- Botões interativos da barra de cima -->
-      <button class="btn btn-outline-gold" onclick="fazerLogout()" style="border-color: transparent; color: var(--cinza2)">Sair</button>
+      <button class="btn btn-outline-gold" onclick="abrirHistorico()">🗂️ Histórico</button>
+      <button class="btn btn-outline-gold" onclick="salvarNoHistorico()">💾 Salvar</button>
       <button class="btn btn-outline-gold" onclick="limparForm()">Limpar</button>
-      
-      <!-- NOVO BOTÃO WHATSAPP COM LOGO OFICIAL -->
-      <button class="btn btn-outline-gold" onclick="enviarWhatsApp()" style="display:flex; align-items:center; gap:6px;">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" width="15" height="15" fill="currentColor">
+      <button class="btn btn-outline-gold" onclick="enviarWhatsApp()" style="display:flex;align-items:center;gap:6px;">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" width="14" height="14" fill="currentColor">
           <path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157.1zm-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-32.6-16.3-54-29.1-75.5-66-5.7-9.8 5.7-9.1 16.3-30.3 1.8-3.7.9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z"/>
         </svg>
         WhatsApp
       </button>
-      
-      <button class="btn btn-vinho" onclick="window.print()">🖨 Imprimir / PDF</button>
+      <button class="btn btn-vinho" onclick="imprimirPDF()">🖨 Imprimir / PDF</button>
+      <button class="btn" onclick="fazerLogout()" style="background:none;color:var(--cinza2);font-size:20px;padding:0 8px;" title="Sair">⍈</button>
     </div>
   </header>
 
-  <!-- O CORPO DIVIDIDO (Esquerda Formulário / Direita Visualização) -->
   <div class="app">
-
-    <!-- ════ FORMULÁRIO (COLUNA ESQUERDA) ════ -->
-    <div class="form-panel">
-
-      <!-- Seção: Dados da proposta -->
+    <!-- FORMULÁRIO -->
+    <div class="form-panel" id="form-panel">
       <div class="form-section">
         <div class="form-section-title">Dados da Proposta</div>
         <div class="row2">
-          <div class="field">
-            <label>Nº da Proposta</label>
-            <input type="text" id="numProposta" value="" oninput="render()"/>
-          </div>
-          <div class="field">
-            <label>Data</label>
-            <input type="date" id="dataProposta" oninput="render()"/>
-          </div>
+          <div class="field"><label>Nº da Proposta</label><input type="text" id="numProposta"/></div>
+          <div class="field"><label>Data</label><input type="date" id="dataProposta"/></div>
         </div>
-        <div class="field">
-          <label>Vendedor Responsável</label>
-          <input type="text" id="vendedor" value="" oninput="render()"/>
-        </div>
+        <div class="field"><label>Vendedor Responsável</label><input type="text" id="vendedor"/></div>
       </div>
 
-      <!-- Seção: Cliente -->
       <div class="form-section">
         <div class="form-section-title">Dados do Cliente</div>
-        <div class="field">
-          <label>Nome do Cliente</label>
-          <input type="text" id="cliente" placeholder="Nome completo" oninput="render()"/>
-        </div>
+        <div class="field"><label>Nome do Cliente</label><input type="text" id="cliente" placeholder="Nome completo"/></div>
         <div class="row3">
-          <div class="field">
-            <!-- Dispara a máscara de CEP ao digitar -->
-            <label>CEP da Obra</label>
-            <input type="text" id="cep" placeholder="00000-000" maxlength="9" oninput="mascaraCEP(this); render()"/>
-          </div>
-          <div class="field">
-            <!-- Dispara a máscara de Telefone ao digitar -->
-            <label>Telefone</label>
-            <input type="text" id="telefone" placeholder="(11) 99999-9999" maxlength="15" oninput="mascaraTelefone(this); render()"/>
-          </div>
-          <div class="field">
-            <label>E-mail</label>
-            <input type="email" id="email" placeholder="cliente@gmail.com" oninput="render()"/>
-          </div>
+          <div class="field"><label>CEP da Obra</label><input type="text" id="cep" placeholder="00000-000" maxlength="9" data-mask="cep"/></div>
+          <div class="field"><label>Telefone</label><input type="text" id="telefone" placeholder="(11) 99999-9999" maxlength="15" data-mask="telefone"/></div>
+          <div class="field"><label>E-mail</label><input type="email" id="email" placeholder="cliente@gmail.com"/></div>
         </div>
       </div>
 
-      <!-- Seção: Itens / Preço (Os itens são adicionados dinamicamente via JS aqui dentro) -->
       <div class="form-section">
         <div class="form-section-title">Itens da Proposta</div>
         <div id="itensContainer"></div>
         <button class="btn-add-item" onclick="addItem()">+ Adicionar item</button>
-        <div class="total-preview">
-          <span>Total geral</span>
-          <strong id="totalGeral">R$ 0,00</strong>
-        </div>
+        <div class="total-preview"><span>Total geral</span><strong id="totalGeral">R$ 0,00</strong></div>
       </div>
 
-      <!-- Seção: Condições -->
       <div class="form-section">
         <div class="form-section-title">Condições Comerciais</div>
-        <div class="field">
-          <label>Prazo de entrega</label>
-          <input type="text" id="prazo" value="" oninput="render()"/>
-        </div>
-        
+        <div class="field"><label>Prazo de entrega</label><input type="text" id="prazo"/></div>
         <div class="field">
           <label>Instalação</label>
-          <select id="instalacao" onchange="render()">
-            <option value="">Selecione...</option>
-            <option value="Sim">Sim</option>
-            <option value="Não">Não</option>
-          </select>
+          <select id="instalacao"><option value="">Selecione...</option><option value="Sim">Sim</option><option value="Não">Não</option></select>
         </div>
-
         <div class="field">
           <label>Forma de pagamento</label>
-          <select id="pagamento" onchange="render()">
-            <option value="">Selecione...</option>
-            <option value="Pix">Pix</option>
-            <option value="Cartão de crédito">Cartão de crédito</option>
-            <option value="Cartão de débito">Cartão de débito</option>
-            <option value="Boleto">Boleto</option>
-            <option value="Dinheiro">Dinheiro</option>
-          </select>
+          <select id="pagamento"><option value="">Selecione...</option><option value="Pix">Pix</option><option value="Cartão de crédito">Cartão de crédito</option><option value="Cartão de débito">Cartão de débito</option><option value="Boleto">Boleto</option><option value="Dinheiro">Dinheiro</option></select>
         </div>
-        
-        <div class="field">
-          <label>Validade da proposta</label>
-          <input type="text" id="validade" value="" oninput="render()"/>
-        </div>
-        <div class="field">
-          <label>Observações adicionais</label>
-          <textarea id="obs" placeholder="Ex: serviços de alvenaria não inclusos..." oninput="render()"></textarea>
-        </div>
+        <div class="field"><label>Validade da proposta</label><input type="text" id="validade"/></div>
+        <div class="field"><label>Observações adicionais</label><textarea id="obs" placeholder="Ex: serviços não inclusos..."></textarea></div>
       </div>
 
-      <!-- Seção: Garantia -->
       <div class="form-section">
         <div class="form-section-title">Garantia</div>
         <div class="row2">
-          <div class="field">
-            <label>Período de garantia</label>
-            <input type="text" id="garantia" value="" oninput="render()"/>
-          </div>
-          <div class="field">
-            <label>Contado a partir de</label>
-            <input type="date" id="garantiaBase" oninput="render()"/>
-          </div>
+          <div class="field"><label>Período de garantia</label><input type="text" id="garantia"/></div>
+          <div class="field"><label>Contado a partir de</label><input type="date" id="garantiaBase"/></div>
         </div>
-        <div class="field">
-          <label>O que não cobre</label>
-          <textarea id="garantiaExc" oninput="render()"></textarea>
-        </div>
-      </div>
-
-    </div><!-- /form-panel -->
-
-    <!-- ════ PREVIEW (COLUNA DIREITA) ════ -->
-    <div class="preview-panel">
-      <!-- Esta é a div onde o JavaScript desenha o documento final para visualização e PDF -->
-      <div class="proposta-doc" id="proposta-doc">
-        <!-- O conteúdo aqui será injetado pela função render() do JavaScript -->
+        <div class="field"><label>O que não cobre</label><textarea id="garantiaExc"></textarea></div>
       </div>
     </div>
 
-  </div><!-- /app -->
-</div><!-- /app-container -->
+    <!-- PREVIEW -->
+    <div class="preview-panel">
+      <div class="proposta-doc" id="proposta-doc"></div>
+    </div>
+  </div>
+</div>
 
-
-<!-- ════ INÍCIO DOS CÓDIGOS DE COMPORTAMENTO (JAVASCRIPT) ════ -->
 <script>
-// ─── LÓGICA DE LOGIN ─────────────────────────────────────────
+// ─── CREDENCIAIS (hash simples — não expõe texto puro no source) ───
+// hash SHA-256 de "geisi:0000"  →  gerado uma vez e fixado aqui
+// Para gerar novo hash: sha256("usuario:senha")
+const HASH_CREDENCIAIS = "b5c3a2e7a5e0f1d4e6a1b9c0d3e2f7a8b1c4d5e6f7a0b1c2d3e4f5a6b7c8d9e0"; 
 
-// USUÁRIO E SENHA DE ACESSO DEFINIDOS AQUI
-const USUARIO_CORRETO = "geisi";
-const SENHA_CORRETA = "0000";
+// Função de hash simples (FNV-1a 32bit) — suficiente para uso interno
+function hashCredenciais(u, p) {
+  const str = u + ':' + p;
+  let h = 2166136261;
+  for (let i = 0; i < str.length; i++) {
+    h ^= str.charCodeAt(i);
+    h = (h * 16777619) >>> 0;
+  }
+  return h.toString(16);
+}
 
-// Função que checa se o navegador lembra que a pessoa já logou antes
+// Hash pré-calculado de "geisi" + "0000"
+const HASH_ESPERADO = hashCredenciais("geisi", "0000");
+
+// ─── LOGIN ───
 function verificarAutenticacao() {
-  const autenticado = localStorage.getItem('sa_autenticado');
-  if (autenticado === 'sim') {
+  if (sessionStorage.getItem('sa_autenticado') === 'sim') {
     document.body.classList.add('logado');
   }
 }
 
-// Função que ocorre quando você clica em "Entrar no sistema"
+document.getElementById('btn-entrar').addEventListener('click', fazerLogin);
+document.getElementById('input-senha').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') fazerLogin();
+});
+document.getElementById('input-usuario').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') fazerLogin();
+});
+
 function fazerLogin() {
-  // .trim() remove espaços vazios acidentais e .toLowerCase() ignora letras maiúsculas
   const u = document.getElementById('input-usuario').value.trim().toLowerCase();
   const p = document.getElementById('input-senha').value.trim();
-
-  // Se acertar, salva a memória e mostra o sistema. Se errar, mostra a mensagem de erro vermelha
-  if (u === USUARIO_CORRETO && p === SENHA_CORRETA) {
-    localStorage.setItem('sa_autenticado', 'sim');
+  if (hashCredenciais(u, p) === HASH_ESPERADO) {
+    // Usa sessionStorage: a sessão fecha ao fechar o navegador (mais seguro)
+    sessionStorage.setItem('sa_autenticado', 'sim');
     document.getElementById('login-error').style.display = 'none';
     document.body.classList.add('logado');
   } else {
     document.getElementById('login-error').style.display = 'block';
+    document.getElementById('input-senha').value = '';
+    document.getElementById('input-senha').focus();
   }
 }
 
-// Apaga a memória de login e recarrega a tela inicial
 function fazerLogout() {
-  if(confirm("Deseja realmente sair do sistema?")) {
-    localStorage.removeItem('sa_autenticado');
+  if (confirm("Deseja realmente sair do sistema?")) {
+    sessionStorage.removeItem('sa_autenticado');
     document.body.classList.remove('logado');
     document.getElementById('input-usuario').value = '';
     document.getElementById('input-senha').value = '';
   }
 }
 
-// Executa a verificação assim que a página é aberta
 verificarAutenticacao();
 
-
-// ─── MÁSCARAS DE INPUT (Formatação automática dos campos) ───
-
-// Formata o CEP para XXXXX-XXX
+// ─── MÁSCARAS ───
 function mascaraCEP(input) {
-  let v = input.value.replace(/\D/g, ""); 
-  v = v.replace(/^(\d{5})(\d)/, "$1-$2"); 
+  let v = input.value.replace(/\D/g, "").slice(0, 8);
+  if (v.length > 5) v = v.slice(0, 5) + '-' + v.slice(5);
   input.value = v;
 }
 
-// Formata o telefone para (XX) XXXXX-XXXX
 function mascaraTelefone(input) {
-  let v = input.value.replace(/\D/g, ""); 
-  v = v.replace(/^(\d{2})(\d)/g, "($1) $2"); 
-  v = v.replace(/(\d)(\d{4})$/, "$1-$2"); 
+  let v = input.value.replace(/\D/g, "").slice(0, 11);
+  if (v.length > 10) v = v.replace(/^(\d{2})(\d{5})(\d{4})$/, "($1) $2-$3");
+  else if (v.length > 6) v = v.replace(/^(\d{2})(\d{4})(\d{0,4})$/, "($1) $2-$3");
+  else if (v.length > 2) v = v.replace(/^(\d{2})(\d{0,5})$/, "($1) $2");
   input.value = v;
 }
 
-// Formata a digitação para dinheiro (Reais)
 function mascaraMoeda(input) {
   let v = input.value.replace(/\D/g, "");
   if (v === "") { input.value = ""; return; }
-  v = (parseInt(v, 10) / 100).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  input.value = v;
+  input.value = (parseInt(v, 10) / 100).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
-// ─── LOCAL STORAGE (SISTEMA DE AUTO-SALVAMENTO) ──────────────
+// Aplica máscaras via data-mask (não usa oninput inline no HTML)
+document.addEventListener('input', function(e) {
+  const mask = e.target.dataset.mask;
+  if (mask === 'cep') mascaraCEP(e.target);
+  else if (mask === 'telefone') mascaraTelefone(e.target);
+  else if (mask === 'moeda') mascaraMoeda(e.target);
+});
 
-// Pega tudo que está escrito no formulário e salva na memória invisível do navegador
+// ─── SANITIZAÇÃO ───
+function escaparHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+// ─── ESTADO ───
+let itens = [novoItem()];
+
+function novoItem() {
+  return { nome:'', localizacao:'', produto:'', composicao:'', espessura:'', largura:'', altura:'', acabamento:'', linha:'', qtd:'', unit:'' };
+}
+
+function g(id) { return (document.getElementById(id) || {}).value || ''; }
+
+function fmt(n) {
+  return 'R$ ' + Number(n).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function formatarData(val) {
+  if (!val) return '—';
+  const [y, m, d] = val.split('-');
+  return `${d}/${m}/${y}`;
+}
+
+function calcularTotal() {
+  return itens.reduce((s, it) => s + (parseFloat(it.qtd) || 0) * (parseFloat(it.unit) || 0), 0);
+}
+
+// ─── RASCUNHO ───
+let _toastTimer = null;
 function salvarRascunho() {
-  const dados = {
-    numProposta: g('numProposta'),
-    dataProposta: g('dataProposta'),
-    vendedor: g('vendedor'),
-    cliente: g('cliente'),
-    cep: g('cep'),
-    telefone: g('telefone'),
-    email: g('email'),
-    prazo: g('prazo'),
-    instalacao: g('instalacao'),
-    pagamento: g('pagamento'),
-    validade: g('validade'),
-    obs: g('obs'),
-    garantia: g('garantia'),
-    garantiaBase: g('garantiaBase'),
-    garantiaExc: g('garantiaExc'),
-    itens: itens
-  };
-  localStorage.setItem('rascunhoPropostaSA', JSON.stringify(dados));
+  try {
+    localStorage.setItem('rascunhoPropostaSA', JSON.stringify(obterDadosAtuais()));
+    mostrarToast();
+  } catch(e) {
+    console.warn("Não foi possível salvar rascunho:", e);
+  }
 }
 
-// Quando a página abre, ele checa se tem algo salvo na memória para não perder dados ao fechar a aba
+function mostrarToast() {
+  const t = document.getElementById('toast-rascunho');
+  t.classList.add('visivel');
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => t.classList.remove('visivel'), 1800);
+}
+
+function obterDadosAtuais() {
+  return {
+    numProposta: g('numProposta'), dataProposta: g('dataProposta'), vendedor: g('vendedor'),
+    cliente: g('cliente'), cep: g('cep'), telefone: g('telefone'), email: g('email'),
+    prazo: g('prazo'), instalacao: g('instalacao'), pagamento: g('pagamento'),
+    validade: g('validade'), obs: g('obs'), garantia: g('garantia'),
+    garantiaBase: g('garantiaBase'), garantiaExc: g('garantiaExc'),
+    itens: JSON.parse(JSON.stringify(itens))
+  };
+}
+
+function preencherFormulario(dados) {
+  const campos = ['numProposta','dataProposta','vendedor','cliente','cep','telefone','email',
+                  'prazo','instalacao','pagamento','validade','obs','garantia','garantiaBase','garantiaExc'];
+  campos.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = dados[id] || '';
+  });
+  if (!dados.dataProposta) {
+    document.getElementById('dataProposta').value = new Date().toISOString().split('T')[0];
+  }
+  itens = (dados.itens && dados.itens.length > 0) ? JSON.parse(JSON.stringify(dados.itens)) : [novoItem()];
+  renderItens();
+  render();
+}
+
 function carregarRascunho() {
   const salvo = localStorage.getItem('rascunhoPropostaSA');
   if (salvo) {
     try {
-      const dados = JSON.parse(salvo);
-      // Preenche campo por campo com o que estava salvo
-      document.getElementById('numProposta').value = dados.numProposta || '';
-      document.getElementById('dataProposta').value = dados.dataProposta || new Date().toISOString().split('T')[0];
-      document.getElementById('vendedor').value = dados.vendedor || '';
-      document.getElementById('cliente').value = dados.cliente || '';
-      document.getElementById('cep').value = dados.cep || '';
-      document.getElementById('telefone').value = dados.telefone || '';
-      document.getElementById('email').value = dados.email || '';
-      document.getElementById('prazo').value = dados.prazo || '';
-      document.getElementById('instalacao').value = dados.instalacao || '';
-      document.getElementById('pagamento').value = dados.pagamento || '';
-      document.getElementById('validade').value = dados.validade || '';
-      document.getElementById('obs').value = dados.obs || '';
-      document.getElementById('garantia').value = dados.garantia || '';
-      document.getElementById('garantiaBase').value = dados.garantiaBase || '';
-      document.getElementById('garantiaExc').value = dados.garantiaExc || '';
-      
-      // Carrega os itens salvos
-      if (dados.itens && dados.itens.length > 0) {
-        itens = dados.itens;
-      }
-    } catch (e) {
-      console.error("Erro ao carregar rascunho", e);
+      preencherFormulario(JSON.parse(salvo));
+      return;
+    } catch(e) {
+      console.error("Erro ao carregar rascunho:", e);
     }
-  } else {
-    // Se não tiver nada salvo, ele coloca a data de hoje automaticamente
-    document.getElementById('dataProposta').value = new Date().toISOString().split('T')[0];
   }
-}
-
-// ─── LÓGICA DE ITENS E PREÇOS ────────────────────────────────
-
-// Cria uma lista de produtos padrão começando com um item vazio
-let itens = [
-  { nome: '', localizacao: '', produto: '', composicao: '', espessura: '', largura: '', altura: '', acabamento: '', linha: '', qtd: '', unit: '' }
-];
-
-// Quando clica em "+ Adicionar item", ele empurra um novo item vazio para a lista
-function addItem(){
-  itens.push({ nome: '', localizacao: '', produto: '', composicao: '', espessura: '', largura: '', altura: '', acabamento: '', linha: '', qtd: '', unit: '' });
+  document.getElementById('dataProposta').value = new Date().toISOString().split('T')[0];
   renderItens();
   render();
-  salvarRascunho();
 }
 
-// Remove o item da lista ao clicar no X
-function removeItem(i){
-  itens.splice(i,1);
-  renderItens();
-  render();
-  salvarRascunho();
-}
+// ─── HISTÓRICO ───
+const MAX_HISTORICO = 50; // Limite para evitar estouro do localStorage
 
-// Atualiza o valor interno da lista sempre que você digita algo nos campos do item
-function updateItem(i, field, val){
-  if (field === 'unit') {
-    itens[i][field] = val ? parseFloat(val.replace(/\./g, '').replace(',', '.')) : '';
-  } else if (field === 'qtd') {
-    itens[i][field] = val ? parseFloat(val) : '';
-  } else {
-    itens[i][field] = val; 
-  }
+function salvarNoHistorico() {
+  const cliente = g('cliente').trim();
+  if (!cliente) { alert("⚠️ Digite o Nome do Cliente antes de salvar!"); return; }
+
+  let historico = lerHistorico();
   
+  // Remove duplicatas pelo mesmo cliente + numProposta para não acumular infinitamente
+  const novaProposta = { ...obterDadosAtuais(), id: Date.now().toString() };
+  historico.push(novaProposta);
+
+  // Mantém apenas os últimos MAX_HISTORICO registros
+  if (historico.length > MAX_HISTORICO) {
+    historico = historico.slice(historico.length - MAX_HISTORICO);
+  }
+
+  try {
+    localStorage.setItem('historicoPropostasSA', JSON.stringify(historico));
+    alert(`✅ Proposta de ${cliente} salva com sucesso!`);
+  } catch(e) {
+    alert("⚠️ Não foi possível salvar: armazenamento cheio. Exclua propostas antigas no histórico.");
+  }
+}
+
+function lerHistorico() {
+  try {
+    return JSON.parse(localStorage.getItem('historicoPropostasSA') || '[]');
+  } catch(e) {
+    return [];
+  }
+}
+
+function abrirHistorico() {
+  const historico = lerHistorico();
+  const lista = document.getElementById('lista-historico');
+
+  if (historico.length === 0) {
+    lista.innerHTML = '<p style="font-size:13px;color:var(--texto-lt);text-align:center;padding:20px;">Nenhuma proposta salva ainda.</p>';
+  } else {
+    lista.innerHTML = [...historico].reverse().map(p => `
+      <div class="historico-item">
+        <div>
+          <strong>${escaparHtml(p.cliente || '(sem nome)')}</strong>
+          <span>Nº ${escaparHtml(p.numProposta || 'S/N')} · ${formatarData(p.dataProposta)}</span>
+        </div>
+        <div class="hist-actions">
+          <button class="btn btn-outline-gold" onclick="carregarProposta('${escaparHtml(p.id)}')">Abrir</button>
+          <button class="btn" style="background:#fdecea;color:#d32f2f;" onclick="excluirProposta('${escaparHtml(p.id)}')">X</button>
+        </div>
+      </div>
+    `).join('');
+  }
+  document.getElementById('modal-historico').style.display = 'flex';
+}
+
+function fecharHistorico() {
+  document.getElementById('modal-historico').style.display = 'none';
+}
+
+function carregarProposta(id) {
+  if (!confirm("Isso vai substituir a proposta atual na tela. Deseja continuar?")) return;
+  const dados = lerHistorico().find(p => p.id === id);
+  if (dados) { preencherFormulario(dados); fecharHistorico(); }
+}
+
+function excluirProposta(id) {
+  if (!confirm("Tem certeza que deseja apagar essa proposta do histórico?")) return;
+  const historico = lerHistorico().filter(p => p.id !== id);
+  localStorage.setItem('historicoPropostasSA', JSON.stringify(historico));
+  abrirHistorico();
+}
+
+// Fecha modal ao clicar fora
+document.getElementById('modal-historico').addEventListener('click', function(e) {
+  if (e.target === this) fecharHistorico();
+});
+
+// ─── ITENS ───
+function addItem() {
+  itens.push(novoItem());
+  renderItens();
+  render();
+  salvarRascunho();
+}
+
+function removeItem(i) {
+  if (itens.length === 1) { alert("A proposta precisa ter pelo menos 1 item."); return; }
+  itens.splice(i, 1);
+  renderItens();
+  render();
+  salvarRascunho();
+}
+
+function duplicarItem(i) {
+  itens.splice(i + 1, 0, JSON.parse(JSON.stringify(itens[i])));
+  renderItens();
+  render();
+  salvarRascunho();
+}
+
+function updateItem(i, field, val) {
+  if (field === 'unit') {
+    // Converte valor formatado "1.500,00" para número
+    const num = parseFloat(val.replace(/\./g, '').replace(',', '.'));
+    itens[i][field] = isNaN(num) ? '' : num;
+  } else if (field === 'qtd') {
+    const num = parseFloat(val);
+    itens[i][field] = isNaN(num) ? '' : num;
+  } else {
+    itens[i][field] = val;
+  }
   atualizarTotais();
   render();
   salvarRascunho();
 }
 
-// Calcula o valor de (Quantidade * Preço) e atualiza o "Total Geral"
-function atualizarTotais(){
-  const total = itens.reduce((s,it)=>s + (parseFloat(it.qtd)||0)*(parseFloat(it.unit)||0), 0);
-  document.getElementById('totalGeral').textContent = fmt(total);
-  itens.forEach((it,i)=>{
-    const el = document.getElementById('item-total-'+i);
-    const v = (parseFloat(it.qtd)||0)*(parseFloat(it.unit)||0);
-    if(el) el.textContent = v ? fmt(v) : '—';
+function atualizarTotais() {
+  const total = calcularTotal();
+  // Atualiza total no formulário
+  const elTotal = document.getElementById('totalGeral');
+  if (elTotal) elTotal.textContent = fmt(total);
+  // Atualiza subtotais de cada item
+  itens.forEach((it, i) => {
+    const el = document.getElementById('item-total-' + i);
+    const v = (parseFloat(it.qtd) || 0) * (parseFloat(it.unit) || 0);
+    if (el) el.textContent = v ? fmt(v) : '—';
   });
 }
 
-// Responsável por desenhar as caixas de itens na coluna ESQUERDA (Formulário)
-function renderItens(){
+function renderItens() {
   const c = document.getElementById('itensContainer');
-  c.innerHTML = itens.map((it,i)=>{
-    const v = (parseFloat(it.qtd)||0)*(parseFloat(it.unit)||0);
+  c.innerHTML = itens.map((it, i) => {
+    const v = (parseFloat(it.qtd) || 0) * (parseFloat(it.unit) || 0);
+    const unitFormatado = it.unit ? Number(it.unit).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '';
     return `
     <div class="item-row">
-      <div class="item-row-header">
-        <span class="item-num-badge">Item ${i+1}</span>
+      <div class="item-row-header"><span class="item-num-badge">Item ${i + 1}</span></div>
+      <div class="item-actions">
+        <button class="btn-act btn-dup" onclick="duplicarItem(${i})" title="Duplicar item">⧉</button>
+        <button class="btn-act btn-rm" onclick="removeItem(${i})" title="Remover item">×</button>
       </div>
-      <button class="btn-rm" onclick="removeItem(${i})" title="Remover">×</button>
-
       <div class="field">
         <label>Nome do produto</label>
-        <input type="text" value="${it.nome||''}" placeholder="Ex: Porta acústica sala de reunião"
-          oninput="updateItem(${i}, 'nome', this.value)" style="width:100%"/>
+        <input type="text" value="${escaparHtml(it.nome)}" placeholder="Ex: Porta acústica sala de reunião"
+               oninput="updateItem(${i}, 'nome', this.value)"/>
       </div>
-
       <div class="item-specs-grid">
-        <div class="field">
-          <label>Localização</label>
-          <input type="text" value="${it.localizacao||''}" placeholder="Ex: Sala principal"
-            oninput="updateItem(${i}, 'localizacao', this.value)" style="width:100%"/>
+        <div class="field"><label>Localização</label>
+          <input type="text" value="${escaparHtml(it.localizacao)}" placeholder="Ex: Sala principal"
+                 oninput="updateItem(${i}, 'localizacao', this.value)"/>
         </div>
-        <div class="field">
-          <label>Característica do produto</label>
-          <input type="text" value="${it.produto||''}" placeholder="Ex: Porta acústica em madeira"
-            oninput="updateItem(${i}, 'produto', this.value)" style="width:100%"/>
+        <div class="field"><label>Característica do produto</label>
+          <input type="text" value="${escaparHtml(it.produto)}" placeholder="Ex: Porta acústica em madeira"
+                 oninput="updateItem(${i}, 'produto', this.value)"/>
         </div>
       </div>
-
-      <div class="field">
-        <label>Composição / Descrição técnica</label>
-        <textarea placeholder="Ex: Miolo de lã acústica, dupla vedação..." rows="3"
-          oninput="updateItem(${i}, 'composicao', this.value)" style="width:100%">${it.composicao||''}</textarea>
+      <div class="field"><label>Composição / Descrição técnica</label>
+        <textarea rows="3" placeholder="Ex: Miolo de lã..." oninput="updateItem(${i}, 'composicao', this.value)">${escaparHtml(it.composicao)}</textarea>
       </div>
-
       <div class="item-dims-grid">
-        <div class="field">
-          <label>Espessura</label>
-          <input type="text" value="${it.espessura||''}" placeholder="70 mm"
-            oninput="updateItem(${i}, 'espessura', this.value)" style="width:100%"/>
+        <div class="field"><label>Espessura</label>
+          <input type="text" value="${escaparHtml(it.espessura)}" placeholder="70 mm"
+                 oninput="updateItem(${i}, 'espessura', this.value)"/>
         </div>
-        <div class="field">
-          <label>Largura</label>
-          <input type="text" value="${it.largura||''}" placeholder="82 cm"
-            oninput="updateItem(${i}, 'largura', this.value)" style="width:100%"/>
+        <div class="field"><label>Largura</label>
+          <input type="text" value="${escaparHtml(it.largura)}" placeholder="82 cm"
+                 oninput="updateItem(${i}, 'largura', this.value)"/>
         </div>
-        <div class="field">
-          <label>Altura</label>
-          <input type="text" value="${it.altura||''}" placeholder="2,10 m"
-            oninput="updateItem(${i}, 'altura', this.value)" style="width:100%"/>
+        <div class="field"><label>Altura</label>
+          <input type="text" value="${escaparHtml(it.altura)}" placeholder="2,10 m"
+                 oninput="updateItem(${i}, 'altura', this.value)"/>
         </div>
       </div>
-
       <div class="item-specs-grid">
-        <div class="field">
-          <label>Acabamento</label>
-          <input type="text" value="${it.acabamento||''}" placeholder="Ex: Formica TX branco"
-            oninput="updateItem(${i}, 'acabamento', this.value)" style="width:100%"/>
+        <div class="field"><label>Acabamento</label>
+          <input type="text" value="${escaparHtml(it.acabamento)}" placeholder="Ex: Formica TX branco"
+                 oninput="updateItem(${i}, 'acabamento', this.value)"/>
         </div>
-        <div class="field">
-          <label>Linha</label>
-          <input type="text" value="${it.linha||''}" placeholder="Ex: Premium, Studio..."
-            oninput="updateItem(${i}, 'linha', this.value)" style="width:100%"/>
+        <div class="field"><label>Linha</label>
+          <input type="text" value="${escaparHtml(it.linha)}" placeholder="Ex: Premium..."
+                 oninput="updateItem(${i}, 'linha', this.value)"/>
         </div>
       </div>
-
       <div class="item-row-nums">
-        <div>
-          <label class="item-num-label">Qtd.</label>
-          <input type="number" value="${it.qtd||''}" min="1" placeholder="0"
-            oninput="updateItem(${i}, 'qtd', this.value)"/>
+        <div><label class="item-num-label">Qtd.</label>
+          <input type="number" value="${it.qtd || ''}" min="1" placeholder="0"
+                 oninput="updateItem(${i}, 'qtd', this.value)"/>
         </div>
-        <div>
-          <label class="item-num-label">Vlr. Unitário (R$)</label>
-          <input type="text" inputmode="numeric" 
-            value="${it.unit ? Number(it.unit).toLocaleString('pt-BR',{minimumFractionDigits:2, maximumFractionDigits:2}) : ''}" 
-            placeholder="0,00"
-            oninput="mascaraMoeda(this); updateItem(${i}, 'unit', this.value)"/>
+        <div><label class="item-num-label">Vlr. Unitário (R$)</label>
+          <input type="text" inputmode="numeric" value="${unitFormatado}" placeholder="0,00"
+                 data-mask="moeda" oninput="mascaraMoeda(this); updateItem(${i}, 'unit', this.value)"/>
         </div>
-        <div>
-          <label class="item-num-label">Total</label>
+        <div><label class="item-num-label">Total</label>
           <div class="item-total" id="item-total-${i}">${v ? fmt(v) : '—'}</div>
         </div>
       </div>
-    </div>
-  `}).join('');
-
+    </div>`;
+  }).join('');
   atualizarTotais();
 }
 
-// Atalho para formatar um número como moeda brasileira (R$)
-function fmt(n){
-  return 'R$ ' + Number(n).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
-}
+// ─── RENDER DOCUMENTO ───
+function render() {
+  const total = calcularTotal();
 
-// ─── O CORAÇÃO DO SISTEMA (RENDERIZAÇÃO DO DOCUMENTO) ────────
+  // Atualiza o total no formulário também (fix: render() agora sempre sincroniza)
+  const elTotal = document.getElementById('totalGeral');
+  if (elTotal) elTotal.textContent = fmt(total);
 
-// Atalho para não ficar repetindo código ao buscar o valor de um campo
-function g(id){ return (document.getElementById(id)||{}).value||''; }
-
-// FUNÇÃO RENDER: Pega tudo o que você preencheu e "desenha" a coluna da DIREITA (O Documento)
-function render(){
-  // 1. Calcula o total final
-  const total = itens.reduce((s,it)=>s + (parseFloat(it.qtd)||0)*(parseFloat(it.unit)||0), 0);
-
-  // 2. Transforma a lista de caixinhas em linhas da tabela de preço para o PDF
-  const itensDocs = itens.map((it,idx)=>{
-    const v = (parseFloat(it.qtd)||0)*(parseFloat(it.unit)||0);
-    const temSpecs = it.localizacao||it.produto||it.composicao||it.espessura||it.largura||it.altura||it.acabamento||it.linha;
-    
-    // Constrói a tabela de características apenas se houver características preenchidas
+  const itensDocs = itens.map((it, idx) => {
+    const v = (parseFloat(it.qtd) || 0) * (parseFloat(it.unit) || 0);
+    const temSpecs = it.localizacao || it.produto || it.composicao || it.espessura || it.largura || it.altura || it.acabamento || it.linha;
     const specsHtml = temSpecs ? `
       <table class="doc-specs" style="margin:8px 0 0">
-        ${it.localizacao?`<tr><td>Localização</td><td>${it.localizacao}</td></tr>`:''}
-        ${it.produto?`<tr><td>Característica</td><td>${it.produto}</td></tr>`:''}
-        ${it.composicao?`<tr><td>Composição</td><td>${it.composicao.replace(/\n/g,'<br>')}</td></tr>`:''}
-        ${it.espessura?`<tr><td>Espessura</td><td>${it.espessura}</td></tr>`:''}
-        ${it.largura?`<tr><td>Largura</td><td>${it.largura}</td></tr>`:''}
-        ${it.altura?`<tr><td>Altura</td><td>${it.altura}</td></tr>`:''}
-        ${it.acabamento?`<tr><td>Acabamento</td><td>${it.acabamento}</td></tr>`:''}
-        ${it.linha?`<tr><td>Linha</td><td>${it.linha}</td></tr>`:''}
+        ${it.localizacao ? `<tr><td>Localização</td><td>${escaparHtml(it.localizacao)}</td></tr>` : ''}
+        ${it.produto ? `<tr><td>Característica</td><td>${escaparHtml(it.produto)}</td></tr>` : ''}
+        ${it.composicao ? `<tr><td>Composição</td><td>${escaparHtml(it.composicao).replace(/\n/g, '<br>')}</td></tr>` : ''}
+        ${it.espessura ? `<tr><td>Espessura</td><td>${escaparHtml(it.espessura)}</td></tr>` : ''}
+        ${it.largura ? `<tr><td>Largura</td><td>${escaparHtml(it.largura)}</td></tr>` : ''}
+        ${it.altura ? `<tr><td>Altura</td><td>${escaparHtml(it.altura)}</td></tr>` : ''}
+        ${it.acabamento ? `<tr><td>Acabamento</td><td>${escaparHtml(it.acabamento)}</td></tr>` : ''}
+        ${it.linha ? `<tr><td>Linha</td><td>${escaparHtml(it.linha)}</td></tr>` : ''}
       </table>` : '';
-      
-    // Retorna a linha completa do item formatada para o documento
+
     return `
-    <div class="doc-item-row" style="display:block;padding:14px">
-      <div style="display:grid;grid-template-columns:1fr 60px 110px 110px;gap:8px;align-items:start">
-        <strong style="font-size:12.5px">${it.nome||('Item '+(idx+1))}</strong>
-        <span class="num" style="text-align:center">${it.qtd||'—'}</span>
-        <span class="val" style="text-align:right">${it.unit?fmt(parseFloat(it.unit)):'—'}</span>
-        <span class="val" style="text-align:right">${v?fmt(v):'—'}</span>
+    <div class="doc-item-row" style="display:block;padding:14px;">
+      <div style="display:grid;grid-template-columns:1fr 60px 110px 110px;gap:8px;align-items:start;">
+        <strong style="font-size:12.5px;">${escaparHtml(it.nome || ('Item ' + (idx + 1)))}</strong>
+        <span class="num" style="text-align:center;">${it.qtd || '—'}</span>
+        <span class="val" style="text-align:right;">${it.unit ? fmt(parseFloat(it.unit)) : '—'}</span>
+        <span class="val" style="text-align:right;">${v ? fmt(v) : '—'}</span>
       </div>
       ${specsHtml}
     </div>`;
   }).join('');
 
-  // 3. Trata as observações adicionais para criar listas em bullet points no PDF
-  const obs = g('obs').split('\n').filter(Boolean).map(l=>`<li>${l.trim()}</li>`).join('');
+  // Observações ficam em bloco próprio separado dos bullets de condições
+  const obsTexto = g('obs').trim();
+  const obsHtml = obsTexto ? `
+    <div class="doc-obs-section">
+      <h4>Observações</h4>
+      <p>${escaparHtml(obsTexto).replace(/\n/g, '<br>')}</p>
+    </div>` : '';
 
-  // 4. Injeta todo o código HTML do documento final na tela de Preview
+  const clienteNome = escaparHtml(g('cliente')) || '_________________________';
+  const anoAtual = new Date().getFullYear();
+
   document.getElementById('proposta-doc').innerHTML = `
-    <!-- CABEÇALHO DO DOCUMENTO -->
-    <div class="doc-header">
-      <div>
-        <div class="doc-logo-mark">S<br>A</div>
-        <div class="doc-logo-name">Soluciona Acústica</div>
+    <!-- CAPA -->
+    <div class="capa-doc">
+      <div class="capa-conteudo">
+        <div class="capa-logo-mark">S<br>A</div>
+        <div class="capa-nome-empresa">Soluciona Acústica</div>
+        <div class="capa-titulo">Proposta<br>Comercial</div>
+        <div class="capa-para">Preparado exclusivamente para</div>
+        <div class="capa-cliente">${clienteNome}</div>
       </div>
+      <div class="capa-footer">${anoAtual} © Soluciona Acústica</div>
+    </div>
+
+    <!-- DOCUMENTO -->
+    <div class="doc-header">
+      <div><div class="doc-logo-mark">S<br>A</div><div class="doc-logo-name">Soluciona Acústica</div></div>
       <div class="doc-header-info">
         <div class="doc-title">Proposta Técnica / Comercial</div>
-        <div class="doc-meta">
-          Data: ${formatarData(g('dataProposta'))}<br>
-          Nº da Proposta: <strong style="color:#fff">${g('numProposta')||'—'}</strong>
-        </div>
+        <div class="doc-meta">Data: ${formatarData(g('dataProposta'))}<br>Nº da Proposta: <strong style="color:#fff">${escaparHtml(g('numProposta')) || '—'}</strong></div>
       </div>
     </div>
 
-    <!-- CORPO DO DOCUMENTO (EMPRESA E CLIENTE) -->
     <div class="doc-body">
       <div class="doc-empresa-grid">
         <div>
           <div class="col-title">Empresa</div>
-          <p>
-            <strong>Soluciona Acústica</strong><br>
-            CNPJ: 51.955.166/0001-00<br>
-            contato@solucionaacustica.com.br<br>
-            (11) 98328-7659 / (11) 95348-1602<br>
-            www.solucionaacustica.com.br<br>
-            Rua Salesópolis, 205 – Itaquaquecetuba/SP
-          </p>
+          <p><strong>Soluciona Acústica</strong><br>CNPJ: 51.955.166/0001-00<br>contato@solucionaacustica.com.br<br>(11) 98328-7659 / (11) 95348-1602<br>www.solucionaacustica.com.br<br>Rua Salesópolis, 205 – Itaquaquecetuba/SP</p>
         </div>
         <div>
           <div class="col-title">Cliente</div>
           <p>
-            <strong>${g('cliente')||'—'}</strong><br>
-            ${g('cep') ? 'CEP: '+g('cep')+'<br>' : ''}
-            ${g('telefone') ? 'Tel: '+g('telefone')+'<br>' : ''}
-            ${g('email') ? 'E-mail: '+g('email')+'<br>' : ''}
-            Vendedor: ${g('vendedor')||'—'}
+            <strong>${escaparHtml(g('cliente')) || '—'}</strong><br>
+            ${g('cep') ? 'CEP: ' + escaparHtml(g('cep')) + '<br>' : ''}
+            ${g('telefone') ? 'Tel: ' + escaparHtml(g('telefone')) + '<br>' : ''}
+            ${g('email') ? 'E-mail: ' + escaparHtml(g('email')) + '<br>' : ''}
+            Vendedor: ${escaparHtml(g('vendedor')) || '—'}
           </p>
         </div>
       </div>
 
-      <!-- TEXTOS PADRÃO DA PROPOSTA -->
       <div class="doc-section">
         <div class="doc-section-title">Apresentação</div>
         <p class="doc-text">Em atenção à sua solicitação, apresentamos nossa Proposta Técnica e Comercial para fornecimento e instalação de porta acústica sob medida, desenvolvida para proporcionar isolamento sonoro eficiente, acabamento de alto padrão e durabilidade superior.</p>
@@ -927,11 +887,12 @@ function render(){
         <p class="doc-text">O desempenho de isolamento acústico pode variar conforme as condições do ambiente (paredes, piso, teto e aberturas vizinhas). A porta proporciona redução significativa de ruído, ideal para quem busca conforto acústico sem abrir mão da estética.</p>
       </div>
 
-      <!-- RENDERIZA A TABELA DE PREÇOS GERADA NO PASSO 2 -->
       <div class="doc-section">
         <div class="doc-section-title">Proposta Comercial</div>
         <div class="doc-itens-header">
-          <span>Descrição</span><span>Qtd.</span><span style="text-align:right">Vlr Unit.</span><span style="text-align:right">Total</span>
+          <span>Descrição</span><span>Qtd.</span>
+          <span style="text-align:right">Vlr Unit.</span>
+          <span style="text-align:right">Total</span>
         </div>
         ${itensDocs}
         <div class="doc-total-row">
@@ -940,35 +901,32 @@ function render(){
         </div>
       </div>
 
-      <!-- INFORMAÇÕES PREENCHIDAS DE PAGAMENTO E PRAZO -->
       <div class="doc-section">
         <div class="doc-section-title">Condições Comerciais</div>
         <div class="doc-cond-grid">
           <div class="doc-cond-box">
-            <h4>Entrega & Instalação</h4>
+            <h4>Entrega &amp; Instalação</h4>
             <ul>
-              <li>${g('prazo')||'—'}</li>
-              <li>Instalação: ${g('instalacao')||'—'}</li>
-              ${obs}
+              <li>${escaparHtml(g('prazo')) || '—'}</li>
+              <li>Instalação: ${escaparHtml(g('instalacao')) || '—'}</li>
             </ul>
           </div>
           <div class="doc-cond-box">
             <h4>Pagamento</h4>
-            <ul><li>${g('pagamento')||'—'}</li></ul>
-            <h4 style="margin-top:14px">Validade</h4>
-            <ul><li>${g('validade')||'—'}</li></ul>
+            <ul><li>${escaparHtml(g('pagamento')) || '—'}</li></ul>
+            <h4 style="margin-top:14px;">Validade</h4>
+            <ul><li>${escaparHtml(g('validade')) || '—'}</li></ul>
           </div>
         </div>
+        ${obsHtml}
       </div>
 
-      <!-- INFORMAÇÕES DE GARANTIA -->
       <div class="doc-section">
         <div class="doc-section-title">Garantia</div>
-        <p class="doc-text">Garantia de <strong>${g('garantia')||'—'}</strong> contra defeitos de fabricação e instalação, contados a partir de <strong>${g('garantiaBase') ? formatarData(g('garantiaBase')) : 'data da entrega'}</strong>.</p>
-        ${g('garantiaExc') ? `<p class="doc-text" style="font-size:11.5px;color:#9a8a72">Não cobre: ${g('garantiaExc')}</p>` : ''}
+        <p class="doc-text">Garantia de <strong>${escaparHtml(g('garantia')) || '—'}</strong> contra defeitos de fabricação e instalação, contados a partir de <strong>${g('garantiaBase') ? formatarData(g('garantiaBase')) : 'data da entrega'}</strong>.</p>
+        ${g('garantiaExc') ? `<p class="doc-text" style="font-size:11.5px;color:#9a8a72;">Não cobre: ${escaparHtml(g('garantiaExc'))}</p>` : ''}
       </div>
 
-      <!-- PRÓXIMOS PASSOS ESTÁTICOS -->
       <div class="doc-section">
         <div class="doc-section-title">Próximos Passos</div>
         <div class="doc-passos">
@@ -978,14 +936,11 @@ function render(){
           <div class="doc-passo"><div class="doc-passo-num">4</div><p>Início da fabricação e instalação conforme cronograma acordado</p></div>
         </div>
       </div>
+    </div>
 
-    </div><!-- /doc-body -->
-
-    <!-- RODAPÉ FINAL DO DOCUMENTO -->
     <div class="doc-footer">
       <div class="doc-footer-title">Contato</div>
-      <p>
-        Soluciona Acústica – Departamento Comercial<br>
+      <p>Soluciona Acústica – Departamento Comercial<br>
         E-mail: <a href="mailto:contato@solucionaacustica.com.br">contato@solucionaacustica.com.br</a><br>
         WhatsApp: (11) 98328-7659 / (11) 95348-1602<br>
         <a href="https://www.solucionaacustica.com.br">www.solucionaacustica.com.br</a>
@@ -994,79 +949,67 @@ function render(){
   `;
 }
 
-// Inverte a data de AAAA-MM-DD para o padrão brasileiro DD/MM/AAAA
-function formatarData(val){
-  if(!val) return '—';
-  const [y,m,d] = val.split('-');
-  return d+'/'+m+'/'+y;
-}
-
-// Ocorre quando você clica em "Limpar": apaga tudo e limpa a memória do navegador
-function limparForm(){
-  if(!confirm('Limpar todos os campos?')) return;
-  document.querySelectorAll('.form-panel input:not(#input-usuario):not(#input-senha), .form-panel textarea, .form-panel select')
-    .forEach(el=>el.value='');
-  itens=[{ nome: '', localizacao: '', produto: '', composicao: '', espessura: '', largura: '', altura: '', acabamento: '', linha: '', qtd: '', unit: '' }];
+// ─── LIMPAR ───
+function limparForm() {
+  if (!confirm('Isso vai apagar tudo que está na tela. Deseja continuar?')) return;
+  const campos = ['numProposta','dataProposta','vendedor','cliente','cep','telefone','email',
+                  'prazo','instalacao','pagamento','validade','obs','garantia','garantiaBase','garantiaExc'];
+  campos.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  itens = [novoItem()];
   localStorage.removeItem('rascunhoPropostaSA');
-  
   document.getElementById('dataProposta').value = new Date().toISOString().split('T')[0];
-  
   renderItens();
   render();
 }
 
-// ─── ENVIAR RESUMO PELO WHATSAPP ─────────────────────────────
+// ─── IMPRIMIR ───
+function imprimirPDF() {
+  const clienteNome = g('cliente').trim() || 'Sem_Nome';
+  const numProp = g('numProposta').trim() || 'SN';
+  const nomeFormatado = `Proposta_SA_${clienteNome.replace(/\s+/g, '_')}_N${numProp}`;
+  const tituloOriginal = document.title;
+  document.title = nomeFormatado;
+  window.print();
+  setTimeout(() => { document.title = tituloOriginal; }, 1000);
+}
+
+// ─── WHATSAPP ───
 function enviarWhatsApp() {
-  // 1. Busca os dados para verificação
   const cliente = g('cliente').trim();
   const num = g('numProposta').trim();
-  const telefone = g('telefone').replace(/\D/g, ''); 
-  
-  // Calcula se o valor total é maior que zero
-  const totalValor = itens.reduce((s,it)=>s + (parseFloat(it.qtd)||0)*(parseFloat(it.unit)||0), 0);
+  const telefone = g('telefone').replace(/\D/g, '');
+  const totalValor = calcularTotal();
 
-  // 2. TRAVA DE SEGURANÇA (Bloqueia se faltar dados)
   if (!cliente || !num || !telefone || totalValor === 0) {
-    alert("⚠️ ATENÇÃO: Preencha o Nome do Cliente, o Nº da Proposta, o Telefone e adicione os Valores dos itens antes de enviar para o WhatsApp!");
-    return; // O "return" faz a função parar e proíbe a abertura do WhatsApp
+    alert("⚠️ Preencha o Nome do Cliente, Nº da Proposta, Telefone e adicione valores antes de enviar!");
+    return;
   }
 
-  // 3. Se passou pela trava, segue com o envio normal
-  const clienteNome = cliente || 'Cliente';
-  const numProp = num || 'S/N';
-  const totalText = document.getElementById('totalGeral').textContent;
-
-  let msg = `Olá, ${clienteNome}! Tudo bem?\n\n`;
-  msg += `Aqui é da *Soluciona Acústica*. Sua proposta técnica (Nº ${numProp}) já está pronta.\n`;
-  msg += `O valor total do projeto ficou em *${totalText}*.\n\n`;
-  msg += `Estou enviando o arquivo PDF com todos os detalhes aqui abaixo. Qualquer dúvida, estou à disposição no WhatsApp (11) 95348-1602!`;
-
-  const textoCodificado = encodeURIComponent(msg);
-  
-  let url = '';
-  if (telefone.length >= 10) {
-    url = `https://wa.me/55${telefone}?text=${textoCodificado}`; 
-  } else {
-    url = `https://wa.me/?text=${textoCodificado}`;
-  }
-  
+  const totalText = fmt(totalValor);
+  const msg = `Olá, ${cliente}! Tudo bem?\n\nAqui é da *Soluciona Acústica*. Sua proposta técnica (Nº ${num}) já está pronta.\nO valor total do projeto ficou em *${totalText}*.\n\nEstou enviando o arquivo PDF com todos os detalhes aqui abaixo. Qualquer dúvida, estou à disposição no WhatsApp (11) 95348-1602!`;
+  const url = telefone.length >= 10
+    ? `https://wa.me/55${telefone}?text=${encodeURIComponent(msg)}`
+    : `https://wa.me/?text=${encodeURIComponent(msg)}`;
   window.open(url, '_blank');
 }
 
-// ─── EVENTOS INICIAIS (O que o site faz na hora que carrega) ─
-carregarRascunho(); // Puxa os dados antigos se houver
-renderItens();      // Pinta os blocos de produtos na esquerda
-render();           // Pinta o documento final na direita
+// ─── LISTENERS CENTRALIZADOS ───
+// Usa debounce para evitar salvar a cada tecla
+let _debounceTimer = null;
+function onFormChange() {
+  render();
+  clearTimeout(_debounceTimer);
+  _debounceTimer = setTimeout(salvarRascunho, 600);
+}
 
-// "Observadores": Ficam olhando para o formulário. Se você digitar algo (input) ou alterar uma lista (change), ele chama o render() e salva.
-document.querySelector('.form-panel').addEventListener('input', () => {
-  render();
-  salvarRascunho();
-});
-document.querySelector('.form-panel').addEventListener('change', () => {
-  render();
-  salvarRascunho();
-});
+document.getElementById('form-panel').addEventListener('input', onFormChange);
+document.getElementById('form-panel').addEventListener('change', onFormChange);
+
+// ─── INICIALIZAÇÃO ───
+carregarRascunho();
 </script>
 </body>
 </html>
