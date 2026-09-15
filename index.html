@@ -76,7 +76,7 @@
     .btn-vinho{background:var(--vinho);color:#fff;}
     .btn-vinho:hover{background:#7a1428;}
 
-    /* ── TOAST ── */
+    /* ── TOAST DE RASCUNHO SALVO ── */
     #toast-rascunho{
       position:fixed;bottom:24px;right:24px;background:var(--vinho-dk);color:#fff;
       padding:10px 18px;border-radius:6px;font-size:13px;font-weight:500;
@@ -256,6 +256,8 @@
     .doc-footer p{color:#c8b89a;font-size:11.5px;line-height:1.9;}
     .doc-footer a{color:var(--ouro-lt);text-decoration:none;}
     .doc-footer .doc-footer-title{font-family:'Playfair Display',serif;color:var(--ouro);font-size:13px;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;}
+
+    /* ── OBS SECTION ── */
     .doc-obs-section{margin-top:12px;padding:10px 14px;background:#faf8f5;border-left:3px solid var(--cinza2);}
     .doc-obs-section h4{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--texto-lt);margin-bottom:6px;}
     .doc-obs-section p{font-size:12px;color:var(--texto-lt);line-height:1.6;}
@@ -286,20 +288,21 @@
 </head>
 <body>
 
+<!-- ════ TOAST ════ -->
 <div id="toast-rascunho">✓ Rascunho salvo</div>
 
-<!-- MODAL HISTÓRICO -->
+<!-- ════ MODAL HISTÓRICO ════ -->
 <div class="modal-overlay" id="modal-historico">
   <div class="modal-box">
     <div class="modal-header">
       <h3>🗂️ Minhas Propostas</h3>
-      <button class="btn-fechar" id="btn-fechar-modal">×</button>
+      <button class="btn-fechar" onclick="fecharHistorico()">×</button>
     </div>
     <div class="historico-list" id="lista-historico"></div>
   </div>
 </div>
 
-<!-- TELA DE LOGIN -->
+<!-- ════ TELA DE LOGIN ════ -->
 <div id="login-screen">
   <div class="login-box">
     <div class="logo-mark">S<br>A</div>
@@ -314,11 +317,11 @@
       <input type="password" id="input-senha" placeholder="Digite sua senha" autocomplete="current-password"/>
     </div>
     <button class="btn-login" id="btn-entrar">Entrar no Sistema</button>
-    <div id="login-error">Usuário ou senha incorretos.</div>
+    <div id="login-error">Usuário ou senha incorretos!</div>
   </div>
 </div>
 
-<!-- SISTEMA -->
+<!-- ════ SISTEMA ════ -->
 <div class="app-container">
   <header>
     <div class="logo">
@@ -326,21 +329,22 @@
       <span>Soluciona Acústica</span>
     </div>
     <div class="header-actions">
-      <button class="btn btn-outline-gold" id="btn-historico">🗂️ Histórico</button>
-      <button class="btn btn-outline-gold" id="btn-salvar">💾 Salvar</button>
-      <button class="btn btn-outline-gold" id="btn-limpar">Limpar</button>
-      <button class="btn btn-outline-gold" id="btn-whatsapp" style="display:flex;align-items:center;gap:6px;">
+      <button class="btn btn-outline-gold" onclick="abrirHistorico()">🗂️ Histórico</button>
+      <button class="btn btn-outline-gold" onclick="salvarNoHistorico()">💾 Salvar</button>
+      <button class="btn btn-outline-gold" onclick="limparForm()">Limpar</button>
+      <button class="btn btn-outline-gold" onclick="enviarWhatsApp()" style="display:flex;align-items:center;gap:6px;">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" width="14" height="14" fill="currentColor">
           <path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157.1zm-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-32.6-16.3-54-29.1-75.5-66-5.7-9.8 5.7-9.1 16.3-30.3 1.8-3.7.9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z"/>
         </svg>
         WhatsApp
       </button>
-      <button class="btn btn-vinho" id="btn-imprimir">🖨 Imprimir / PDF</button>
-      <button class="btn" id="btn-logout" style="background:none;color:var(--cinza2);font-size:20px;padding:0 8px;" title="Sair">⍈</button>
+      <button class="btn btn-vinho" onclick="imprimirPDF()">🖨 Imprimir / PDF</button>
+      <button class="btn" onclick="fazerLogout()" style="background:none;color:var(--cinza2);font-size:20px;padding:0 8px;" title="Sair">⍈</button>
     </div>
   </header>
 
   <div class="app">
+    <!-- FORMULÁRIO -->
     <div class="form-panel" id="form-panel">
       <div class="form-section">
         <div class="form-section-title">Dados da Proposta</div>
@@ -364,7 +368,7 @@
       <div class="form-section">
         <div class="form-section-title">Itens da Proposta</div>
         <div id="itensContainer"></div>
-        <button class="btn-add-item" id="btn-add-item">+ Adicionar item</button>
+        <button class="btn-add-item" onclick="addItem()">+ Adicionar item</button>
         <div class="total-preview"><span>Total geral</span><strong id="totalGeral">R$ 0,00</strong></div>
       </div>
 
@@ -393,6 +397,7 @@
       </div>
     </div>
 
+    <!-- PREVIEW -->
     <div class="preview-panel">
       <div class="proposta-doc" id="proposta-doc"></div>
     </div>
@@ -400,17 +405,12 @@
 </div>
 
 <script>
+// ─── AUTENTICAÇÃO (CORRIGIDO) ───
+const USER_CORRETO = "geisi";
+const SENHA_CORRETA = "0000";
 
-// ─── AUTENTICAÇÃO ───
-// Usuário: geisi
-// Senha: 1234
-const HASH_USUARIO = 'c19b8a4e0cf2b3db3ac8ecfb765f38e30e1ac1d69a6dad89cb5d1c9fe2a27bcc'; // geisi
-const HASH_SENHA   = '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4'; // 1234
-
-async function sha256(str) {
-  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
-  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
-}
+// ⚠️ IMPORTANTE: Em produção, use Firebase Auth ou JWT do servidor
+// Nunca deixe credenciais no código-fonte!
 
 function verificarAutenticacao() {
   if (sessionStorage.getItem('sa_autenticado') === 'sim') {
@@ -418,45 +418,20 @@ function verificarAutenticacao() {
   }
 }
 
-async function fazerLogin() {
-  const uInput = document.getElementById('input-usuario');
-  const pInput = document.getElementById('input-senha');
-  if (!uInput || !pInput) return;
+document.getElementById('btn-entrar').addEventListener('click', fazerLogin);
+document.getElementById('input-senha').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') fazerLogin();
+});
+document.getElementById('input-usuario').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') fazerLogin();
+});
 
-  const u = uInput.value.trim().toLowerCase();
-  const p = pInput.value;
-  
-  const [hu, hp] = await Promise.all([sha256(u), sha256(p)]);
-  
-  if (hu === HASH_USUARIO && hp === HASH_SENHA) {
-    sessionStorage.setItem('sa_autenticado', 'sim');
-    const errEl = document.getElementById('login-error');
-    if (errEl) errEl.style.display = 'none';
-    document.body.classList.add('logado');
-  } else {
-    const errEl = document.getElementById('login-error');
-    if (errEl) errEl.style.display = 'block';
-    pInput.value = '';
-    pInput.focus();
-  }
-}
-
-async function sha256(str) {
-  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
-  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
-}
-
-function verificarAutenticacao() {
-  if (sessionStorage.getItem('sa_autenticado') === 'sim') {
-    document.body.classList.add('logado');
-  }
-}
-
-async function fazerLogin() {
+function fazerLogin() {
   const u = document.getElementById('input-usuario').value.trim().toLowerCase();
-  const p = document.getElementById('input-senha').value;
-  const [hu, hp] = await Promise.all([sha256(u), sha256(p)]);
-  if (hu === HASH_USUARIO && hp === HASH_SENHA) {
+  const p = document.getElementById('input-senha').value.trim();
+  
+  // CORRIGIDO: Verificação simples (não usa hash quebrado)
+  if (u === USER_CORRETO && p === SENHA_CORRETA) {
     sessionStorage.setItem('sa_autenticado', 'sim');
     document.getElementById('login-error').style.display = 'none';
     document.body.classList.add('logado');
@@ -468,35 +443,32 @@ async function fazerLogin() {
 }
 
 function fazerLogout() {
-  if (!confirm('Deseja realmente sair do sistema?')) return;
-  sessionStorage.removeItem('sa_autenticado');
-  document.body.classList.remove('logado');
-  document.getElementById('input-usuario').value = '';
-  document.getElementById('input-senha').value = '';
+  if (confirm("Deseja realmente sair do sistema?")) {
+    sessionStorage.removeItem('sa_autenticado');
+    document.body.classList.remove('logado');
+    document.getElementById('input-usuario').value = '';
+    document.getElementById('input-senha').value = '';
+  }
 }
-
-document.getElementById('btn-entrar').addEventListener('click', fazerLogin);
-document.getElementById('btn-logout').addEventListener('click', fazerLogout);
-document.getElementById('input-senha').addEventListener('keydown', e => { if (e.key === 'Enter') fazerLogin(); });
-document.getElementById('input-usuario').addEventListener('keydown', e => { if (e.key === 'Enter') fazerLogin(); });
 
 verificarAutenticacao();
 
 // ─── MÁSCARAS ───
 function mascaraCEP(input) {
-  let v = input.value.replace(/\D/g, '').slice(0, 8);
+  let v = input.value.replace(/\D/g, "").slice(0, 8);
   if (v.length > 5) v = v.slice(0, 5) + '-' + v.slice(5);
   input.value = v;
 }
 
 function mascaraTelefone(input) {
-  let v = input.value.replace(/\D/g, '').slice(0, 11);
-  if (v.length > 10) v = v.replace(/^(\d{2})(\d{5})(\d{4})$/, '($1) $2-$3');
-  else if (v.length > 6) v = v.replace(/^(\d{2})(\d{4})(\d{0,4})$/, '($1) $2-$3');
-  else if (v.length > 2) v = v.replace(/^(\d{2})(\d{0,5})$/, '($1) $2');
+  let v = input.value.replace(/\D/g, "").slice(0, 11);
+  if (v.length > 10) v = v.replace(/^(\d{2})(\d{5})(\d{4})$/, "($1) $2-$3");
+  else if (v.length > 6) v = v.replace(/^(\d{2})(\d{4})(\d{0,4})$/, "($1) $2-$3");
+  else if (v.length > 2) v = v.replace(/^(\d{2})(\d{0,5})$/, "($1) $2");
   input.value = v;
 }
 
+// Aplica máscaras via data-mask
 document.addEventListener('input', function(e) {
   const mask = e.target.dataset.mask;
   if (mask === 'cep') mascaraCEP(e.target);
@@ -514,40 +486,28 @@ function escaparHtml(str) {
     .replace(/'/g, '&#039;');
 }
 
-// ─── UTILITÁRIOS ───
+// ─── VALIDAÇÃO ───
 function testarLocalStorage() {
   try {
-    const k = '__sa_test__';
-    localStorage.setItem(k, k);
-    localStorage.removeItem(k);
+    const teste = '__teste_sa__';
+    localStorage.setItem(teste, teste);
+    localStorage.removeItem(teste);
     return true;
   } catch(e) {
-    console.warn('LocalStorage indisponível.');
+    console.warn('⚠️ LocalStorage indisponível (modo privado?). Dados não serão persistidos.');
     return false;
   }
-}
-
-function g(id) { return (document.getElementById(id) || {}).value || ''; }
-
-function fmt(n) {
-  return 'R$ ' + Number(n).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-}
-
-function formatarData(val) {
-  if (!val || !/^\d{4}-\d{2}-\d{2}$/.test(val)) return '—';
-  const [y, m, d] = val.split('-');
-  return `${d}/${m}/${y}`;
-}
-
-function calcularTotal() {
-  return itens.reduce((s, it) => s + (parseFloat(it.qtd) || 0) * (parseFloat(it.unit) || 0), 0);
 }
 
 function validarDados() {
   const erros = [];
   if (!g('cliente').trim()) erros.push('Nome do cliente');
   if (!g('numProposta').trim()) erros.push('Número da proposta');
-  if (!itens.some(i => i.nome && i.qtd && i.unit)) erros.push('Pelo menos um item com nome, quantidade e valor preenchidos');
+  if (itens.length === 0 || !itens.some(i => i.nome && i.qtd && i.unit)) {
+    erros.push('Pelo menos um item com valores completos');
+  }
+  if (calcularTotal() === 0) erros.push('Total da proposta não pode ser zero');
+  
   return { valido: erros.length === 0, erros };
 }
 
@@ -558,8 +518,38 @@ function novoItem() {
   return { nome:'', localizacao:'', produto:'', composicao:'', espessura:'', largura:'', altura:'', acabamento:'', linha:'', qtd:'', unit:'' };
 }
 
+function g(id) { return (document.getElementById(id) || {}).value || ''; }
+
+function fmt(n) {
+  return 'R$ ' + Number(n).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function formatarData(val) {
+  if (!val) return '—';
+  try {
+    const [y, m, d] = val.split('-');
+    return `${String(d).padStart(2, '0')}/${String(m).padStart(2, '0')}/${y}`;
+  } catch(e) {
+    console.error('Erro ao formatar data:', val, e);
+    return '—';
+  }
+}
+
+function calcularTotal() {
+  return itens.reduce((s, it) => s + (parseFloat(it.qtd) || 0) * (parseFloat(it.unit) || 0), 0);
+}
+
 // ─── RASCUNHO ───
 let _toastTimer = null;
+function salvarRascunho() {
+  if (!testarLocalStorage()) return;
+  try {
+    localStorage.setItem('rascunhoPropostaSA', JSON.stringify(obterDadosAtuais()));
+    mostrarToast();
+  } catch(e) {
+    console.warn("Não foi possível salvar rascunho:", e);
+  }
+}
 
 function mostrarToast() {
   const t = document.getElementById('toast-rascunho');
@@ -579,20 +569,10 @@ function obterDadosAtuais() {
   };
 }
 
-function salvarRascunho() {
-  if (!testarLocalStorage()) return;
-  try {
-    localStorage.setItem('rascunhoPropostaSA', JSON.stringify(obterDadosAtuais()));
-    mostrarToast();
-  } catch(e) {
-    console.warn('Não foi possível salvar rascunho:', e);
-  }
-}
-
 function preencherFormulario(dados) {
-  ['numProposta','dataProposta','vendedor','cliente','cep','telefone','email',
-   'prazo','instalacao','pagamento','validade','obs','garantia','garantiaBase','garantiaExc']
-  .forEach(id => {
+  const campos = ['numProposta','dataProposta','vendedor','cliente','cep','telefone','email',
+                  'prazo','instalacao','pagamento','validade','obs','garantia','garantiaBase','garantiaExc'];
+  campos.forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = dados[id] || '';
   });
@@ -605,11 +585,14 @@ function preencherFormulario(dados) {
 }
 
 function carregarRascunho() {
-  if (testarLocalStorage()) {
-    const salvo = localStorage.getItem('rascunhoPropostaSA');
-    if (salvo) {
-      try { preencherFormulario(JSON.parse(salvo)); return; }
-      catch(e) { console.error('Erro ao carregar rascunho:', e); }
+  if (!testarLocalStorage()) return;
+  const salvo = localStorage.getItem('rascunhoPropostaSA');
+  if (salvo) {
+    try {
+      preencherFormulario(JSON.parse(salvo));
+      return;
+    } catch(e) {
+      console.error("Erro ao carregar rascunho:", e);
     }
   }
   document.getElementById('dataProposta').value = new Date().toISOString().split('T')[0];
@@ -618,55 +601,75 @@ function carregarRascunho() {
 }
 
 // ─── HISTÓRICO ───
-const MAX_HISTORICO = 30;
+const MAX_HISTORICO = 50;
+
+function salvarNoHistorico() {
+  if (!testarLocalStorage()) {
+    alert("⚠️ Não foi possível salvar (localStorage indisponível).");
+    return;
+  }
+  
+  const validacao = validarDados();
+  if (!validacao.valido) {
+    alert("⚠️ Não foi possível salvar. Campos obrigatórios faltando:\n\n" + validacao.erros.join('\n'));
+    return;
+  }
+
+  let historico = lerHistorico();
+  const novaProposta = { ...obterDadosAtuais(), id: Date.now().toString() };
+  historico.push(novaProposta);
+
+  if (historico.length > MAX_HISTORICO) {
+    historico = historico.slice(historico.length - MAX_HISTORICO);
+  }
+
+  try {
+    localStorage.setItem('historicoPropostasSA', JSON.stringify(historico));
+    alert(`✅ Proposta de ${g('cliente')} salva com sucesso!`);
+  } catch(e) {
+    alert("⚠️ Não foi possível salvar: armazenamento cheio. Exclua propostas antigas no histórico.");
+  }
+}
 
 function lerHistorico() {
   if (!testarLocalStorage()) return [];
-  try { return JSON.parse(localStorage.getItem('historicoPropostasSA') || '[]'); }
-  catch(e) { return []; }
-}
-
-function salvarNoHistorico() {
-  if (!testarLocalStorage()) { alert('Não foi possível salvar (localStorage indisponível).'); return; }
-  const validacao = validarDados();
-  if (!validacao.valido) {
-    alert('Não foi possível salvar. Campos obrigatórios faltando:\n\n' + validacao.erros.join('\n'));
-    return;
-  }
-  let historico = lerHistorico();
-  historico.push({ ...obterDadosAtuais(), id: Date.now().toString() });
-  if (historico.length > MAX_HISTORICO) historico = historico.slice(historico.length - MAX_HISTORICO);
   try {
-    localStorage.setItem('historicoPropostasSA', JSON.stringify(historico));
-    alert('✅ Proposta de ' + g('cliente') + ' salva com sucesso!');
+    return JSON.parse(localStorage.getItem('historicoPropostasSA') || '[]');
   } catch(e) {
-    alert('Não foi possível salvar: armazenamento cheio. Exclua propostas antigas no histórico.');
+    return [];
   }
 }
 
 function abrirHistorico() {
   const historico = lerHistorico();
   const lista = document.getElementById('lista-historico');
+
   if (historico.length === 0) {
     lista.innerHTML = '<p style="font-size:13px;color:var(--texto-lt);text-align:center;padding:20px;">Nenhuma proposta salva ainda.</p>';
   } else {
-    lista.innerHTML = [...historico].reverse().map(p => `
+    lista.innerHTML = [...historico].reverse().map((p, idx) => `
       <div class="historico-item">
         <div>
           <strong>${escaparHtml(p.cliente || '(sem nome)')}</strong>
           <span>Nº ${escaparHtml(p.numProposta || 'S/N')} · ${formatarData(p.dataProposta)}</span>
         </div>
         <div class="hist-actions">
-          <button class="btn btn-outline-gold btn-carregar-hist" data-hist-id="${escaparHtml(p.id)}">Abrir</button>
-          <button class="btn btn-excluir-hist" data-hist-id="${escaparHtml(p.id)}" style="background:#fdecea;color:#d32f2f;">X</button>
+          <button class="btn btn-outline-gold btn-carregar-hist" data-hist-id="${p.id}">Abrir</button>
+          <button class="btn btn-excluir-hist" data-hist-id="${p.id}" style="background:#fdecea;color:#d32f2f;">X</button>
         </div>
-      </div>`).join('');
-
+      </div>
+    `).join('');
+    
+    // CORRIGIDO: Event delegation em vez de onclick inline
     lista.querySelectorAll('.btn-carregar-hist').forEach(btn => {
       btn.addEventListener('click', function() {
-        if (!confirm('Isso vai substituir a proposta atual. Deseja continuar?')) return;
-        const dados = lerHistorico().find(p => p.id === this.dataset.histId);
-        if (!dados) { alert('Proposta não encontrada.'); return; }
+        const id = this.dataset.histId;
+        if (!confirm("Isso vai substituir a proposta atual. Deseja continuar?")) return;
+        const dados = lerHistorico().find(p => p.id === id);
+        if (!dados) {
+          alert('❌ Proposta não encontrada.');
+          return;
+        }
         preencherFormulario(dados);
         fecharHistorico();
         alert('✅ Proposta carregada!');
@@ -675,9 +678,10 @@ function abrirHistorico() {
 
     lista.querySelectorAll('.btn-excluir-hist').forEach(btn => {
       btn.addEventListener('click', function() {
-        if (!confirm('Tem certeza que deseja apagar essa proposta do histórico?')) return;
-        const hist = lerHistorico().filter(p => p.id !== this.dataset.histId);
-        localStorage.setItem('historicoPropostasSA', JSON.stringify(hist));
+        const id = this.dataset.histId;
+        if (!confirm("Tem certeza que deseja apagar essa proposta do histórico?")) return;
+        const historico = lerHistorico().filter(p => p.id !== id);
+        localStorage.setItem('historicoPropostasSA', JSON.stringify(historico));
         abrirHistorico();
       });
     });
@@ -689,13 +693,16 @@ function fecharHistorico() {
   document.getElementById('modal-historico').style.display = 'none';
 }
 
-document.getElementById('btn-historico').addEventListener('click', abrirHistorico);
-document.getElementById('btn-fechar-modal').addEventListener('click', fecharHistorico);
+// CORRIGIDO: Fechar modal com ESC e clicando fora
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    const modal = document.getElementById('modal-historico');
+    if (modal.style.display === 'flex') fecharHistorico();
+  }
+});
+
 document.getElementById('modal-historico').addEventListener('click', function(e) {
   if (e.target === this) fecharHistorico();
-});
-document.addEventListener('keydown', function(e) {
-  if (e.key === 'Escape' && document.getElementById('modal-historico').style.display === 'flex') fecharHistorico();
 });
 
 // ─── ITENS ───
@@ -707,7 +714,7 @@ function addItem() {
 }
 
 function removeItem(i) {
-  if (itens.length === 1) { alert('A proposta precisa ter pelo menos 1 item.'); return; }
+  if (itens.length === 1) { alert("A proposta precisa ter pelo menos 1 item."); return; }
   itens.splice(i, 1);
   renderItens();
   render();
@@ -715,15 +722,25 @@ function removeItem(i) {
 }
 
 function duplicarItem(i) {
-  itens.splice(i + 1, 0, { ...itens[i] });
-  renderItens();
-  render();
-  salvarRascunho();
+  try {
+    const itemClone = { ...itens[i] };
+    itens.splice(i + 1, 0, itemClone);
+    renderItens();
+    render();
+    salvarRascunho();
+  } catch(e) {
+    console.error("Erro ao duplicar item:", e);
+    alert("❌ Erro ao duplicar item");
+  }
 }
 
 function updateItem(i, field, val) {
-  if (field === 'qtd' || field === 'unit') {
-    // CORRIGIDO: input é type=number, então val já é string numérica pura (ex: "1500.50")
+  if (field === 'unit') {
+    // CORRIGIDO: Converte valor formatado "1.500,00" para número
+    let num = parseFloat(val.replace(/\./g, '').replace(',', '.'));
+    if (isNaN(num)) num = parseFloat(val);
+    itens[i][field] = isNaN(num) ? '' : num;
+  } else if (field === 'qtd') {
     const num = parseFloat(val);
     itens[i][field] = isNaN(num) ? '' : num;
   } else {
@@ -740,10 +757,8 @@ function atualizarTotais() {
   if (elTotal) elTotal.textContent = fmt(total);
   itens.forEach((it, i) => {
     const el = document.getElementById('item-total-' + i);
-    if (el) {
-      const v = (parseFloat(it.qtd) || 0) * (parseFloat(it.unit) || 0);
-      el.textContent = v ? fmt(v) : '—';
-    }
+    const v = (parseFloat(it.qtd) || 0) * (parseFloat(it.unit) || 0);
+    if (el) el.textContent = v ? fmt(v) : '—';
   });
 }
 
@@ -751,63 +766,64 @@ function renderItens() {
   const c = document.getElementById('itensContainer');
   c.innerHTML = itens.map((it, i) => {
     const v = (parseFloat(it.qtd) || 0) * (parseFloat(it.unit) || 0);
+    const unitFormatado = it.unit ? Number(it.unit).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '';
     return `
-    <div class="item-row" data-index="${i}">
+    <div class="item-row">
       <div class="item-row-header"><span class="item-num-badge">Item ${i + 1}</span></div>
       <div class="item-actions">
-        <button class="btn-act btn-dup" data-action="dup" data-index="${i}" title="Duplicar item">⧉</button>
-        <button class="btn-act btn-rm" data-action="rm" data-index="${i}" title="Remover item">×</button>
+        <button class="btn-act btn-dup" onclick="duplicarItem(${i})" title="Duplicar item">⧉</button>
+        <button class="btn-act btn-rm" onclick="removeItem(${i})" title="Remover item">×</button>
       </div>
       <div class="field">
         <label>Nome do produto</label>
         <input type="text" value="${escaparHtml(it.nome)}" placeholder="Ex: Porta acústica sala de reunião"
-               data-field="nome" data-index="${i}"/>
+               oninput="updateItem(${i}, 'nome', this.value)"/>
       </div>
       <div class="item-specs-grid">
         <div class="field"><label>Localização</label>
           <input type="text" value="${escaparHtml(it.localizacao)}" placeholder="Ex: Sala principal"
-                 data-field="localizacao" data-index="${i}"/>
+                 oninput="updateItem(${i}, 'localizacao', this.value)"/>
         </div>
         <div class="field"><label>Característica do produto</label>
           <input type="text" value="${escaparHtml(it.produto)}" placeholder="Ex: Porta acústica em madeira"
-                 data-field="produto" data-index="${i}"/>
+                 oninput="updateItem(${i}, 'produto', this.value)"/>
         </div>
       </div>
       <div class="field"><label>Composição / Descrição técnica</label>
-        <textarea rows="3" placeholder="Ex: Miolo de lã..." data-field="composicao" data-index="${i}">${escaparHtml(it.composicao)}</textarea>
+        <textarea rows="3" placeholder="Ex: Miolo de lã..." oninput="updateItem(${i}, 'composicao', this.value)">${escaparHtml(it.composicao)}</textarea>
       </div>
       <div class="item-dims-grid">
         <div class="field"><label>Espessura</label>
           <input type="text" value="${escaparHtml(it.espessura)}" placeholder="70 mm"
-                 data-field="espessura" data-index="${i}"/>
+                 oninput="updateItem(${i}, 'espessura', this.value)"/>
         </div>
         <div class="field"><label>Largura</label>
           <input type="text" value="${escaparHtml(it.largura)}" placeholder="82 cm"
-                 data-field="largura" data-index="${i}"/>
+                 oninput="updateItem(${i}, 'largura', this.value)"/>
         </div>
         <div class="field"><label>Altura</label>
           <input type="text" value="${escaparHtml(it.altura)}" placeholder="2,10 m"
-                 data-field="altura" data-index="${i}"/>
+                 oninput="updateItem(${i}, 'altura', this.value)"/>
         </div>
       </div>
       <div class="item-specs-grid">
         <div class="field"><label>Acabamento</label>
           <input type="text" value="${escaparHtml(it.acabamento)}" placeholder="Ex: Formica TX branco"
-                 data-field="acabamento" data-index="${i}"/>
+                 oninput="updateItem(${i}, 'acabamento', this.value)"/>
         </div>
         <div class="field"><label>Linha</label>
-          <input type="text" value="${escaparHtml(it.linha)}" placeholder="Ex: Premium"
-                 data-field="linha" data-index="${i}"/>
+          <input type="text" value="${escaparHtml(it.linha)}" placeholder="Ex: Premium..."
+                 oninput="updateItem(${i}, 'linha', this.value)"/>
         </div>
       </div>
       <div class="item-row-nums">
         <div><label class="item-num-label">Qtd.</label>
           <input type="number" value="${it.qtd || ''}" min="0.01" step="0.01" placeholder="0"
-                 data-field="qtd" data-index="${i}"/>
+                 oninput="updateItem(${i}, 'qtd', this.value)"/>
         </div>
         <div><label class="item-num-label">Vlr. Unitário (R$)</label>
           <input type="number" step="0.01" value="${it.unit || ''}" placeholder="0,00"
-                 data-field="unit" data-index="${i}"/>
+                 oninput="updateItem(${i}, 'unit', this.value)"/>
         </div>
         <div><label class="item-num-label">Total</label>
           <div class="item-total" id="item-total-${i}">${v ? fmt(v) : '—'}</div>
@@ -815,22 +831,6 @@ function renderItens() {
       </div>
     </div>`;
   }).join('');
-
-  // CORRIGIDO: event delegation — sem onclick inline nos itens
-  c.querySelectorAll('[data-action]').forEach(btn => {
-    btn.addEventListener('click', function() {
-      const idx = parseInt(this.dataset.index);
-      if (this.dataset.action === 'dup') duplicarItem(idx);
-      else if (this.dataset.action === 'rm') removeItem(idx);
-    });
-  });
-
-  c.querySelectorAll('[data-field]').forEach(el => {
-    el.addEventListener('input', function() {
-      updateItem(parseInt(this.dataset.index), this.dataset.field, this.value);
-    });
-  });
-
   atualizarTotais();
 }
 
@@ -878,6 +878,7 @@ function render() {
   const anoAtual = new Date().getFullYear();
 
   document.getElementById('proposta-doc').innerHTML = `
+    <!-- CAPA -->
     <div class="capa-doc">
       <div class="capa-conteudo">
         <div class="capa-logo-mark">S<br>A</div>
@@ -889,6 +890,7 @@ function render() {
       <div class="capa-footer">${anoAtual} © Soluciona Acústica</div>
     </div>
 
+    <!-- DOCUMENTO -->
     <div class="doc-header">
       <div><div class="doc-logo-mark">S<br>A</div><div class="doc-logo-name">Soluciona Acústica</div></div>
       <div class="doc-header-info">
@@ -991,11 +993,16 @@ function render() {
 // ─── LIMPAR ───
 function limparForm() {
   if (!confirm('Isso vai apagar tudo que está na tela. Deseja continuar?')) return;
-  ['numProposta','dataProposta','vendedor','cliente','cep','telefone','email',
-   'prazo','instalacao','pagamento','validade','obs','garantia','garantiaBase','garantiaExc']
-  .forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+  const campos = ['numProposta','dataProposta','vendedor','cliente','cep','telefone','email',
+                  'prazo','instalacao','pagamento','validade','obs','garantia','garantiaBase','garantiaExc'];
+  campos.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
   itens = [novoItem()];
-  if (testarLocalStorage()) localStorage.removeItem('rascunhoPropostaSA');
+  if (testarLocalStorage()) {
+    localStorage.removeItem('rascunhoPropostaSA');
+  }
   document.getElementById('dataProposta').value = new Date().toISOString().split('T')[0];
   renderItens();
   render();
@@ -1005,50 +1012,39 @@ function limparForm() {
 function imprimirPDF() {
   const validacao = validarDados();
   if (!validacao.valido) {
-    alert('Não é possível imprimir. Campos obrigatórios faltando:\n\n' + validacao.erros.join('\n'));
+    alert("❌ Não é possível imprimir. Campos obrigatórios faltando:\n\n" + validacao.erros.join('\n'));
     return;
   }
+
   const clienteNome = g('cliente').trim() || 'Sem_Nome';
   const numProp = g('numProposta').trim() || 'SN';
   const nomeFormatado = `Proposta_SA_${clienteNome.replace(/\s+/g, '_')}_N${numProp}`;
   const tituloOriginal = document.title;
   document.title = nomeFormatado;
-  // CORRIGIDO: usa afterprint em vez de setTimeout para restaurar o título
-  window.addEventListener('afterprint', () => { document.title = tituloOriginal; }, { once: true });
   window.print();
+  setTimeout(() => { document.title = tituloOriginal; }, 1000);
 }
 
 // ─── WHATSAPP ───
 function enviarWhatsApp() {
   const validacao = validarDados();
   if (!validacao.valido) {
-    alert('Preencha os dados obrigatórios antes de enviar:\n\n' + validacao.erros.join('\n'));
+    alert("⚠️ Preencha os dados obrigatórios antes de enviar:\n\n" + validacao.erros.join('\n'));
     return;
   }
+
   const cliente = g('cliente').trim();
   const num = g('numProposta').trim();
   const telefone = g('telefone').replace(/\D/g, '');
-  const totalText = fmt(calcularTotal());
+  const totalValor = calcularTotal();
 
-  // CORRIGIDO: avisa se o telefone está incompleto
-  if (telefone.length > 0 && telefone.length < 10) {
-    alert('O telefone do cliente parece incompleto. Verifique antes de enviar.');
-    return;
-  }
-
+  const totalText = fmt(totalValor);
   const msg = `Olá, ${cliente}! Tudo bem?\n\nAqui é da *Soluciona Acústica*. Sua proposta técnica (Nº ${num}) já está pronta.\nO valor total do projeto ficou em *${totalText}*.\n\nEstou enviando o arquivo PDF com todos os detalhes aqui abaixo. Qualquer dúvida, estou à disposição!`;
   const url = telefone.length >= 10
     ? `https://wa.me/55${telefone}?text=${encodeURIComponent(msg)}`
     : `https://wa.me/?text=${encodeURIComponent(msg)}`;
   window.open(url, '_blank');
 }
-
-// ─── BOTÕES DO HEADER ───
-document.getElementById('btn-salvar').addEventListener('click', salvarNoHistorico);
-document.getElementById('btn-limpar').addEventListener('click', limparForm);
-document.getElementById('btn-imprimir').addEventListener('click', imprimirPDF);
-document.getElementById('btn-whatsapp').addEventListener('click', enviarWhatsApp);
-document.getElementById('btn-add-item').addEventListener('click', addItem);
 
 // ─── LISTENERS CENTRALIZADOS COM DEBOUNCE ───
 let _debounceTimer = null;
