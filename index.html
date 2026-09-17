@@ -616,11 +616,10 @@ async function salvarNoHistorico() {
 
   const dadosAtuais = obterDadosAtuais();
   const registro = {
-    id: Date.now().toString(),
     cliente: dadosAtuais.cliente || null,
     num_proposta: dadosAtuais.numProposta || null,
     data_proposta: dadosAtuais.dataProposta || null,
-    dados: dadosAtuais
+    dados_completos: dadosAtuais
   };
 
   const { error } = await supabaseClient.from('propostas').insert(registro);
@@ -645,8 +644,8 @@ async function lerHistorico() {
     return [];
   }
 
-  // Reconstrói o formato usado pelo restante do app (dados + id)
-  return (data || []).map(row => ({ ...row.dados, id: row.id }));
+  // Reconstrói o formato usado pelo restante do app (dados_completos + id)
+  return (data || []).map(row => ({ ...row.dados_completos, id: row.id }));
 }
 
 async function abrirHistorico() {
