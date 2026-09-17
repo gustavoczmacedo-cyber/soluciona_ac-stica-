@@ -299,6 +299,9 @@
       <h3>🗂️ Minhas Propostas</h3>
       <button class="btn-fechar" onclick="fecharHistorico()">×</button>
     </div>
+    <input type="text" id="busca-historico" placeholder="🔍 Buscar por nome do cliente ou nº da proposta..."
+           style="width:100%;border:1.5px solid var(--cinza);padding:10px 14px;font-size:13px;
+                  font-family:'Inter',sans-serif;margin-bottom:14px;outline:none;border-radius:4px;"/>
     <div class="historico-list" id="lista-historico"></div>
   </div>
 </div>
@@ -685,60 +688,87 @@ async function lerHistorico() {
   return (data || []).map(row => ({ ...row.dados_completos, id: row.id }));
 }
 
+let _historicoCache = [];
+
 async function abrirHistorico() {
   const lista = document.getElementById('lista-historico');
+  const inputBusca = document.getElementById('busca-historico');
+  inputBusca.value = '';
   lista.innerHTML = '<p style="font-size:13px;color:var(--texto-lt);text-align:center;padding:20px;">Carregando propostas...</p>';
   document.getElementById('modal-historico').style.display = 'flex';
 
-  const historico = await lerHistorico();
+  _historicoCache = await lerHistorico();
+  renderizarListaHistorico(_historicoCache);
+  inputBusca.focus();
+}
+
+function filtrarHistorico() {
+  const termo = document.getElementById('busca-historico').value.trim().toLowerCase();
+  if (!termo) {
+    renderizarListaHistorico(_historicoCache);
+    return;
+  }
+  const filtrado = _historicoCache.filter(p =>
+    (p.cliente || '').toLowerCase().includes(termo) ||
+    (p.numProposta || '').toLowerCase().includes(termo)
+  );
+  renderizarListaHistorico(filtrado, termo);
+}
+
+document.getElementById('busca-historico').addEventListener('input', filtrarHistorico);
+
+function renderizarListaHistorico(historico, termoBusca) {
+  const lista = document.getElementById('lista-historico');
 
   if (historico.length === 0) {
-    lista.innerHTML = '<p style="font-size:13px;color:var(--texto-lt);text-align:center;padding:20px;">Nenhuma proposta salva ainda.</p>';
-  } else {
-    lista.innerHTML = historico.map((p, idx) => `
-      <div class="historico-item">
-        <div>
-          <strong>${escaparHtml(p.cliente || '(sem nome)')}</strong>
-          <span>Nº ${escaparHtml(p.numProposta || 'S/N')} · ${formatarData(p.dataProposta)}</span>
-        </div>
-        <div class="hist-actions">
-          <button class="btn btn-outline-gold btn-carregar-hist" data-hist-id="${p.id}">Abrir</button>
-          <button class="btn btn-excluir-hist" data-hist-id="${p.id}" style="background:#fdecea;color:#d32f2f;">X</button>
-        </div>
-      </div>
-    `).join('');
-
-    // CORRIGIDO: Event delegation em vez de onclick inline
-    lista.querySelectorAll('.btn-carregar-hist').forEach(btn => {
-      btn.addEventListener('click', async function() {
-        const id = this.dataset.histId;
-        if (!confirm("Isso vai substituir a proposta atual. Deseja continuar?")) return;
-        const historicoAtual = await lerHistorico();
-        const dados = historicoAtual.find(p => p.id === id);
-        if (!dados) {
-          alert('❌ Proposta não encontrada.');
-          return;
-        }
-        preencherFormulario(dados);
-        fecharHistorico();
-        alert('✅ Proposta carregada!');
-      });
-    });
-
-    lista.querySelectorAll('.btn-excluir-hist').forEach(btn => {
-      btn.addEventListener('click', async function() {
-        const id = this.dataset.histId;
-        if (!confirm("Tem certeza que deseja apagar essa proposta do histórico?")) return;
-        const { error } = await supabaseClient.from('propostas').delete().eq('id', id);
-        if (error) {
-          console.error('Erro ao excluir no Supabase:', error);
-          alert("⚠️ Não foi possível excluir: " + error.message);
-          return;
-        }
-        abrirHistorico();
-      });
-    });
+    lista.innerHTML = termoBusca
+      ? `<p style="font-size:13px;color:var(--texto-lt);text-align:center;padding:20px;">Nenhuma proposta encontrada para "${escaparHtml(termoBusca)}".</p>`
+      : '<p style="font-size:13px;color:var(--texto-lt);text-align:center;padding:20px;">Nenhuma proposta salva ainda.</p>';
+    return;
   }
+
+  lista.innerHTML = historico.map((p, idx) => `
+    <div class="historico-item">
+      <div>
+        <strong>${escaparHtml(p.cliente || '(sem nome)')}</strong>
+        <span>Nº ${escaparHtml(p.numProposta || 'S/N')} · ${formatarData(p.dataProposta)}</span>
+      </div>
+      <div class="hist-actions">
+        <button class="btn btn-outline-gold btn-carregar-hist" data-hist-id="${p.id}">Abrir</button>
+        <button class="btn btn-excluir-hist" data-hist-id="${p.id}" style="background:#fdecea;color:#d32f2f;">X</button>
+      </div>
+    </div>
+  `).join('');
+
+  // CORRIGIDO: Event delegation em vez de onclick inline
+  lista.querySelectorAll('.btn-carregar-hist').forEach(btn => {
+    btn.addEventListener('click', async function() {
+      const id = this.dataset.histId;
+      if (!confirm("Isso vai substituir a proposta atual. Deseja continuar?")) return;
+      const dados = _historicoCache.find(p => p.id === id);
+      if (!dados) {
+        alert('❌ Proposta não encontrada.');
+        return;
+      }
+      preencherFormulario(dados);
+      fecharHistorico();
+      alert('✅ Proposta carregada!');
+    });
+  });
+
+  lista.querySelectorAll('.btn-excluir-hist').forEach(btn => {
+    btn.addEventListener('click', async function() {
+      const id = this.dataset.histId;
+      if (!confirm("Tem certeza que deseja apagar essa proposta do histórico?")) return;
+      const { error } = await supabaseClient.from('propostas').delete().eq('id', id);
+      if (error) {
+        console.error('Erro ao excluir no Supabase:', error);
+        alert("⚠️ Não foi possível excluir: " + error.message);
+        return;
+      }
+      abrirHistorico();
+    });
+  });
 }
 
 function fecharHistorico() {
