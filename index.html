@@ -320,7 +320,7 @@
       <label>Senha</label>
       <input type="password" id="input-senha" placeholder="Digite sua senha" autocomplete="current-password"/>
     </div>
-    <button class="btn-login" id="btn-entrar">Entrar no Sistema</button>
+    <button class="btn-login" onclick="fazerLogin()">Entrar no Sistema</button>
     <div id="login-error">Usuário ou senha incorretos!</div>
   </div>
 </div>
@@ -414,7 +414,7 @@ const SUPABASE_URL = 'https://jogwinptprfoznwkjbci.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_l_2UnfQhD0TsARBO_5B-Qw_-BVk782a';
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// ─── AUTENTICAÇÃO (CORRIGIDA) ───
+// ─── AUTENTICAÇÃO DIRETA ───
 const USER_CORRETO = "geisi";
 const SENHA_CORRETA = "0000";
 
@@ -450,23 +450,13 @@ function fazerLogout() {
   }
 }
 
-// Eventos de login (garantindo que os elementos existem antes de registrar)
-document.addEventListener('DOMContentLoaded', () => {
-  const btnEntrar = document.getElementById('btn-entrar');
-  if (btnEntrar) btnEntrar.addEventListener('click', fazerLogin);
-
-  const inputSenha = document.getElementById('input-senha');
-  if (inputSenha) {
-    inputSenha.addEventListener('keydown', function(e) {
-      if (e.key === 'Enter') fazerLogin();
-    });
-  }
-
-  const inputUsuario = document.getElementById('input-usuario');
-  if (inputUsuario) {
-    inputUsuario.addEventListener('keydown', function(e) {
-      if (e.key === 'Enter') fazerLogin();
-    });
+// Atalho da tecla Enter nos campos de login
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const loginScreen = document.getElementById('login-screen');
+    if (loginScreen && getComputedStyle(loginScreen).display !== 'none') {
+      fazerLogin();
+    }
   }
 });
 
@@ -958,7 +948,7 @@ function render() {
       <div class="doc-section">
         <div class="doc-section-title">Apresentação</div>
         <p class="doc-text">Em atenção à sua solicitação, apresentamos nossa Proposta Técnica e Comercial para fornecimento e instalação de porta acústica sob medida, desenvolvida para proporcionar isolamento sonoro eficiente, acabamento de alto padrão e durabilidade superior.</p>
-        <p class="doc-text">A Soluciona Acústica is specialized in manufacturing high-performance acoustic doors, offering complete solutions for residences, studios, offices, and corporate environments.</p>
+        <p class="doc-text">A Soluciona Acústica é especializada na fabricação de portas antirruído de alto desempenho, oferecendo soluções completas para residências, estúdios, escritórios e ambientes corporativos.</p>
       </div>
 
       <div class="doc-section">
