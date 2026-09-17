@@ -47,9 +47,33 @@
       border-radius:4px;cursor:pointer;transition:background .2s;font-family:'Inter',sans-serif;
     }
     .btn-login:hover{background:var(--vinho-dk);}
+    .btn-login:disabled{opacity:0.6;cursor:not-allowed;}
     #login-error{color:#d32f2f;background:#fdecea;padding:10px;border-radius:4px;font-size:13px;margin-top:16px;display:none;font-weight:500;}
     body.logado #login-screen{display:none;}
     body:not(.logado) .app-container{display:none;}
+
+    /* ── NOTIFICAÇÕES (substitui alert/confirm) ── */
+    #notif-overlay{
+      position:fixed;top:0;left:0;width:100%;height:100%;
+      background:rgba(0,0,0,0.5);z-index:999999;
+      display:none;align-items:center;justify-content:center;backdrop-filter:blur(3px);
+    }
+    #notif-overlay.visivel{display:flex;}
+    .notif-box{
+      background:#fff;border-radius:8px;padding:32px 28px;max-width:420px;width:90%;
+      box-shadow:0 20px 60px rgba(0,0,0,0.3);text-align:center;
+    }
+    .notif-icon{font-size:2.5rem;margin-bottom:14px;display:block;}
+    .notif-msg{font-size:14px;color:var(--texto);line-height:1.7;margin-bottom:22px;white-space:pre-line;}
+    .notif-btns{display:flex;gap:10px;justify-content:center;}
+    .notif-btn{
+      padding:10px 24px;border:none;border-radius:4px;font-size:13px;font-weight:600;
+      cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s;
+    }
+    .notif-btn-ok{background:var(--vinho);color:#fff;}
+    .notif-btn-ok:hover{background:var(--vinho-dk);}
+    .notif-btn-cancel{background:var(--cinza);color:var(--texto-lt);}
+    .notif-btn-cancel:hover{background:var(--cinza2);}
 
     /* ── HEADER ── */
     header{
@@ -77,7 +101,7 @@
     .btn-vinho{background:var(--vinho);color:#fff;}
     .btn-vinho:hover{background:#7a1428;}
 
-    /* ── TOAST DE RASCUNHO SALVO ── */
+    /* ── TOAST ── */
     #toast-rascunho{
       position:fixed;bottom:24px;right:24px;background:var(--vinho-dk);color:#fff;
       padding:10px 18px;border-radius:6px;font-size:13px;font-weight:500;
@@ -94,7 +118,7 @@
       backdrop-filter:blur(4px);
     }
     .modal-box{
-      background:#fff;width:100%;max-width:540px;border-radius:8px;
+      background:#fff;width:100%;max-width:580px;border-radius:8px;
       padding:28px;max-height:85vh;display:flex;flex-direction:column;
       box-shadow:0 20px 60px rgba(0,0,0,0.3);
     }
@@ -102,6 +126,18 @@
     .modal-header h3{font-family:'Playfair Display',serif;color:var(--vinho-dk);font-size:20px;}
     .btn-fechar{background:none;border:none;font-size:24px;cursor:pointer;color:var(--texto-lt);line-height:1;}
     .btn-fechar:hover{color:var(--vinho);}
+    .historico-filtros{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
+    .historico-filtros input{
+      flex:1;min-width:180px;border:1.5px solid var(--cinza);padding:10px 14px;font-size:13px;
+      font-family:'Inter',sans-serif;outline:none;border-radius:4px;
+    }
+    .historico-filtros input:focus{border-color:var(--ouro);}
+    .filtro-status{
+      border:1.5px solid var(--cinza);padding:8px 12px;font-size:12px;
+      font-family:'Inter',sans-serif;outline:none;border-radius:4px;background:#fff;
+      color:var(--texto);cursor:pointer;
+    }
+    .filtro-status:focus{border-color:var(--ouro);}
     .historico-list{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:12px;padding-right:5px;}
     .historico-list::-webkit-scrollbar{width:5px;}
     .historico-list::-webkit-scrollbar-thumb{background:var(--cinza2);border-radius:3px;}
@@ -113,7 +149,34 @@
     .historico-item:hover{border-color:var(--ouro);}
     .historico-item strong{font-size:14px;color:var(--vinho);display:block;margin-bottom:4px;}
     .historico-item span{font-size:12px;color:var(--texto-lt);display:block;}
-    .hist-actions{display:flex;gap:8px;}
+    .hist-actions{display:flex;gap:8px;align-items:center;flex-shrink:0;}
+    .badge-status{
+      display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;
+      text-transform:uppercase;letter-spacing:.5px;
+    }
+    .badge-Aberta{background:#fff3cd;color:#856404;}
+    .badge-Aprovada{background:#d1e7dd;color:#0a5c36;}
+    .badge-Perdida{background:#f8d7da;color:#842029;}
+
+    /* ── STATUS NO FORMULÁRIO ── */
+    .status-selector{display:flex;gap:8px;margin-top:4px;}
+    .status-btn{
+      flex:1;padding:8px;border:1.5px solid var(--cinza);border-radius:4px;
+      font-size:12px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;
+      background:#fff;color:var(--texto-lt);transition:all .15s;text-align:center;
+    }
+    .status-btn:hover{border-color:var(--ouro);}
+    .status-btn.ativo-Aberta{background:#fff3cd;border-color:#ffc107;color:#856404;}
+    .status-btn.ativo-Aprovada{background:#d1e7dd;border-color:#198754;color:#0a5c36;}
+    .status-btn.ativo-Perdida{background:#f8d7da;border-color:#dc3545;color:#842029;}
+
+    /* ── INDICADOR DE EDIÇÃO ── */
+    #edit-indicator{
+      display:none;background:#fff3cd;border:1px solid #ffc107;
+      padding:8px 14px;border-radius:4px;font-size:12px;color:#856404;
+      margin-bottom:14px;font-weight:500;
+    }
+    #edit-indicator.visivel{display:flex;align-items:center;gap:8px;}
 
     /* ── LAYOUT ── */
     .app{display:grid;grid-template-columns:480px 1fr;height:calc(100vh - 60px);overflow:hidden;}
@@ -257,8 +320,6 @@
     .doc-footer p{color:#c8b89a;font-size:11.5px;line-height:1.9;}
     .doc-footer a{color:var(--ouro-lt);text-decoration:none;}
     .doc-footer .doc-footer-title{font-family:'Playfair Display',serif;color:var(--ouro);font-size:13px;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;}
-
-    /* ── OBS SECTION ── */
     .doc-obs-section{margin-top:12px;padding:10px 14px;background:#faf8f5;border-left:3px solid var(--cinza2);}
     .doc-obs-section h4{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--texto-lt);margin-bottom:6px;}
     .doc-obs-section p{font-size:12px;color:var(--texto-lt);line-height:1.6;}
@@ -279,7 +340,7 @@
     /* ── IMPRESSÃO ── */
     @media print{
       body{background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
-      header,.form-panel,.preview-panel > :not(.proposta-doc),#login-screen,.modal-overlay,#toast-rascunho{display:none!important;}
+      header,.form-panel,.preview-panel > :not(.proposta-doc),#login-screen,.modal-overlay,#toast-rascunho,#notif-overlay{display:none!important;}
       .app{display:block;height:auto;overflow:visible;}
       .preview-panel{padding:0;background:#fff;overflow:visible;}
       .proposta-doc{box-shadow:none;max-width:100%;}
@@ -288,6 +349,15 @@
   </style>
 </head>
 <body>
+
+<!-- ════ SISTEMA DE NOTIFICAÇÕES ════ -->
+<div id="notif-overlay">
+  <div class="notif-box">
+    <span class="notif-icon" id="notif-icon">ℹ️</span>
+    <div class="notif-msg" id="notif-msg"></div>
+    <div class="notif-btns" id="notif-btns"></div>
+  </div>
+</div>
 
 <!-- ════ TOAST ════ -->
 <div id="toast-rascunho">✓ Rascunho salvo</div>
@@ -299,9 +369,15 @@
       <h3>🗂️ Minhas Propostas</h3>
       <button class="btn-fechar" onclick="fecharHistorico()">×</button>
     </div>
-    <input type="text" id="busca-historico" placeholder="🔍 Buscar por nome do cliente ou nº da proposta..."
-           style="width:100%;border:1.5px solid var(--cinza);padding:10px 14px;font-size:13px;
-                  font-family:'Inter',sans-serif;margin-bottom:14px;outline:none;border-radius:4px;"/>
+    <div class="historico-filtros">
+      <input type="text" id="busca-historico" placeholder="🔍 Buscar por nome do cliente ou nº da proposta..."/>
+      <select class="filtro-status" id="filtro-status">
+        <option value="">Todos os status</option>
+        <option value="Aberta">🟡 Aberta</option>
+        <option value="Aprovada">🟢 Aprovada</option>
+        <option value="Perdida">🔴 Perdida</option>
+      </select>
+    </div>
     <div class="historico-list" id="lista-historico"></div>
   </div>
 </div>
@@ -313,15 +389,15 @@
     <h2>Soluciona Acústica</h2>
     <p class="subtitle">Acesso restrito ao gerador de propostas</p>
     <div class="field">
-      <label>Usuário</label>
-      <input type="text" id="input-usuario" placeholder="Digite seu usuário" autocomplete="username"/>
+      <label>E-mail</label>
+      <input type="email" id="input-usuario" placeholder="seu@email.com" autocomplete="email"/>
     </div>
     <div class="field">
       <label>Senha</label>
       <input type="password" id="input-senha" placeholder="Digite sua senha" autocomplete="current-password"/>
     </div>
     <button class="btn-login" id="btn-entrar">Entrar no Sistema</button>
-    <div id="login-error">Usuário ou senha incorretos!</div>
+    <div id="login-error"></div>
   </div>
 </div>
 
@@ -334,7 +410,7 @@
     </div>
     <div class="header-actions">
       <button class="btn btn-outline-gold" onclick="abrirHistorico()">🗂️ Histórico</button>
-      <button class="btn btn-outline-gold" onclick="salvarNoHistorico()">💾 Salvar</button>
+      <button class="btn btn-outline-gold" id="btn-salvar" onclick="salvarNoHistorico()">💾 Salvar</button>
       <button class="btn btn-outline-gold" onclick="limparForm()">Limpar</button>
       <button class="btn btn-outline-gold" onclick="enviarWhatsApp()" style="display:flex;align-items:center;gap:6px;">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" width="14" height="14" fill="currentColor">
@@ -350,6 +426,12 @@
   <div class="app">
     <!-- FORMULÁRIO -->
     <div class="form-panel" id="form-panel">
+
+      <!-- INDICADOR DE EDIÇÃO -->
+      <div id="edit-indicator">
+        ✏️ <span id="edit-indicator-txt">Editando proposta salva — clique em Salvar para atualizar</span>
+      </div>
+
       <div class="form-section">
         <div class="form-section-title">Dados da Proposta</div>
         <div class="row2">
@@ -357,6 +439,14 @@
           <div class="field"><label>Data</label><input type="date" id="dataProposta"/></div>
         </div>
         <div class="field"><label>Vendedor Responsável</label><input type="text" id="vendedor"/></div>
+        <div class="field">
+          <label>Status da Proposta</label>
+          <div class="status-selector">
+            <button class="status-btn ativo-Aberta" data-status="Aberta" onclick="setStatus('Aberta')">🟡 Aberta</button>
+            <button class="status-btn" data-status="Aprovada" onclick="setStatus('Aprovada')">🟢 Aprovada</button>
+            <button class="status-btn" data-status="Perdida" onclick="setStatus('Perdida')">🔴 Perdida</button>
+          </div>
+        </div>
       </div>
 
       <div class="form-section">
@@ -414,52 +504,106 @@ const SUPABASE_URL = 'https://jogwinptprfoznwkjbci.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_l_2UnfQhD0TsARBO_5B-Qw_-BVk782a';
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// ─── AUTENTICAÇÃO (CORRIGIDO) ───
-const USER_CORRETO = "geisi";
-const SENHA_CORRETA = "0000";
+// ─── SISTEMA DE NOTIFICAÇÕES (substitui alert/confirm) ───
+function notif(msg, { icon = 'ℹ️', ok = 'OK', cancel = null } = {}) {
+  return new Promise(resolve => {
+    document.getElementById('notif-icon').textContent = icon;
+    document.getElementById('notif-msg').textContent = msg;
+    const btns = document.getElementById('notif-btns');
+    btns.innerHTML = '';
 
-// ⚠️ IMPORTANTE: Em produção, use Firebase Auth ou JWT do servidor
-// Nunca deixe credenciais no código-fonte!
+    if (cancel) {
+      const btnCancelEl = document.createElement('button');
+      btnCancelEl.className = 'notif-btn notif-btn-cancel';
+      btnCancelEl.textContent = cancel;
+      btnCancelEl.onclick = () => { fecharNotif(); resolve(false); };
+      btns.appendChild(btnCancelEl);
+    }
 
-function verificarAutenticacao() {
-  if (sessionStorage.getItem('sa_autenticado') === 'sim') {
+    const btnOkEl = document.createElement('button');
+    btnOkEl.className = 'notif-btn notif-btn-ok';
+    btnOkEl.textContent = ok;
+    btnOkEl.onclick = () => { fecharNotif(); resolve(true); };
+    btns.appendChild(btnOkEl);
+
+    const overlay = document.getElementById('notif-overlay');
+    overlay.classList.add('visivel');
+    btnOkEl.focus();
+  });
+}
+
+function fecharNotif() {
+  document.getElementById('notif-overlay').classList.remove('visivel');
+}
+
+document.getElementById('notif-overlay').addEventListener('click', function(e) {
+  if (e.target === this) fecharNotif();
+});
+
+// ─── AUTENTICAÇÃO VIA SUPABASE AUTH ───
+async function verificarAutenticacao() {
+  const { data: { session } } = await supabaseClient.auth.getSession();
+  if (session) {
     document.body.classList.add('logado');
+    carregarRascunho();
   }
 }
 
-document.getElementById('btn-entrar').addEventListener('click', fazerLogin);
-document.getElementById('input-senha').addEventListener('keydown', function(e) {
-  if (e.key === 'Enter') fazerLogin();
-});
-document.getElementById('input-usuario').addEventListener('keydown', function(e) {
-  if (e.key === 'Enter') fazerLogin();
-});
-
-function fazerLogin() {
-  const u = document.getElementById('input-usuario').value.trim().toLowerCase();
-  const p = document.getElementById('input-senha').value.trim();
-  
-  // CORRIGIDO: Verificação simples (não usa hash quebrado)
-  if (u === USER_CORRETO && p === SENHA_CORRETA) {
-    sessionStorage.setItem('sa_autenticado', 'sim');
-    document.getElementById('login-error').style.display = 'none';
+// Listener de mudança de sessão (login/logout)
+supabaseClient.auth.onAuthStateChange((event, session) => {
+  if (session) {
     document.body.classList.add('logado');
   } else {
-    document.getElementById('login-error').style.display = 'block';
+    document.body.classList.remove('logado');
+  }
+});
+
+document.getElementById('btn-entrar').addEventListener('click', fazerLogin);
+document.getElementById('input-senha').addEventListener('keydown', e => { if (e.key === 'Enter') fazerLogin(); });
+document.getElementById('input-usuario').addEventListener('keydown', e => { if (e.key === 'Enter') fazerLogin(); });
+
+async function fazerLogin() {
+  const email = document.getElementById('input-usuario').value.trim();
+  const senha = document.getElementById('input-senha').value;
+  const errEl = document.getElementById('login-error');
+  const btnEl = document.getElementById('btn-entrar');
+
+  if (!email || !senha) {
+    errEl.style.display = 'block';
+    errEl.textContent = 'Preencha e-mail e senha.';
+    return;
+  }
+
+  btnEl.disabled = true;
+  btnEl.textContent = 'Entrando...';
+  errEl.style.display = 'none';
+
+  const { error } = await supabaseClient.auth.signInWithPassword({ email, password: senha });
+
+  btnEl.disabled = false;
+  btnEl.textContent = 'Entrar no Sistema';
+
+  if (error) {
+    errEl.style.display = 'block';
+    errEl.textContent = 'E-mail ou senha incorretos.';
     document.getElementById('input-senha').value = '';
     document.getElementById('input-senha').focus();
+  } else {
+    document.body.classList.add('logado');
+    carregarRascunho();
   }
 }
 
-function fazerLogout() {
-  if (confirm("Deseja realmente sair do sistema?")) {
-    sessionStorage.removeItem('sa_autenticado');
-    document.body.classList.remove('logado');
-    document.getElementById('input-usuario').value = '';
-    document.getElementById('input-senha').value = '';
-  }
+async function fazerLogout() {
+  const ok = await notif('Deseja realmente sair do sistema?', { icon: '⍈', ok: 'Sair', cancel: 'Cancelar' });
+  if (!ok) return;
+  await supabaseClient.auth.signOut();
+  document.body.classList.remove('logado');
+  document.getElementById('input-usuario').value = '';
+  document.getElementById('input-senha').value = '';
 }
 
+// Inicializa auth
 verificarAutenticacao();
 
 // ─── MÁSCARAS ───
@@ -477,7 +621,6 @@ function mascaraTelefone(input) {
   input.value = v;
 }
 
-// Aplica máscaras via data-mask
 document.addEventListener('input', function(e) {
   const mask = e.target.dataset.mask;
   if (mask === 'cep') mascaraCEP(e.target);
@@ -498,14 +641,10 @@ function escaparHtml(str) {
 // ─── VALIDAÇÃO ───
 function testarLocalStorage() {
   try {
-    const teste = '__teste_sa__';
-    localStorage.setItem(teste, teste);
-    localStorage.removeItem(teste);
+    localStorage.setItem('__teste__', '1');
+    localStorage.removeItem('__teste__');
     return true;
-  } catch(e) {
-    console.warn('⚠️ LocalStorage indisponível (modo privado?). Dados não serão persistidos.');
-    return false;
-  }
+  } catch(e) { return false; }
 }
 
 function validarDados() {
@@ -516,12 +655,13 @@ function validarDados() {
     erros.push('Pelo menos um item com valores completos');
   }
   if (calcularTotal() === 0) erros.push('Total da proposta não pode ser zero');
-  
   return { valido: erros.length === 0, erros };
 }
 
 // ─── ESTADO ───
 let itens = [novoItem()];
+let statusAtual = 'Aberta';
+let propostaEditandoId = null; // null = nova proposta, string = editando existente
 
 function novoItem() {
   return { nome:'', localizacao:'', produto:'', composicao:'', espessura:'', largura:'', altura:'', acabamento:'', linha:'', qtd:'', unit:'' };
@@ -538,14 +678,34 @@ function formatarData(val) {
   try {
     const [y, m, d] = val.split('-');
     return `${String(d).padStart(2, '0')}/${String(m).padStart(2, '0')}/${y}`;
-  } catch(e) {
-    console.error('Erro ao formatar data:', val, e);
-    return '—';
-  }
+  } catch(e) { return '—'; }
 }
 
 function calcularTotal() {
   return itens.reduce((s, it) => s + (parseFloat(it.qtd) || 0) * (parseFloat(it.unit) || 0), 0);
+}
+
+// ─── STATUS ───
+function setStatus(status) {
+  statusAtual = status;
+  document.querySelectorAll('.status-btn').forEach(btn => {
+    btn.className = 'status-btn';
+    if (btn.dataset.status === status) btn.classList.add('ativo-' + status);
+  });
+  salvarRascunho();
+}
+
+// ─── INDICADOR DE EDIÇÃO ───
+function atualizarIndicadorEdicao() {
+  const el = document.getElementById('edit-indicator');
+  const btnSalvar = document.getElementById('btn-salvar');
+  if (propostaEditandoId) {
+    el.classList.add('visivel');
+    btnSalvar.textContent = '💾 Atualizar';
+  } else {
+    el.classList.remove('visivel');
+    btnSalvar.textContent = '💾 Salvar';
+  }
 }
 
 // ─── RASCUNHO ───
@@ -555,9 +715,7 @@ function salvarRascunho() {
   try {
     localStorage.setItem('rascunhoPropostaSA', JSON.stringify(obterDadosAtuais()));
     mostrarToast();
-  } catch(e) {
-    console.warn("Não foi possível salvar rascunho:", e);
-  }
+  } catch(e) { console.warn("Não foi possível salvar rascunho:", e); }
 }
 
 function mostrarToast() {
@@ -574,7 +732,9 @@ function obterDadosAtuais() {
     prazo: g('prazo'), instalacao: g('instalacao'), pagamento: g('pagamento'),
     validade: g('validade'), obs: g('obs'), garantia: g('garantia'),
     garantiaBase: g('garantiaBase'), garantiaExc: g('garantiaExc'),
-    itens: JSON.parse(JSON.stringify(itens))
+    status: statusAtual,
+    itens: JSON.parse(JSON.stringify(itens)),
+    _editandoId: propostaEditandoId
   };
 }
 
@@ -588,21 +748,22 @@ function preencherFormulario(dados) {
   if (!dados.dataProposta) {
     document.getElementById('dataProposta').value = new Date().toISOString().split('T')[0];
   }
+  setStatus(dados.status || 'Aberta');
+  propostaEditandoId = dados._editandoId || null;
   itens = (dados.itens && dados.itens.length > 0) ? JSON.parse(JSON.stringify(dados.itens)) : [novoItem()];
   renderItens();
   render();
+  atualizarIndicadorEdicao();
 }
 
 function carregarRascunho() {
-  if (!testarLocalStorage()) return;
+  if (!testarLocalStorage()) {
+    document.getElementById('dataProposta').value = new Date().toISOString().split('T')[0];
+    renderItens(); render(); return;
+  }
   const salvo = localStorage.getItem('rascunhoPropostaSA');
   if (salvo) {
-    try {
-      preencherFormulario(JSON.parse(salvo));
-      return;
-    } catch(e) {
-      console.error("Erro ao carregar rascunho:", e);
-    }
+    try { preencherFormulario(JSON.parse(salvo)); return; } catch(e) { console.error(e); }
   }
   document.getElementById('dataProposta').value = new Date().toISOString().split('T')[0];
   renderItens();
@@ -613,14 +774,42 @@ function carregarRascunho() {
 async function salvarNoHistorico() {
   const validacao = validarDados();
   if (!validacao.valido) {
-    alert("⚠️ Não foi possível salvar. Campos obrigatórios faltando:\n\n" + validacao.erros.join('\n'));
+    await notif('Campos obrigatórios faltando:\n\n' + validacao.erros.join('\n'), { icon: '⚠️' });
+    return;
+  }
+
+  const { data: { session } } = await supabaseClient.auth.getSession();
+  if (!session) {
+    await notif('Sua sessão expirou. Faça login novamente.', { icon: '🔒' });
+    document.body.classList.remove('logado');
     return;
   }
 
   const dadosAtuais = obterDadosAtuais();
+  const numProposta = dadosAtuais.numProposta.trim();
+
+  // ── VERIFICAR DUPLICIDADE DE NÚMERO ──
+  if (!propostaEditandoId) {
+    // Só verifica duplicidade ao criar nova proposta
+    const { data: existente } = await supabaseClient
+      .from('propostas')
+      .select('id, cliente')
+      .eq('num_proposta', numProposta)
+      .maybeSingle();
+
+    if (existente) {
+      await notif(
+        `Já existe uma proposta com o número "${numProposta}" (cliente: ${existente.cliente}).\n\nAlte o número antes de salvar.`,
+        { icon: '⚠️' }
+      );
+      document.getElementById('numProposta').focus();
+      return;
+    }
+  }
+
   const registro = {
     cliente: dadosAtuais.cliente || null,
-    num_proposta: dadosAtuais.numProposta || null,
+    num_proposta: numProposta || null,
     data_proposta: dadosAtuais.dataProposta || null,
     vendedor: dadosAtuais.vendedor || null,
     telefone: dadosAtuais.telefone || null,
@@ -631,24 +820,49 @@ async function salvarNoHistorico() {
     garantia: dadosAtuais.garantia || null,
     garantia_base: dadosAtuais.garantiaBase || null,
     total: calcularTotal(),
+    status: statusAtual,
     dados_completos: dadosAtuais
   };
 
-  const { data: propostaSalva, error } = await supabaseClient
-    .from('propostas')
-    .insert(registro)
-    .select()
-    .single();
+  let propostaId;
 
-  if (error) {
-    console.error('Erro ao salvar no Supabase:', error);
-    alert("⚠️ Não foi possível salvar no banco de dados: " + error.message);
-    return;
+  if (propostaEditandoId) {
+    // ── ATUALIZAR PROPOSTA EXISTENTE ──
+    const { error } = await supabaseClient
+      .from('propostas')
+      .update(registro)
+      .eq('id', propostaEditandoId);
+
+    if (error) {
+      await notif('Não foi possível atualizar: ' + error.message, { icon: '❌' });
+      return;
+    }
+
+    // Apaga itens antigos e reinserir
+    await supabaseClient.from('itens_proposta').delete().eq('proposta_id', propostaEditandoId);
+    propostaId = propostaEditandoId;
+
+  } else {
+    // ── CRIAR NOVA PROPOSTA ──
+    const { data: propostaSalva, error } = await supabaseClient
+      .from('propostas')
+      .insert(registro)
+      .select()
+      .single();
+
+    if (error) {
+      await notif('Não foi possível salvar: ' + error.message, { icon: '❌' });
+      return;
+    }
+    propostaId = propostaSalva.id;
+    // Passa a ser "edição" a partir de agora
+    propostaEditandoId = propostaId;
+    atualizarIndicadorEdicao();
   }
 
-  // Salva cada item da proposta na tabela itens_proposta
+  // Salva itens
   const itensParaSalvar = itens.map((it, idx) => ({
-    proposta_id: propostaSalva.id,
+    proposta_id: propostaId,
     ordem: idx,
     nome_produto: it.nome || null,
     caracteristica: it.produto || null,
@@ -663,14 +877,14 @@ async function salvarNoHistorico() {
   }));
 
   const { error: erroItens } = await supabaseClient.from('itens_proposta').insert(itensParaSalvar);
-
   if (erroItens) {
-    console.error('Erro ao salvar itens no Supabase:', erroItens);
-    alert("⚠️ Proposta salva, mas houve um erro ao salvar os itens: " + erroItens.message);
+    await notif('Proposta salva, mas erro nos itens: ' + erroItens.message, { icon: '⚠️' });
     return;
   }
 
-  alert(`✅ Proposta de ${g('cliente')} salva com sucesso!`);
+  // Atualiza rascunho com o id para futuras edições
+  salvarRascunho();
+  await notif(`Proposta de ${g('cliente')} salva com sucesso!`, { icon: '✅' });
 }
 
 async function lerHistorico() {
@@ -679,43 +893,43 @@ async function lerHistorico() {
     .select('*')
     .order('created_at', { ascending: false });
 
-  if (error) {
-    console.error('Erro ao ler histórico do Supabase:', error);
-    return [];
-  }
-
-  // Reconstrói o formato usado pelo restante do app (dados_completos + id)
-  return (data || []).map(row => ({ ...row.dados_completos, id: row.id }));
+  if (error) { console.error(error); return []; }
+  return (data || []).map(row => ({ ...row.dados_completos, id: row.id, status: row.status }));
 }
 
 let _historicoCache = [];
 
 async function abrirHistorico() {
   const lista = document.getElementById('lista-historico');
-  const inputBusca = document.getElementById('busca-historico');
-  inputBusca.value = '';
+  document.getElementById('busca-historico').value = '';
+  document.getElementById('filtro-status').value = '';
   lista.innerHTML = '<p style="font-size:13px;color:var(--texto-lt);text-align:center;padding:20px;">Carregando propostas...</p>';
   document.getElementById('modal-historico').style.display = 'flex';
 
   _historicoCache = await lerHistorico();
   renderizarListaHistorico(_historicoCache);
-  inputBusca.focus();
+  document.getElementById('busca-historico').focus();
 }
 
 function filtrarHistorico() {
   const termo = document.getElementById('busca-historico').value.trim().toLowerCase();
-  if (!termo) {
-    renderizarListaHistorico(_historicoCache);
-    return;
+  const statusFiltro = document.getElementById('filtro-status').value;
+
+  let filtrado = _historicoCache;
+  if (termo) {
+    filtrado = filtrado.filter(p =>
+      (p.cliente || '').toLowerCase().includes(termo) ||
+      (p.numProposta || '').toLowerCase().includes(termo)
+    );
   }
-  const filtrado = _historicoCache.filter(p =>
-    (p.cliente || '').toLowerCase().includes(termo) ||
-    (p.numProposta || '').toLowerCase().includes(termo)
-  );
+  if (statusFiltro) {
+    filtrado = filtrado.filter(p => (p.status || 'Aberta') === statusFiltro);
+  }
   renderizarListaHistorico(filtrado, termo);
 }
 
 document.getElementById('busca-historico').addEventListener('input', filtrarHistorico);
+document.getElementById('filtro-status').addEventListener('change', filtrarHistorico);
 
 function renderizarListaHistorico(historico, termoBusca) {
   const lista = document.getElementById('lista-historico');
@@ -727,44 +941,46 @@ function renderizarListaHistorico(historico, termoBusca) {
     return;
   }
 
-  lista.innerHTML = historico.map((p, idx) => `
+  lista.innerHTML = historico.map(p => {
+    const st = p.status || 'Aberta';
+    return `
     <div class="historico-item">
       <div>
         <strong>${escaparHtml(p.cliente || '(sem nome)')}</strong>
         <span>Nº ${escaparHtml(p.numProposta || 'S/N')} · ${formatarData(p.dataProposta)}</span>
+        <span style="margin-top:4px;"><span class="badge-status badge-${st}">${st}</span></span>
       </div>
       <div class="hist-actions">
         <button class="btn btn-outline-gold btn-carregar-hist" data-hist-id="${p.id}">Abrir</button>
-        <button class="btn btn-excluir-hist" data-hist-id="${p.id}" style="background:#fdecea;color:#d32f2f;">X</button>
+        <button class="btn btn-excluir-hist" data-hist-id="${p.id}" style="background:#fdecea;color:#d32f2f;font-weight:600;">✕</button>
       </div>
-    </div>
-  `).join('');
+    </div>`;
+  }).join('');
 
-  // CORRIGIDO: Event delegation em vez de onclick inline
   lista.querySelectorAll('.btn-carregar-hist').forEach(btn => {
     btn.addEventListener('click', async function() {
       const id = this.dataset.histId;
-      if (!confirm("Isso vai substituir a proposta atual. Deseja continuar?")) return;
+      const ok = await notif('Isso vai substituir a proposta atual. Deseja continuar?', { icon: '🗂️', ok: 'Sim, abrir', cancel: 'Cancelar' });
+      if (!ok) return;
       const dados = _historicoCache.find(p => p.id === id);
-      if (!dados) {
-        alert('❌ Proposta não encontrada.');
-        return;
-      }
+      if (!dados) { await notif('Proposta não encontrada.', { icon: '❌' }); return; }
+      dados._editandoId = id; // marca para edição
       preencherFormulario(dados);
       fecharHistorico();
-      alert('✅ Proposta carregada!');
+      await notif('Proposta carregada! Faça as alterações e clique em Atualizar.', { icon: '✅' });
     });
   });
 
   lista.querySelectorAll('.btn-excluir-hist').forEach(btn => {
     btn.addEventListener('click', async function() {
       const id = this.dataset.histId;
-      if (!confirm("Tem certeza que deseja apagar essa proposta do histórico?")) return;
+      const ok = await notif('Tem certeza que deseja apagar essa proposta?', { icon: '🗑️', ok: 'Apagar', cancel: 'Cancelar' });
+      if (!ok) return;
       const { error } = await supabaseClient.from('propostas').delete().eq('id', id);
-      if (error) {
-        console.error('Erro ao excluir no Supabase:', error);
-        alert("⚠️ Não foi possível excluir: " + error.message);
-        return;
+      if (error) { await notif('Não foi possível excluir: ' + error.message, { icon: '❌' }); return; }
+      if (propostaEditandoId === id) {
+        propostaEditandoId = null;
+        atualizarIndicadorEdicao();
       }
       abrirHistorico();
     });
@@ -775,11 +991,10 @@ function fecharHistorico() {
   document.getElementById('modal-historico').style.display = 'none';
 }
 
-// CORRIGIDO: Fechar modal com ESC e clicando fora
 document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') {
-    const modal = document.getElementById('modal-historico');
-    if (modal.style.display === 'flex') fecharHistorico();
+    if (document.getElementById('modal-historico').style.display === 'flex') fecharHistorico();
+    if (document.getElementById('notif-overlay').classList.contains('visivel')) fecharNotif();
   }
 });
 
@@ -790,47 +1005,28 @@ document.getElementById('modal-historico').addEventListener('click', function(e)
 // ─── ITENS ───
 function addItem() {
   itens.push(novoItem());
-  renderItens();
-  render();
-  salvarRascunho();
+  renderItens(); render(); salvarRascunho();
 }
 
-function removeItem(i) {
-  if (itens.length === 1) { alert("A proposta precisa ter pelo menos 1 item."); return; }
+async function removeItem(i) {
+  if (itens.length === 1) { await notif('A proposta precisa ter pelo menos 1 item.', { icon: '⚠️' }); return; }
   itens.splice(i, 1);
-  renderItens();
-  render();
-  salvarRascunho();
+  renderItens(); render(); salvarRascunho();
 }
 
 function duplicarItem(i) {
-  try {
-    const itemClone = { ...itens[i] };
-    itens.splice(i + 1, 0, itemClone);
-    renderItens();
-    render();
-    salvarRascunho();
-  } catch(e) {
-    console.error("Erro ao duplicar item:", e);
-    alert("❌ Erro ao duplicar item");
-  }
+  itens.splice(i + 1, 0, { ...itens[i] });
+  renderItens(); render(); salvarRascunho();
 }
 
 function updateItem(i, field, val) {
-  if (field === 'unit') {
-    // CORRIGIDO: Converte valor formatado "1.500,00" para número
-    let num = parseFloat(val.replace(/\./g, '').replace(',', '.'));
-    if (isNaN(num)) num = parseFloat(val);
-    itens[i][field] = isNaN(num) ? '' : num;
-  } else if (field === 'qtd') {
+  if (field === 'unit' || field === 'qtd') {
     const num = parseFloat(val);
     itens[i][field] = isNaN(num) ? '' : num;
   } else {
     itens[i][field] = val;
   }
-  atualizarTotais();
-  render();
-  salvarRascunho();
+  atualizarTotais(); render(); salvarRascunho();
 }
 
 function atualizarTotais() {
@@ -848,7 +1044,6 @@ function renderItens() {
   const c = document.getElementById('itensContainer');
   c.innerHTML = itens.map((it, i) => {
     const v = (parseFloat(it.qtd) || 0) * (parseFloat(it.unit) || 0);
-    const unitFormatado = it.unit ? Number(it.unit).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '';
     return `
     <div class="item-row">
       <div class="item-row-header"><span class="item-num-badge">Item ${i + 1}</span></div>
@@ -936,7 +1131,6 @@ function render() {
         ${it.acabamento ? `<tr><td>Acabamento</td><td>${escaparHtml(it.acabamento)}</td></tr>` : ''}
         ${it.linha ? `<tr><td>Linha</td><td>${escaparHtml(it.linha)}</td></tr>` : ''}
       </table>` : '';
-
     return `
     <div class="doc-item-row" style="display:block;padding:14px;">
       <div style="display:grid;grid-template-columns:1fr 60px 110px 110px;gap:8px;align-items:start;">
@@ -960,7 +1154,6 @@ function render() {
   const anoAtual = new Date().getFullYear();
 
   document.getElementById('proposta-doc').innerHTML = `
-    <!-- CAPA -->
     <div class="capa-doc">
       <div class="capa-conteudo">
         <div class="capa-logo-mark">S<br>A</div>
@@ -972,7 +1165,6 @@ function render() {
       <div class="capa-footer">${anoAtual} © Soluciona Acústica</div>
     </div>
 
-    <!-- DOCUMENTO -->
     <div class="doc-header">
       <div><div class="doc-logo-mark">S<br>A</div><div class="doc-logo-name">Soluciona Acústica</div></div>
       <div class="doc-header-info">
@@ -1073,31 +1265,27 @@ function render() {
 }
 
 // ─── LIMPAR ───
-function limparForm() {
-  if (!confirm('Isso vai apagar tudo que está na tela. Deseja continuar?')) return;
+async function limparForm() {
+  const ok = await notif('Isso vai apagar tudo que está na tela. Deseja continuar?', { icon: '🗑️', ok: 'Limpar', cancel: 'Cancelar' });
+  if (!ok) return;
   const campos = ['numProposta','dataProposta','vendedor','cliente','cep','telefone','email',
                   'prazo','instalacao','pagamento','validade','obs','garantia','garantiaBase','garantiaExc'];
-  campos.forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.value = '';
-  });
+  campos.forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
   itens = [novoItem()];
-  if (testarLocalStorage()) {
-    localStorage.removeItem('rascunhoPropostaSA');
-  }
+  propostaEditandoId = null;
+  setStatus('Aberta');
+  if (testarLocalStorage()) localStorage.removeItem('rascunhoPropostaSA');
   document.getElementById('dataProposta').value = new Date().toISOString().split('T')[0];
-  renderItens();
-  render();
+  renderItens(); render(); atualizarIndicadorEdicao();
 }
 
 // ─── IMPRIMIR ───
-function imprimirPDF() {
+async function imprimirPDF() {
   const validacao = validarDados();
   if (!validacao.valido) {
-    alert("❌ Não é possível imprimir. Campos obrigatórios faltando:\n\n" + validacao.erros.join('\n'));
+    await notif('Campos obrigatórios faltando:\n\n' + validacao.erros.join('\n'), { icon: '❌' });
     return;
   }
-
   const clienteNome = g('cliente').trim() || 'Sem_Nome';
   const numProp = g('numProposta').trim() || 'SN';
   const nomeFormatado = `Proposta_SA_${clienteNome.replace(/\s+/g, '_')}_N${numProp}`;
@@ -1108,27 +1296,24 @@ function imprimirPDF() {
 }
 
 // ─── WHATSAPP ───
-function enviarWhatsApp() {
+async function enviarWhatsApp() {
   const validacao = validarDados();
   if (!validacao.valido) {
-    alert("⚠️ Preencha os dados obrigatórios antes de enviar:\n\n" + validacao.erros.join('\n'));
+    await notif('Preencha os dados obrigatórios antes de enviar:\n\n' + validacao.erros.join('\n'), { icon: '⚠️' });
     return;
   }
-
   const cliente = g('cliente').trim();
   const num = g('numProposta').trim();
   const telefone = g('telefone').replace(/\D/g, '');
   const totalValor = calcularTotal();
-
-  const totalText = fmt(totalValor);
-  const msg = `Olá, ${cliente}! Tudo bem?\n\nAqui é da *Soluciona Acústica*. Sua proposta técnica (Nº ${num}) já está pronta.\nO valor total do projeto ficou em *${totalText}*.\n\nEstou enviando o arquivo PDF com todos os detalhes aqui abaixo. Qualquer dúvida, estou à disposição!`;
+  const msg = `Olá, ${cliente}! Tudo bem?\n\nAqui é da *Soluciona Acústica*. Sua proposta técnica (Nº ${num}) já está pronta.\nO valor total do projeto ficou em *${fmt(totalValor)}*.\n\nEstou enviando o arquivo PDF com todos os detalhes aqui abaixo. Qualquer dúvida, estou à disposição!`;
   const url = telefone.length >= 10
     ? `https://wa.me/55${telefone}?text=${encodeURIComponent(msg)}`
     : `https://wa.me/?text=${encodeURIComponent(msg)}`;
   window.open(url, '_blank');
 }
 
-// ─── LISTENERS CENTRALIZADOS COM DEBOUNCE ───
+// ─── LISTENERS COM DEBOUNCE ───
 let _debounceTimer = null;
 function onFormChange() {
   render();
@@ -1138,9 +1323,6 @@ function onFormChange() {
 
 document.getElementById('form-panel').addEventListener('input', onFormChange);
 document.getElementById('form-panel').addEventListener('change', onFormChange);
-
-// ─── INICIALIZAÇÃO ───
-carregarRascunho();
 </script>
 </body>
 </html>
