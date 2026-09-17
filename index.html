@@ -7,9 +7,6 @@
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='12' fill='%235C0E1E'/%3E%3Ctext x='50%' y='55%' font-family='serif' font-size='50' font-weight='bold' fill='%23B89A45' dominant-baseline='middle' text-anchor='middle'%3ESA%3C/text%3E%3C/svg%3E"/>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
   
-  <!-- IMPORTAÇÃO DO SUPABASE CLIENT -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     :root{
@@ -318,7 +315,7 @@
     </div>
     <div class="field">
       <label>Senha</label>
-      <input type="password" id="input-senha" placeholder="Digite sua senha" autocomplete="current-password"/>
+      <input type="password" id="input-senha" placeholder="Digite sua senha" autocomplete="current-password" onkeydown="if(event.key==='Enter') fazerLogin()"/>
     </div>
     <button class="btn-login" onclick="fazerLogin()">Entrar no Sistema</button>
     <div id="login-error">Usuário ou senha incorretos!</div>
@@ -408,13 +405,11 @@
   </div>
 </div>
 
-<script>
-// ─── CONFIGURAÇÃO DO SUPABASE ───
-const SUPABASE_URL = 'https://jogwinptprfoznwkjbci.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_l_2UnfQhD0TsARBO_5B-Qw_-BVk782a';
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+<!-- IMPORTAÇÃO DO SUPABASE NO FINAL DO BODY PARA NÃO TRAVAR O RESTO DO SITE -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-// ─── AUTENTICAÇÃO DIRETA ───
+<script>
+// ─── AUTENTICAÇÃO PRIMEIRO ───
 const USER_CORRETO = "geisi";
 const SENHA_CORRETA = "0000";
 
@@ -449,16 +444,6 @@ function fazerLogout() {
     document.getElementById('input-senha').value = '';
   }
 }
-
-// Atalho da tecla Enter nos campos de login
-document.addEventListener('keydown', function(e) {
-  if (e.key === 'Enter') {
-    const loginScreen = document.getElementById('login-screen');
-    if (loginScreen && getComputedStyle(loginScreen).display !== 'none') {
-      fazerLogin();
-    }
-  }
-});
 
 // ─── MÁSCARAS ───
 function mascaraCEP(input) {
@@ -601,135 +586,6 @@ function carregarRascunho() {
   if (dataProp) dataProp.value = new Date().toISOString().split('T')[0];
   renderItens();
   render();
-}
-
-// ─── HISTÓRICO INTEGRADO AO SUPABASE (NUVEM) ───
-async function salvarNoHistorico() {
-  const validacao = validarDados();
-  if (!validacao.valido) {
-    alert("⚠️ Não foi possível salvar. Campos obrigatórios faltando:\n\n" + validacao.erros.join('\n'));
-    return;
-  }
-
-  const dadosAtuais = obterDadosAtuais();
-
-  try {
-    const { data, error } = await supabase
-      .from('propostas')
-      .insert([
-        {
-          cliente: dadosAtuais.cliente,
-          num_proposta: dadosAtuais.numProposta,
-          data_proposta: dadosAtuais.dataProposta || null,
-          dados_completos: dadosAtuais
-        }
-      ]);
-
-    if (error) {
-      console.error('Erro ao salvar no Supabase:', error);
-      alert('❌ Erro ao salvar no banco de dados em nuvem.');
-    } else {
-      alert(`✅ Proposta de ${dadosAtuais.cliente} salva com sucesso na nuvem!`);
-    }
-  } catch(err) {
-    console.error('Erro de conexão:', err);
-    alert('❌ Erro de conexão com o Supabase.');
-  }
-}
-
-async function abrirHistorico() {
-  const lista = document.getElementById('lista-historico');
-  if (!lista) return;
-  lista.innerHTML = '<p style="font-size:13px;color:var(--texto-lt);text-align:center;padding:20px;">Carregando propostas da nuvem...</p>';
-  const modalHist = document.getElementById('modal-historico');
-  if (modalHist) modalHist.style.display = 'flex';
-
-  try {
-    const { data: historico, error } = await supabase
-      .from('propostas')
-      .select('*')
-      .order('data_proposta', { ascending: false });
-
-    if (error) {
-      console.error('Erro ao buscar histórico:', error);
-      lista.innerHTML = '<p style="font-size:13px;color:#d32f2f;text-align:center;padding:20px;">Erro ao carregar dados do Supabase.</p>';
-      return;
-    }
-
-    if (!historico || historico.length === 0) {
-      lista.innerHTML = '<p style="font-size:13px;color:var(--texto-lt);text-align:center;padding:20px;">Nenhuma proposta salva na nuvem ainda.</p>';
-      return;
-    }
-
-    lista.innerHTML = historico.map((p) => `
-      <div class="historico-item">
-        <div>
-          <strong>${escaparHtml(p.cliente || '(sem nome)')}</strong>
-          <span>Nº ${escaparHtml(p.num_proposta || 'S/N')} · ${formatarData(p.data_proposta)}</span>
-        </div>
-        <div class="hist-actions">
-          <button class="btn btn-outline-gold btn-carregar-hist" data-hist-id="${p.id}">Abrir</button>
-          <button class="btn btn-excluir-hist" data-hist-id="${p.id}" style="background:#fdecea;color:#d32f2f;">X</button>
-        </div>
-      </div>
-    `).join('');
-
-    lista.querySelectorAll('.btn-carregar-hist').forEach(btn => {
-      btn.addEventListener('click', function() {
-        const id = this.dataset.histId;
-        if (!confirm("Isso vai substituir a proposta atual. Deseja continuar?")) return;
-        const itemEncontrado = historico.find(p => p.id === id);
-        if (!itemEncontrado || !itemEncontrado.dados_completos) {
-          alert('❌ Proposta não encontrada.');
-          return;
-        }
-        preencherFormulario(itemEncontrado.dados_completos);
-        fecharHistorico();
-        alert('✅ Proposta carregada com sucesso!');
-      });
-    });
-
-    lista.querySelectorAll('.btn-excluir-hist').forEach(btn => {
-      btn.addEventListener('click', async function() {
-        const id = this.dataset.histId;
-        if (!confirm("Tem certeza que deseja apagar essa proposta da nuvem?")) return;
-        
-        const { error: errDel } = await supabase
-          .from('propostas')
-          .delete()
-          .eq('id', id);
-
-        if (errDel) {
-          alert('❌ Erro ao excluir do Supabase.');
-        } else {
-          abrirHistorico();
-        }
-      });
-    });
-
-  } catch(err) {
-    console.error('Erro geral ao buscar histórico:', err);
-    lista.innerHTML = '<p style="font-size:13px;color:#d32f2f;text-align:center;padding:20px;">Erro de conexão com o servidor.</p>';
-  }
-}
-
-function fecharHistorico() {
-  const modalHist = document.getElementById('modal-historico');
-  if (modalHist) modalHist.style.display = 'none';
-}
-
-document.addEventListener('keydown', function(e) {
-  if (e.key === 'Escape') {
-    const modal = document.getElementById('modal-historico');
-    if (modal && modal.style.display === 'flex') fecharHistorico();
-  }
-});
-
-const modalHistoricoEl = document.getElementById('modal-historico');
-if (modalHistoricoEl) {
-  modalHistoricoEl.addEventListener('click', function(e) {
-    if (e.target === this) fecharHistorico();
-  });
 }
 
 // ─── ITENS ───
@@ -1075,7 +931,7 @@ function enviarWhatsApp() {
   window.open(url, '_blank');
 }
 
-// ─── LISTENERS CENTRALIZADOS COM DEBOUNCE ───
+// ─── LISTENERS E INICIALIZAÇÃO ───
 let _debounceTimer = null;
 function onFormChange() {
   render();
@@ -1089,8 +945,105 @@ if (formPanel) {
   formPanel.addEventListener('change', onFormChange);
 }
 
-// ─── INICIALIZAÇÃO ───
 carregarRascunho();
+
+// ─── CONFIGURAÇÃO DO SUPABASE DE FORMA SEGURA (NUVEM) ───
+let supabase = null;
+try {
+  const SUPABASE_URL = 'https://jogwinptprfoznwkjbci.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_l_2UnfQhD0TsARBO_5B-Qw_-BVk782a';
+  if (window.supabase) {
+    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  } else {
+    console.warn("Supabase não foi carregado pelo navegador a tempo.");
+  }
+} catch(e) {
+  console.error("Erro ao inicializar Supabase:", e);
+}
+
+async function salvarNoHistorico() {
+  if (!supabase) { alert('❌ Conexão com banco de dados indisponível no momento.'); return; }
+  
+  const validacao = validarDados();
+  if (!validacao.valido) {
+    alert("⚠️ Não foi possível salvar. Campos obrigatórios faltando:\n\n" + validacao.erros.join('\n'));
+    return;
+  }
+  const dadosAtuais = obterDadosAtuais();
+  try {
+    const { error } = await supabase
+      .from('propostas')
+      .insert([{
+          cliente: dadosAtuais.cliente,
+          num_proposta: dadosAtuais.numProposta,
+          data_proposta: dadosAtuais.dataProposta || null,
+          dados_completos: dadosAtuais
+      }]);
+    if (error) {
+      console.error(error); alert('❌ Erro ao salvar no banco em nuvem.');
+    } else {
+      alert(`✅ Proposta de ${dadosAtuais.cliente} salva na nuvem!`);
+    }
+  } catch(err) { alert('❌ Erro de conexão com a nuvem.'); }
+}
+
+async function abrirHistorico() {
+  if (!supabase) { alert('❌ Conexão com banco de dados indisponível no momento.'); return; }
+
+  const lista = document.getElementById('lista-historico');
+  lista.innerHTML = '<p style="font-size:13px;color:var(--texto-lt);text-align:center;padding:20px;">Carregando propostas da nuvem...</p>';
+  document.getElementById('modal-historico').style.display = 'flex';
+
+  try {
+    const { data: historico, error } = await supabase
+      .from('propostas')
+      .select('*')
+      .order('data_proposta', { ascending: false });
+
+    if (error || !historico || historico.length === 0) {
+      lista.innerHTML = '<p style="font-size:13px;color:var(--texto-lt);text-align:center;padding:20px;">Nenhuma proposta salva na nuvem ainda.</p>';
+      return;
+    }
+
+    lista.innerHTML = historico.map((p) => `
+      <div class="historico-item">
+        <div>
+          <strong>${escaparHtml(p.cliente || '(sem nome)')}</strong>
+          <span>Nº ${escaparHtml(p.num_proposta || 'S/N')} · ${formatarData(p.data_proposta)}</span>
+        </div>
+        <div class="hist-actions">
+          <button class="btn btn-outline-gold btn-carregar-hist" data-hist-id="${p.id}">Abrir</button>
+          <button class="btn btn-excluir-hist" data-hist-id="${p.id}" style="background:#fdecea;color:#d32f2f;">X</button>
+        </div>
+      </div>
+    `).join('');
+
+    lista.querySelectorAll('.btn-carregar-hist').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const item = historico.find(p => p.id == this.dataset.histId);
+        if(confirm("Isso vai substituir a proposta atual. Deseja continuar?") && item && item.dados_completos) {
+          preencherFormulario(item.dados_completos);
+          fecharHistorico();
+          alert('✅ Proposta carregada!');
+        }
+      });
+    });
+
+    lista.querySelectorAll('.btn-excluir-hist').forEach(btn => {
+      btn.addEventListener('click', async function() {
+        if (confirm("Deseja apagar essa proposta da nuvem?")) {
+          const { error: errDel } = await supabase.from('propostas').delete().eq('id', this.dataset.histId);
+          if (errDel) alert('❌ Erro ao excluir.'); else abrirHistorico();
+        }
+      });
+    });
+
+  } catch(err) { lista.innerHTML = '<p style="text-align:center;padding:20px;">Erro de conexão.</p>'; }
+}
+
+function fecharHistorico() {
+  document.getElementById('modal-historico').style.display = 'none';
+}
 </script>
 </body>
 </html>
