@@ -619,6 +619,10 @@ async function salvarNoHistorico() {
     cliente: dadosAtuais.cliente || null,
     num_proposta: dadosAtuais.numProposta || null,
     data_proposta: dadosAtuais.dataProposta || null,
+    vendedor: dadosAtuais.vendedor || null,
+    telefone: dadosAtuais.telefone || null,
+    email: dadosAtuais.email || null,
+    total: calcularTotal(),
     dados_completos: dadosAtuais
   };
 
