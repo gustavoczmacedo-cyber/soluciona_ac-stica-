@@ -6,6 +6,10 @@
   <title>Soluciona Acústica</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='12' fill='%235C0E1E'/%3E%3Ctext x='50%' y='55%' font-family='serif' font-size='50' font-weight='bold' fill='%23B89A45' dominant-baseline='middle' text-anchor='middle'%3ESA%3C/text%3E%3C/svg%3E"/>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  
+  <!-- IMPORTAÇÃO DO SUPABASE CLIENT -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     :root{
@@ -295,7 +299,7 @@
 <div class="modal-overlay" id="modal-historico">
   <div class="modal-box">
     <div class="modal-header">
-      <h3>🗂️ Minhas Propostas</h3>
+      <h3>🗂️ Minhas Propostas (Nuvem)</h3>
       <button class="btn-fechar" onclick="fecharHistorico()">×</button>
     </div>
     <div class="historico-list" id="lista-historico"></div>
@@ -405,12 +409,14 @@
 </div>
 
 <script>
-// ─── AUTENTICAÇÃO (CORRIGIDO) ───
+// ─── CONFIGURAÇÃO DO SUPABASE ───
+const SUPABASE_URL = 'https://jogwinptprfoznwkjbci.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_l_2UnfQhD0TsARBO_5B-Qw_-BVk782a';
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// ─── AUTENTICAÇÃO ───
 const USER_CORRETO = "geisi";
 const SENHA_CORRETA = "0000";
-
-// ⚠️ IMPORTANTE: Em produção, use Firebase Auth ou JWT do servidor
-// Nunca deixe credenciais no código-fonte!
 
 function verificarAutenticacao() {
   if (sessionStorage.getItem('sa_autenticado') === 'sim') {
@@ -430,7 +436,6 @@ function fazerLogin() {
   const u = document.getElementById('input-usuario').value.trim().toLowerCase();
   const p = document.getElementById('input-senha').value.trim();
   
-  // CORRIGIDO: Verificação simples (não usa hash quebrado)
   if (u === USER_CORRETO && p === SENHA_CORRETA) {
     sessionStorage.setItem('sa_autenticado', 'sim');
     document.getElementById('login-error').style.display = 'none';
@@ -468,7 +473,6 @@ function mascaraTelefone(input) {
   input.value = v;
 }
 
-// Aplica máscaras via data-mask
 document.addEventListener('input', function(e) {
   const mask = e.target.dataset.mask;
   if (mask === 'cep') mascaraCEP(e.target);
@@ -494,7 +498,6 @@ function testarLocalStorage() {
     localStorage.removeItem(teste);
     return true;
   } catch(e) {
-    console.warn('⚠️ LocalStorage indisponível (modo privado?). Dados não serão persistidos.');
     return false;
   }
 }
@@ -530,7 +533,6 @@ function formatarData(val) {
     const [y, m, d] = val.split('-');
     return `${String(d).padStart(2, '0')}/${String(m).padStart(2, '0')}/${y}`;
   } catch(e) {
-    console.error('Erro ao formatar data:', val, e);
     return '—';
   }
 }
@@ -539,16 +541,14 @@ function calcularTotal() {
   return itens.reduce((s, it) => s + (parseFloat(it.qtd) || 0) * (parseFloat(it.unit) || 0), 0);
 }
 
-// ─── RASCUNHO ───
+// ─── RASCUNHO (LOCAL) ───
 let _toastTimer = null;
 function salvarRascunho() {
   if (!testarLocalStorage()) return;
   try {
     localStorage.setItem('rascunhoPropostaSA', JSON.stringify(obterDadosAtuais()));
     mostrarToast();
-  } catch(e) {
-    console.warn("Não foi possível salvar rascunho:", e);
-  }
+  } catch(e) {}
 }
 
 function mostrarToast() {
@@ -591,67 +591,74 @@ function carregarRascunho() {
     try {
       preencherFormulario(JSON.parse(salvo));
       return;
-    } catch(e) {
-      console.error("Erro ao carregar rascunho:", e);
-    }
+    } catch(e) {}
   }
   document.getElementById('dataProposta').value = new Date().toISOString().split('T')[0];
   renderItens();
   render();
 }
 
-// ─── HISTÓRICO ───
-const MAX_HISTORICO = 50;
-
-function salvarNoHistorico() {
-  if (!testarLocalStorage()) {
-    alert("⚠️ Não foi possível salvar (localStorage indisponível).");
-    return;
-  }
-  
+// ─── HISTÓRICO INTEGRADO AO SUPABASE (NUVEM) ───
+async function salvarNoHistorico() {
   const validacao = validarDados();
   if (!validacao.valido) {
     alert("⚠️ Não foi possível salvar. Campos obrigatórios faltando:\n\n" + validacao.erros.join('\n'));
     return;
   }
 
-  let historico = lerHistorico();
-  const novaProposta = { ...obterDadosAtuais(), id: Date.now().toString() };
-  historico.push(novaProposta);
-
-  if (historico.length > MAX_HISTORICO) {
-    historico = historico.slice(historico.length - MAX_HISTORICO);
-  }
+  const dadosAtuais = obterDadosAtuais();
 
   try {
-    localStorage.setItem('historicoPropostasSA', JSON.stringify(historico));
-    alert(`✅ Proposta de ${g('cliente')} salva com sucesso!`);
-  } catch(e) {
-    alert("⚠️ Não foi possível salvar: armazenamento cheio. Exclua propostas antigas no histórico.");
+    const { data, error } = await supabase
+      .from('propostas')
+      .insert([
+        {
+          cliente: dadosAtuais.cliente,
+          num_proposta: dadosAtuais.numProposta,
+          data_proposta: dadosAtuais.dataProposta || null,
+          dados_completos: dadosAtuais
+        }
+      ]);
+
+    if (error) {
+      console.error('Erro ao salvar no Supabase:', error);
+      alert('❌ Erro ao salvar no banco de dados em nuvem.');
+    } else {
+      alert(`✅ Proposta de ${dadosAtuais.cliente} salva com sucesso na nuvem!`);
+    }
+  } catch(err) {
+    console.error('Erro de conexão:', err);
+    alert('❌ Erro de conexão com o Supabase.');
   }
 }
 
-function lerHistorico() {
-  if (!testarLocalStorage()) return [];
-  try {
-    return JSON.parse(localStorage.getItem('historicoPropostasSA') || '[]');
-  } catch(e) {
-    return [];
-  }
-}
-
-function abrirHistorico() {
-  const historico = lerHistorico();
+async function abrirHistorico() {
   const lista = document.getElementById('lista-historico');
+  lista.innerHTML = '<p style="font-size:13px;color:var(--texto-lt);text-align:center;padding:20px;">Carregando propostas da nuvem...</p>';
+  document.getElementById('modal-historico').style.display = 'flex';
 
-  if (historico.length === 0) {
-    lista.innerHTML = '<p style="font-size:13px;color:var(--texto-lt);text-align:center;padding:20px;">Nenhuma proposta salva ainda.</p>';
-  } else {
-    lista.innerHTML = [...historico].reverse().map((p, idx) => `
+  try {
+    const { data: historico, error } = await supabase
+      .from('propostas')
+      .select('*')
+      .order('data_proposta', { ascending: false });
+
+    if (error) {
+      console.error('Erro ao buscar histórico:', error);
+      lista.innerHTML = '<p style="font-size:13px;color:#d32f2f;text-align:center;padding:20px;">Erro ao carregar dados do Supabase.</p>';
+      return;
+    }
+
+    if (!historico || historico.length === 0) {
+      lista.innerHTML = '<p style="font-size:13px;color:var(--texto-lt);text-align:center;padding:20px;">Nenhuma proposta salva na nuvem ainda.</p>';
+      return;
+    }
+
+    lista.innerHTML = historico.map((p) => `
       <div class="historico-item">
         <div>
           <strong>${escaparHtml(p.cliente || '(sem nome)')}</strong>
-          <span>Nº ${escaparHtml(p.numProposta || 'S/N')} · ${formatarData(p.dataProposta)}</span>
+          <span>Nº ${escaparHtml(p.num_proposta || 'S/N')} · ${formatarData(p.data_proposta)}</span>
         </div>
         <div class="hist-actions">
           <button class="btn btn-outline-gold btn-carregar-hist" data-hist-id="${p.id}">Abrir</button>
@@ -659,41 +666,50 @@ function abrirHistorico() {
         </div>
       </div>
     `).join('');
-    
-    // CORRIGIDO: Event delegation em vez de onclick inline
+
     lista.querySelectorAll('.btn-carregar-hist').forEach(btn => {
       btn.addEventListener('click', function() {
         const id = this.dataset.histId;
         if (!confirm("Isso vai substituir a proposta atual. Deseja continuar?")) return;
-        const dados = lerHistorico().find(p => p.id === id);
-        if (!dados) {
+        const itemEncontrado = historico.find(p => p.id === id);
+        if (!itemEncontrado || !itemEncontrado.dados_completos) {
           alert('❌ Proposta não encontrada.');
           return;
         }
-        preencherFormulario(dados);
+        preencherFormulario(itemEncontrado.dados_completos);
         fecharHistorico();
-        alert('✅ Proposta carregada!');
+        alert('✅ Proposta carregada com sucesso!');
       });
     });
 
     lista.querySelectorAll('.btn-excluir-hist').forEach(btn => {
-      btn.addEventListener('click', function() {
+      btn.addEventListener('click', async function() {
         const id = this.dataset.histId;
-        if (!confirm("Tem certeza que deseja apagar essa proposta do histórico?")) return;
-        const historico = lerHistorico().filter(p => p.id !== id);
-        localStorage.setItem('historicoPropostasSA', JSON.stringify(historico));
-        abrirHistorico();
+        if (!confirm("Tem certeza que deseja apagar essa proposta da nuvem?")) return;
+        
+        const { error: errDel } = await supabase
+          .from('propostas')
+          .delete()
+          .eq('id', id);
+
+        if (errDel) {
+          alert('❌ Erro ao excluir do Supabase.');
+        } else {
+          abrirHistorico();
+        }
       });
     });
+
+  } catch(err) {
+    console.error('Erro geral ao buscar histórico:', err);
+    lista.innerHTML = '<p style="font-size:13px;color:#d32f2f;text-align:center;padding:20px;">Erro de conexão com o servidor.</p>';
   }
-  document.getElementById('modal-historico').style.display = 'flex';
 }
 
 function fecharHistorico() {
   document.getElementById('modal-historico').style.display = 'none';
 }
 
-// CORRIGIDO: Fechar modal com ESC e clicando fora
 document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') {
     const modal = document.getElementById('modal-historico');
@@ -729,14 +745,12 @@ function duplicarItem(i) {
     render();
     salvarRascunho();
   } catch(e) {
-    console.error("Erro ao duplicar item:", e);
     alert("❌ Erro ao duplicar item");
   }
 }
 
 function updateItem(i, field, val) {
   if (field === 'unit') {
-    // CORRIGIDO: Converte valor formatado "1.500,00" para número
     let num = parseFloat(val.replace(/\./g, '').replace(',', '.'));
     if (isNaN(num)) num = parseFloat(val);
     itens[i][field] = isNaN(num) ? '' : num;
@@ -766,7 +780,6 @@ function renderItens() {
   const c = document.getElementById('itensContainer');
   c.innerHTML = itens.map((it, i) => {
     const v = (parseFloat(it.qtd) || 0) * (parseFloat(it.unit) || 0);
-    const unitFormatado = it.unit ? Number(it.unit).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '';
     return `
     <div class="item-row">
       <div class="item-row-header"><span class="item-num-badge">Item ${i + 1}</span></div>
