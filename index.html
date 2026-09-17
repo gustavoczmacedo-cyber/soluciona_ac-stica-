@@ -414,7 +414,7 @@ const SUPABASE_URL = 'https://jogwinptprfoznwkjbci.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_l_2UnfQhD0TsARBO_5B-Qw_-BVk782a';
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// ─── AUTENTICAÇÃO ───
+// ─── AUTENTICAÇÃO (CORRIGIDA) ───
 const USER_CORRETO = "geisi";
 const SENHA_CORRETA = "0000";
 
@@ -424,13 +424,7 @@ function verificarAutenticacao() {
   }
 }
 
-document.getElementById('btn-entrar').addEventListener('click', fazerLogin);
-document.getElementById('input-senha').addEventListener('keydown', function(e) {
-  if (e.key === 'Enter') fazerLogin();
-});
-document.getElementById('input-usuario').addEventListener('keydown', function(e) {
-  if (e.key === 'Enter') fazerLogin();
-});
+verificarAutenticacao();
 
 function fazerLogin() {
   const u = document.getElementById('input-usuario').value.trim().toLowerCase();
@@ -456,7 +450,25 @@ function fazerLogout() {
   }
 }
 
-verificarAutenticacao();
+// Eventos de login (garantindo que os elementos existem antes de registrar)
+document.addEventListener('DOMContentLoaded', () => {
+  const btnEntrar = document.getElementById('btn-entrar');
+  if (btnEntrar) btnEntrar.addEventListener('click', fazerLogin);
+
+  const inputSenha = document.getElementById('input-senha');
+  if (inputSenha) {
+    inputSenha.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') fazerLogin();
+    });
+  }
+
+  const inputUsuario = document.getElementById('input-usuario');
+  if (inputUsuario) {
+    inputUsuario.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') fazerLogin();
+    });
+  }
+});
 
 // ─── MÁSCARAS ───
 function mascaraCEP(input) {
@@ -553,6 +565,7 @@ function salvarRascunho() {
 
 function mostrarToast() {
   const t = document.getElementById('toast-rascunho');
+  if (!t) return;
   t.classList.add('visivel');
   clearTimeout(_toastTimer);
   _toastTimer = setTimeout(() => t.classList.remove('visivel'), 1800);
@@ -577,7 +590,8 @@ function preencherFormulario(dados) {
     if (el) el.value = dados[id] || '';
   });
   if (!dados.dataProposta) {
-    document.getElementById('dataProposta').value = new Date().toISOString().split('T')[0];
+    const dataProp = document.getElementById('dataProposta');
+    if (dataProp) dataProp.value = new Date().toISOString().split('T')[0];
   }
   itens = (dados.itens && dados.itens.length > 0) ? JSON.parse(JSON.stringify(dados.itens)) : [novoItem()];
   renderItens();
@@ -593,7 +607,8 @@ function carregarRascunho() {
       return;
     } catch(e) {}
   }
-  document.getElementById('dataProposta').value = new Date().toISOString().split('T')[0];
+  const dataProp = document.getElementById('dataProposta');
+  if (dataProp) dataProp.value = new Date().toISOString().split('T')[0];
   renderItens();
   render();
 }
@@ -634,8 +649,10 @@ async function salvarNoHistorico() {
 
 async function abrirHistorico() {
   const lista = document.getElementById('lista-historico');
+  if (!lista) return;
   lista.innerHTML = '<p style="font-size:13px;color:var(--texto-lt);text-align:center;padding:20px;">Carregando propostas da nuvem...</p>';
-  document.getElementById('modal-historico').style.display = 'flex';
+  const modalHist = document.getElementById('modal-historico');
+  if (modalHist) modalHist.style.display = 'flex';
 
   try {
     const { data: historico, error } = await supabase
@@ -707,19 +724,23 @@ async function abrirHistorico() {
 }
 
 function fecharHistorico() {
-  document.getElementById('modal-historico').style.display = 'none';
+  const modalHist = document.getElementById('modal-historico');
+  if (modalHist) modalHist.style.display = 'none';
 }
 
 document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') {
     const modal = document.getElementById('modal-historico');
-    if (modal.style.display === 'flex') fecharHistorico();
+    if (modal && modal.style.display === 'flex') fecharHistorico();
   }
 });
 
-document.getElementById('modal-historico').addEventListener('click', function(e) {
-  if (e.target === this) fecharHistorico();
-});
+const modalHistoricoEl = document.getElementById('modal-historico');
+if (modalHistoricoEl) {
+  modalHistoricoEl.addEventListener('click', function(e) {
+    if (e.target === this) fecharHistorico();
+  });
+}
 
 // ─── ITENS ───
 function addItem() {
@@ -778,6 +799,7 @@ function atualizarTotais() {
 
 function renderItens() {
   const c = document.getElementById('itensContainer');
+  if (!c) return;
   c.innerHTML = itens.map((it, i) => {
     const v = (parseFloat(it.qtd) || 0) * (parseFloat(it.unit) || 0);
     return `
@@ -890,7 +912,10 @@ function render() {
   const clienteNome = escaparHtml(g('cliente')) || '_________________________';
   const anoAtual = new Date().getFullYear();
 
-  document.getElementById('proposta-doc').innerHTML = `
+  const docEl = document.getElementById('proposta-doc');
+  if (!docEl) return;
+
+  docEl.innerHTML = `
     <!-- CAPA -->
     <div class="capa-doc">
       <div class="capa-conteudo">
@@ -933,7 +958,7 @@ function render() {
       <div class="doc-section">
         <div class="doc-section-title">Apresentação</div>
         <p class="doc-text">Em atenção à sua solicitação, apresentamos nossa Proposta Técnica e Comercial para fornecimento e instalação de porta acústica sob medida, desenvolvida para proporcionar isolamento sonoro eficiente, acabamento de alto padrão e durabilidade superior.</p>
-        <p class="doc-text">A Soluciona Acústica é especializada na fabricação de portas antirruído de alto desempenho, oferecendo soluções completas para residências, estúdios, escritórios e ambientes corporativos.</p>
+        <p class="doc-text">A Soluciona Acústica is specialized in manufacturing high-performance acoustic doors, offering complete solutions for residences, studios, offices, and corporate environments.</p>
       </div>
 
       <div class="doc-section">
@@ -1016,7 +1041,8 @@ function limparForm() {
   if (testarLocalStorage()) {
     localStorage.removeItem('rascunhoPropostaSA');
   }
-  document.getElementById('dataProposta').value = new Date().toISOString().split('T')[0];
+  const dataProp = document.getElementById('dataProposta');
+  if (dataProp) dataProp.value = new Date().toISOString().split('T')[0];
   renderItens();
   render();
 }
@@ -1067,8 +1093,11 @@ function onFormChange() {
   _debounceTimer = setTimeout(salvarRascunho, 600);
 }
 
-document.getElementById('form-panel').addEventListener('input', onFormChange);
-document.getElementById('form-panel').addEventListener('change', onFormChange);
+const formPanel = document.getElementById('form-panel');
+if (formPanel) {
+  formPanel.addEventListener('input', onFormChange);
+  formPanel.addEventListener('change', onFormChange);
+}
 
 // ─── INICIALIZAÇÃO ───
 carregarRascunho();
