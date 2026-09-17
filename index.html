@@ -325,6 +325,39 @@
   </div>
 </div>
 
+<!-- SCRIPT 1: LOGIN BLINDADO (Nunca falha) -->
+<script>
+  const USER_CORRETO = "geisi";
+  const SENHA_CORRETA = "0000";
+
+  if (sessionStorage.getItem('sa_autenticado') === 'sim') {
+    document.body.classList.add('logado');
+  }
+
+  function fazerLogin() {
+    const u = document.getElementById('input-usuario').value.trim().toLowerCase();
+    const p = document.getElementById('input-senha').value.trim();
+    if (u === USER_CORRETO && p === SENHA_CORRETA) {
+      sessionStorage.setItem('sa_autenticado', 'sim');
+      document.getElementById('login-error').style.display = 'none';
+      document.body.classList.add('logado');
+    } else {
+      document.getElementById('login-error').style.display = 'block';
+      document.getElementById('input-senha').value = '';
+      document.getElementById('input-senha').focus();
+    }
+  }
+
+  function fazerLogout() {
+    if (confirm("Deseja realmente sair do sistema?")) {
+      sessionStorage.removeItem('sa_autenticado');
+      document.body.classList.remove('logado');
+      document.getElementById('input-usuario').value = '';
+      document.getElementById('input-senha').value = '';
+    }
+  }
+</script>
+
 <!-- ════ SISTEMA ════ -->
 <div class="app-container">
   <header>
@@ -408,41 +441,8 @@
   </div>
 </div>
 
+<!-- SCRIPT 2: LÓGICA DO SISTEMA BLINDADA -->
 <script>
-// ─── LOGIN & AUTENTICAÇÃO ───
-const USER_CORRETO = "geisi";
-const SENHA_CORRETA = "0000";
-
-function verificarAutenticacao() {
-  if (sessionStorage.getItem('sa_autenticado') === 'sim') {
-    document.body.classList.add('logado');
-  }
-}
-verificarAutenticacao();
-
-function fazerLogin() {
-  const u = document.getElementById('input-usuario').value.trim().toLowerCase();
-  const p = document.getElementById('input-senha').value.trim();
-  if (u === USER_CORRETO && p === SENHA_CORRETA) {
-    sessionStorage.setItem('sa_autenticado', 'sim');
-    document.getElementById('login-error').style.display = 'none';
-    document.body.classList.add('logado');
-  } else {
-    document.getElementById('login-error').style.display = 'block';
-    document.getElementById('input-senha').value = '';
-    document.getElementById('input-senha').focus();
-  }
-}
-
-function fazerLogout() {
-  if (confirm("Deseja realmente sair do sistema?")) {
-    sessionStorage.removeItem('sa_autenticado');
-    document.body.classList.remove('logado');
-    document.getElementById('input-usuario').value = '';
-    document.getElementById('input-senha').value = '';
-  }
-}
-
 // ─── MÁSCARAS ───
 function mascaraCEP(input) {
   let v = input.value.replace(/\D/g, "").slice(0, 8);
@@ -494,6 +494,7 @@ function formatarData(val) {
   } catch(e) { return '—'; }
 }
 function calcularTotal() {
+  if (!itens || !Array.isArray(itens)) return 0;
   return itens.reduce((s, it) => s + (parseFloat(it.qtd) || 0) * (parseFloat(it.unit) || 0), 0);
 }
 
@@ -529,6 +530,7 @@ function obterDadosAtuais() {
 }
 
 function preencherFormulario(dados) {
+  if (!dados || typeof dados !== 'object') return false;
   const campos = ['numProposta','dataProposta','vendedor','cliente','cep','telefone','email',
                   'prazo','instalacao','pagamento','validade','obs','garantia','garantiaBase','garantiaExc'];
   campos.forEach(id => {
@@ -539,31 +541,36 @@ function preencherFormulario(dados) {
     const dataProp = document.getElementById('dataProposta');
     if (dataProp) dataProp.value = new Date().toISOString().split('T')[0];
   }
-  itens = (dados.itens && dados.itens.length > 0) ? JSON.parse(JSON.stringify(dados.itens)) : [novoItem()];
+  itens = (dados.itens && Array.isArray(dados.itens) && dados.itens.length > 0) ? JSON.parse(JSON.stringify(dados.itens)) : [novoItem()];
   renderItens();
   render();
+  return true;
 }
 
-// CARREGAMENTO BLINDADO DE RASCUNHO
+// ─── LEITURA BLINDADA ───
 function carregarRascunho() {
+  let carregouCorretamente = false;
   try {
     if (testarLocalStorage()) {
       const salvo = localStorage.getItem('rascunhoPropostaSA');
-      if (salvo) {
-        preencherFormulario(JSON.parse(salvo));
-        return; // Sai se der tudo certo
+      if (salvo && salvo !== 'null' && salvo !== 'undefined') {
+        const dados = JSON.parse(salvo);
+        carregouCorretamente = preencherFormulario(dados);
       }
     }
   } catch(e) {
-    console.warn("Erro ao ler rascunho antigo. Limpando histórico local para evitar travamento.");
+    console.warn("Rascunho antigo corrompido. Ignorando e limpando memória.");
     try { localStorage.removeItem('rascunhoPropostaSA'); } catch(err) {}
   }
-  
-  // FALLBACK SEGURO: Garante que a tela sempre renderiza limpa se o rascunho falhar
-  const dataProp = document.getElementById('dataProposta');
-  if (dataProp) dataProp.value = new Date().toISOString().split('T')[0];
-  renderItens();
-  render();
+
+  // Se deu qualquer problema na leitura, carrega a tela limpa e segura
+  if (!carregouCorretamente) {
+    const dataProp = document.getElementById('dataProposta');
+    if (dataProp) dataProp.value = new Date().toISOString().split('T')[0];
+    itens = [novoItem()];
+    renderItens();
+    render();
+  }
 }
 
 // ─── CONFIGURAÇÃO DO SUPABASE (NUVEM) ───
@@ -575,7 +582,7 @@ try {
   if (window.supabase) {
     supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
   }
-} catch(e) { console.error("Supabase não carregado", e); }
+} catch(e) { console.warn("Supabase off", e); }
 
 async function salvarNoHistorico() {
   if (!supabase) { alert('❌ Conexão com banco de dados indisponível.'); return; }
@@ -705,6 +712,7 @@ function atualizarTotais() {
   const total = calcularTotal();
   const elTotal = document.getElementById('totalGeral');
   if (elTotal) elTotal.textContent = fmt(total);
+  if (!itens || !Array.isArray(itens)) return;
   itens.forEach((it, i) => {
     const el = document.getElementById('item-total-' + i);
     const v = (parseFloat(it.qtd) || 0) * (parseFloat(it.unit) || 0);
@@ -715,6 +723,8 @@ function atualizarTotais() {
 function renderItens() {
   const c = document.getElementById('itensContainer');
   if (!c) return;
+  if (!itens || itens.length === 0) itens = [novoItem()];
+
   c.innerHTML = itens.map((it, i) => {
     const v = (parseFloat(it.qtd) || 0) * (parseFloat(it.unit) || 0);
     return `
@@ -779,6 +789,8 @@ function render() {
   const total = calcularTotal();
   const elTotal = document.getElementById('totalGeral');
   if (elTotal) elTotal.textContent = fmt(total);
+
+  if (!itens || !Array.isArray(itens)) itens = [novoItem()];
 
   const itensDocs = itens.map((it, idx) => {
     const v = (parseFloat(it.qtd) || 0) * (parseFloat(it.unit) || 0);
@@ -972,7 +984,7 @@ function enviarWhatsApp() {
   window.open(url, '_blank');
 }
 
-// ─── LISTENERS E BOOT ───
+// ─── INICIALIZAÇÃO ───
 let _debounceTimer = null;
 function onFormChange() {
   render();
@@ -986,7 +998,6 @@ if (formPanel) {
   formPanel.addEventListener('change', onFormChange);
 }
 
-// Inicia renderização
 carregarRascunho();
 </script>
 </body>
