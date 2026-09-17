@@ -7,6 +7,9 @@
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='12' fill='%235C0E1E'/%3E%3Ctext x='50%' y='55%' font-family='serif' font-size='50' font-weight='bold' fill='%23B89A45' dominant-baseline='middle' text-anchor='middle'%3ESA%3C/text%3E%3C/svg%3E"/>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
   
+  <!-- IMPORTAÇÃO DO SUPABASE -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     :root{
@@ -322,40 +325,6 @@
   </div>
 </div>
 
-<!-- SCRIPT ISOLADO DE LOGIN PARA NUNCA TRAVAR -->
-<script>
-  const USER_CORRETO = "geisi";
-  const SENHA_CORRETA = "0000";
-
-  if (sessionStorage.getItem('sa_autenticado') === 'sim') {
-    document.body.classList.add('logado');
-  }
-
-  function fazerLogin() {
-    const u = document.getElementById('input-usuario').value.trim().toLowerCase();
-    const p = document.getElementById('input-senha').value.trim();
-    
-    if (u === USER_CORRETO && p === SENHA_CORRETA) {
-      sessionStorage.setItem('sa_autenticado', 'sim');
-      document.getElementById('login-error').style.display = 'none';
-      document.body.classList.add('logado');
-    } else {
-      document.getElementById('login-error').style.display = 'block';
-      document.getElementById('input-senha').value = '';
-      document.getElementById('input-senha').focus();
-    }
-  }
-
-  function fazerLogout() {
-    if (confirm("Deseja realmente sair do sistema?")) {
-      sessionStorage.removeItem('sa_autenticado');
-      document.body.classList.remove('logado');
-      document.getElementById('input-usuario').value = '';
-      document.getElementById('input-senha').value = '';
-    }
-  }
-</script>
-
 <!-- ════ SISTEMA ════ -->
 <div class="app-container">
   <header>
@@ -439,18 +408,47 @@
   </div>
 </div>
 
-<!-- IMPORTAÇÃO DO SUPABASE -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<!-- SCRIPT DO SISTEMA -->
 <script>
+// ─── LOGIN & AUTENTICAÇÃO ───
+const USER_CORRETO = "geisi";
+const SENHA_CORRETA = "0000";
+
+function verificarAutenticacao() {
+  if (sessionStorage.getItem('sa_autenticado') === 'sim') {
+    document.body.classList.add('logado');
+  }
+}
+verificarAutenticacao();
+
+function fazerLogin() {
+  const u = document.getElementById('input-usuario').value.trim().toLowerCase();
+  const p = document.getElementById('input-senha').value.trim();
+  if (u === USER_CORRETO && p === SENHA_CORRETA) {
+    sessionStorage.setItem('sa_autenticado', 'sim');
+    document.getElementById('login-error').style.display = 'none';
+    document.body.classList.add('logado');
+  } else {
+    document.getElementById('login-error').style.display = 'block';
+    document.getElementById('input-senha').value = '';
+    document.getElementById('input-senha').focus();
+  }
+}
+
+function fazerLogout() {
+  if (confirm("Deseja realmente sair do sistema?")) {
+    sessionStorage.removeItem('sa_autenticado');
+    document.body.classList.remove('logado');
+    document.getElementById('input-usuario').value = '';
+    document.getElementById('input-senha').value = '';
+  }
+}
+
 // ─── MÁSCARAS ───
 function mascaraCEP(input) {
   let v = input.value.replace(/\D/g, "").slice(0, 8);
   if (v.length > 5) v = v.slice(0, 5) + '-' + v.slice(5);
   input.value = v;
 }
-
 function mascaraTelefone(input) {
   let v = input.value.replace(/\D/g, "").slice(0, 11);
   if (v.length > 10) v = v.replace(/^(\d{2})(\d{5})(\d{4})$/, "($1) $2-$3");
@@ -458,91 +456,65 @@ function mascaraTelefone(input) {
   else if (v.length > 2) v = v.replace(/^(\d{2})(\d{0,5})$/, "($1) $2");
   input.value = v;
 }
-
 document.addEventListener('input', function(e) {
   const mask = e.target.dataset.mask;
   if (mask === 'cep') mascaraCEP(e.target);
   else if (mask === 'telefone') mascaraTelefone(e.target);
 });
 
-// ─── SANITIZAÇÃO ───
+// ─── SANITIZAÇÃO E UTILITÁRIOS ───
 function escaparHtml(str) {
   if (!str) return '';
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
+  return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
 }
-
-// ─── VALIDAÇÃO ───
 function testarLocalStorage() {
   try {
     const teste = '__teste_sa__';
     localStorage.setItem(teste, teste);
     localStorage.removeItem(teste);
     return true;
-  } catch(e) {
-    return false;
-  }
+  } catch(e) { return false; }
 }
-
 function validarDados() {
   const erros = [];
   if (!g('cliente').trim()) erros.push('Nome do cliente');
   if (!g('numProposta').trim()) erros.push('Número da proposta');
-  if (itens.length === 0 || !itens.some(i => i.nome && i.qtd && i.unit)) {
-    erros.push('Pelo menos um item com valores completos');
-  }
+  if (itens.length === 0 || !itens.some(i => i.nome && i.qtd && i.unit)) erros.push('Pelo menos um item com valores completos');
   if (calcularTotal() === 0) erros.push('Total da proposta não pode ser zero');
-  
   return { valido: erros.length === 0, erros };
 }
 
-// ─── ESTADO ───
-let itens = [novoItem()];
-
-function novoItem() {
-  return { nome:'', localizacao:'', produto:'', composicao:'', espessura:'', largura:'', altura:'', acabamento:'', linha:'', qtd:'', unit:'' };
-}
-
 function g(id) { return (document.getElementById(id) || {}).value || ''; }
-
-function fmt(n) {
-  return 'R$ ' + Number(n).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-}
-
+function fmt(n) { return 'R$ ' + Number(n).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
 function formatarData(val) {
   if (!val) return '—';
   try {
     const [y, m, d] = val.split('-');
     return `${String(d).padStart(2, '0')}/${String(m).padStart(2, '0')}/${y}`;
-  } catch(e) {
-    return '—';
-  }
+  } catch(e) { return '—'; }
 }
-
 function calcularTotal() {
   return itens.reduce((s, it) => s + (parseFloat(it.qtd) || 0) * (parseFloat(it.unit) || 0), 0);
 }
 
-// ─── RASCUNHO (LOCAL) ───
+// ─── ESTADO E RASCUNHO ───
+let itens = [novoItem()];
+function novoItem() {
+  return { nome:'', localizacao:'', produto:'', composicao:'', espessura:'', largura:'', altura:'', acabamento:'', linha:'', qtd:'', unit:'' };
+}
+
 let _toastTimer = null;
 function salvarRascunho() {
   if (!testarLocalStorage()) return;
   try {
     localStorage.setItem('rascunhoPropostaSA', JSON.stringify(obterDadosAtuais()));
-    mostrarToast();
+    const t = document.getElementById('toast-rascunho');
+    if(t) {
+      t.classList.add('visivel');
+      clearTimeout(_toastTimer);
+      _toastTimer = setTimeout(() => t.classList.remove('visivel'), 1800);
+    }
   } catch(e) {}
-}
-
-function mostrarToast() {
-  const t = document.getElementById('toast-rascunho');
-  if (!t) return;
-  t.classList.add('visivel');
-  clearTimeout(_toastTimer);
-  _toastTimer = setTimeout(() => t.classList.remove('visivel'), 1800);
 }
 
 function obterDadosAtuais() {
@@ -572,79 +544,66 @@ function preencherFormulario(dados) {
   render();
 }
 
+// CARREGAMENTO BLINDADO DE RASCUNHO
 function carregarRascunho() {
-  if (!testarLocalStorage()) return;
-  const salvo = localStorage.getItem('rascunhoPropostaSA');
-  if (salvo) {
-    try {
-      preencherFormulario(JSON.parse(salvo));
-      return;
-    } catch(e) {}
+  try {
+    if (testarLocalStorage()) {
+      const salvo = localStorage.getItem('rascunhoPropostaSA');
+      if (salvo) {
+        preencherFormulario(JSON.parse(salvo));
+        return; // Sai se der tudo certo
+      }
+    }
+  } catch(e) {
+    console.warn("Erro ao ler rascunho antigo. Limpando histórico local para evitar travamento.");
+    try { localStorage.removeItem('rascunhoPropostaSA'); } catch(err) {}
   }
+  
+  // FALLBACK SEGURO: Garante que a tela sempre renderiza limpa se o rascunho falhar
   const dataProp = document.getElementById('dataProposta');
   if (dataProp) dataProp.value = new Date().toISOString().split('T')[0];
   renderItens();
   render();
 }
 
-// ─── CONFIGURAÇÃO DO SUPABASE ───
+// ─── CONFIGURAÇÃO DO SUPABASE (NUVEM) ───
 const SUPABASE_URL = 'https://jogwinptprfoznwkjbci.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_l_2UnfQhD0TsARBO_5B-Qw_-BVk782a';
 let supabase = null;
 
-if (window.supabase) {
-  supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-}
+try {
+  if (window.supabase) {
+    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  }
+} catch(e) { console.error("Supabase não carregado", e); }
 
 async function salvarNoHistorico() {
   if (!supabase) { alert('❌ Conexão com banco de dados indisponível.'); return; }
-
   const validacao = validarDados();
   if (!validacao.valido) {
     alert("⚠️ Não foi possível salvar. Campos obrigatórios faltando:\n\n" + validacao.erros.join('\n'));
     return;
   }
-
   const dadosAtuais = obterDadosAtuais();
-
   try {
-    const { error } = await supabase
-      .from('propostas')
-      .insert([
-        {
-          cliente: dadosAtuais.cliente,
-          num_proposta: dadosAtuais.numProposta,
-          data_proposta: dadosAtuais.dataProposta || null,
-          dados_completos: dadosAtuais
-        }
-      ]);
-
-    if (error) {
-      console.error(error);
-      alert('❌ Erro ao salvar no banco de dados em nuvem.');
-    } else {
-      alert(`✅ Proposta de ${dadosAtuais.cliente} salva com sucesso na nuvem!`);
-    }
-  } catch(err) {
-    alert('❌ Erro de conexão com o Supabase.');
-  }
+    const { error } = await supabase.from('propostas').insert([{
+      cliente: dadosAtuais.cliente, num_proposta: dadosAtuais.numProposta,
+      data_proposta: dadosAtuais.dataProposta || null, dados_completos: dadosAtuais
+    }]);
+    if (error) { alert('❌ Erro ao salvar no banco de dados em nuvem.'); } 
+    else { alert(`✅ Proposta de ${dadosAtuais.cliente} salva com sucesso na nuvem!`); }
+  } catch(err) { alert('❌ Erro de conexão com o Supabase.'); }
 }
 
 async function abrirHistorico() {
   if (!supabase) { alert('❌ Conexão com banco de dados indisponível.'); return; }
-
   const lista = document.getElementById('lista-historico');
   if (!lista) return;
   lista.innerHTML = '<p style="font-size:13px;color:var(--texto-lt);text-align:center;padding:20px;">Carregando propostas da nuvem...</p>';
-  const modalHist = document.getElementById('modal-historico');
-  if (modalHist) modalHist.style.display = 'flex';
+  document.getElementById('modal-historico').style.display = 'flex';
 
   try {
-    const { data: historico, error } = await supabase
-      .from('propostas')
-      .select('*')
-      .order('data_proposta', { ascending: false });
-
+    const { data: historico, error } = await supabase.from('propostas').select('*').order('data_proposta', { ascending: false });
     if (error || !historico || historico.length === 0) {
       lista.innerHTML = '<p style="font-size:13px;color:var(--texto-lt);text-align:center;padding:20px;">Nenhuma proposta salva na nuvem ainda.</p>';
       return;
@@ -670,24 +629,20 @@ async function abrirHistorico() {
         if (confirm("Isso vai substituir a proposta atual. Deseja continuar?") && itemEncontrado && itemEncontrado.dados_completos) {
           preencherFormulario(itemEncontrado.dados_completos);
           fecharHistorico();
-          alert('✅ Proposta carregada!');
+          alert('✅ Proposta carregada da nuvem!');
         }
       });
     });
 
     lista.querySelectorAll('.btn-excluir-hist').forEach(btn => {
       btn.addEventListener('click', async function() {
-        const id = this.dataset.histId;
         if (confirm("Tem certeza que deseja apagar essa proposta da nuvem?")) {
-          const { error: errDel } = await supabase.from('propostas').delete().eq('id', id);
-          if (errDel) { alert('❌ Erro ao excluir do Supabase.'); } else { abrirHistorico(); }
+          const { error: errDel } = await supabase.from('propostas').delete().eq('id', this.dataset.histId);
+          if (errDel) alert('❌ Erro ao excluir do Supabase.'); else abrirHistorico();
         }
       });
     });
-
-  } catch(err) {
-    lista.innerHTML = '<p style="font-size:13px;color:#d32f2f;text-align:center;padding:20px;">Erro de conexão com o servidor.</p>';
-  }
+  } catch(err) { lista.innerHTML = '<p style="font-size:13px;color:#d32f2f;text-align:center;padding:20px;">Erro de conexão com o servidor.</p>'; }
 }
 
 function fecharHistorico() {
@@ -696,10 +651,8 @@ function fecharHistorico() {
 }
 
 document.addEventListener('keydown', function(e) {
-  if (e.key === 'Escape') {
-    const modal = document.getElementById('modal-historico');
-    if (modal && modal.style.display === 'flex') fecharHistorico();
-  }
+  const modal = document.getElementById('modal-historico');
+  if (e.key === 'Escape' && modal && modal.style.display === 'flex') fecharHistorico();
 });
 
 const modalHistoricoEl = document.getElementById('modal-historico');
@@ -709,14 +662,13 @@ if (modalHistoricoEl) {
   });
 }
 
-// ─── ITENS ───
+// ─── LÓGICA DOS ITENS ───
 function addItem() {
   itens.push(novoItem());
   renderItens();
   render();
   salvarRascunho();
 }
-
 function removeItem(i) {
   if (itens.length === 1) { alert("A proposta precisa ter pelo menos 1 item."); return; }
   itens.splice(i, 1);
@@ -724,17 +676,13 @@ function removeItem(i) {
   render();
   salvarRascunho();
 }
-
 function duplicarItem(i) {
   try {
-    const itemClone = { ...itens[i] };
-    itens.splice(i + 1, 0, itemClone);
+    itens.splice(i + 1, 0, { ...itens[i] });
     renderItens();
     render();
     salvarRascunho();
-  } catch(e) {
-    alert("❌ Erro ao duplicar item");
-  }
+  } catch(e) { alert("❌ Erro ao duplicar item"); }
 }
 
 function updateItem(i, field, val) {
@@ -778,17 +726,14 @@ function renderItens() {
       </div>
       <div class="field">
         <label>Nome do produto</label>
-        <input type="text" value="${escaparHtml(it.nome)}" placeholder="Ex: Porta acústica sala de reunião"
-               oninput="updateItem(${i}, 'nome', this.value)"/>
+        <input type="text" value="${escaparHtml(it.nome)}" placeholder="Ex: Porta acústica sala de reunião" oninput="updateItem(${i}, 'nome', this.value)"/>
       </div>
       <div class="item-specs-grid">
         <div class="field"><label>Localização</label>
-          <input type="text" value="${escaparHtml(it.localizacao)}" placeholder="Ex: Sala principal"
-                 oninput="updateItem(${i}, 'localizacao', this.value)"/>
+          <input type="text" value="${escaparHtml(it.localizacao)}" placeholder="Ex: Sala principal" oninput="updateItem(${i}, 'localizacao', this.value)"/>
         </div>
         <div class="field"><label>Característica do produto</label>
-          <input type="text" value="${escaparHtml(it.produto)}" placeholder="Ex: Porta acústica em madeira"
-                 oninput="updateItem(${i}, 'produto', this.value)"/>
+          <input type="text" value="${escaparHtml(it.produto)}" placeholder="Ex: Porta acústica em madeira" oninput="updateItem(${i}, 'produto', this.value)"/>
         </div>
       </div>
       <div class="field"><label>Composição / Descrição técnica</label>
@@ -796,36 +741,29 @@ function renderItens() {
       </div>
       <div class="item-dims-grid">
         <div class="field"><label>Espessura</label>
-          <input type="text" value="${escaparHtml(it.espessura)}" placeholder="70 mm"
-                 oninput="updateItem(${i}, 'espessura', this.value)"/>
+          <input type="text" value="${escaparHtml(it.espessura)}" placeholder="70 mm" oninput="updateItem(${i}, 'espessura', this.value)"/>
         </div>
         <div class="field"><label>Largura</label>
-          <input type="text" value="${escaparHtml(it.largura)}" placeholder="82 cm"
-                 oninput="updateItem(${i}, 'largura', this.value)"/>
+          <input type="text" value="${escaparHtml(it.largura)}" placeholder="82 cm" oninput="updateItem(${i}, 'largura', this.value)"/>
         </div>
         <div class="field"><label>Altura</label>
-          <input type="text" value="${escaparHtml(it.altura)}" placeholder="2,10 m"
-                 oninput="updateItem(${i}, 'altura', this.value)"/>
+          <input type="text" value="${escaparHtml(it.altura)}" placeholder="2,10 m" oninput="updateItem(${i}, 'altura', this.value)"/>
         </div>
       </div>
       <div class="item-specs-grid">
         <div class="field"><label>Acabamento</label>
-          <input type="text" value="${escaparHtml(it.acabamento)}" placeholder="Ex: Formica TX branco"
-                 oninput="updateItem(${i}, 'acabamento', this.value)"/>
+          <input type="text" value="${escaparHtml(it.acabamento)}" placeholder="Ex: Formica TX branco" oninput="updateItem(${i}, 'acabamento', this.value)"/>
         </div>
         <div class="field"><label>Linha</label>
-          <input type="text" value="${escaparHtml(it.linha)}" placeholder="Ex: Premium..."
-                 oninput="updateItem(${i}, 'linha', this.value)"/>
+          <input type="text" value="${escaparHtml(it.linha)}" placeholder="Ex: Premium..." oninput="updateItem(${i}, 'linha', this.value)"/>
         </div>
       </div>
       <div class="item-row-nums">
         <div><label class="item-num-label">Qtd.</label>
-          <input type="number" value="${it.qtd || ''}" min="0.01" step="0.01" placeholder="0"
-                 oninput="updateItem(${i}, 'qtd', this.value)"/>
+          <input type="number" value="${it.qtd || ''}" min="0.01" step="0.01" placeholder="0" oninput="updateItem(${i}, 'qtd', this.value)"/>
         </div>
         <div><label class="item-num-label">Vlr. Unitário (R$)</label>
-          <input type="number" step="0.01" value="${it.unit || ''}" placeholder="0,00"
-                 oninput="updateItem(${i}, 'unit', this.value)"/>
+          <input type="number" step="0.01" value="${it.unit || ''}" placeholder="0,00" oninput="updateItem(${i}, 'unit', this.value)"/>
         </div>
         <div><label class="item-num-label">Total</label>
           <div class="item-total" id="item-total-${i}">${v ? fmt(v) : '—'}</div>
@@ -836,7 +774,7 @@ function renderItens() {
   atualizarTotais();
 }
 
-// ─── RENDER DOCUMENTO ───
+// ─── RENDER DOCUMENTO (PREVIEW) ───
 function render() {
   const total = calcularTotal();
   const elTotal = document.getElementById('totalGeral');
@@ -878,7 +816,6 @@ function render() {
 
   const clienteNome = escaparHtml(g('cliente')) || '_________________________';
   const anoAtual = new Date().getFullYear();
-
   const docEl = document.getElementById('proposta-doc');
   if (!docEl) return;
 
@@ -995,7 +932,7 @@ function render() {
   `;
 }
 
-// ─── LIMPAR ───
+// ─── AÇÕES EXTRAS ───
 function limparForm() {
   if (!confirm('Isso vai apagar tudo que está na tela. Deseja continuar?')) return;
   const campos = ['numProposta','dataProposta','vendedor','cliente','cep','telefone','email',
@@ -1005,23 +942,16 @@ function limparForm() {
     if (el) el.value = '';
   });
   itens = [novoItem()];
-  if (testarLocalStorage()) {
-    localStorage.removeItem('rascunhoPropostaSA');
-  }
+  if (testarLocalStorage()) { localStorage.removeItem('rascunhoPropostaSA'); }
   const dataProp = document.getElementById('dataProposta');
   if (dataProp) dataProp.value = new Date().toISOString().split('T')[0];
   renderItens();
   render();
 }
 
-// ─── IMPRIMIR ───
 function imprimirPDF() {
   const validacao = validarDados();
-  if (!validacao.valido) {
-    alert("❌ Não é possível imprimir. Campos obrigatórios faltando:\n\n" + validacao.erros.join('\n'));
-    return;
-  }
-
+  if (!validacao.valido) { alert("❌ Não é possível imprimir. Campos obrigatórios faltando:\n\n" + validacao.erros.join('\n')); return; }
   const clienteNome = g('cliente').trim() || 'Sem_Nome';
   const numProp = g('numProposta').trim() || 'SN';
   const nomeFormatado = `Proposta_SA_${clienteNome.replace(/\s+/g, '_')}_N${numProp}`;
@@ -1031,28 +961,18 @@ function imprimirPDF() {
   setTimeout(() => { document.title = tituloOriginal; }, 1000);
 }
 
-// ─── WHATSAPP ───
 function enviarWhatsApp() {
   const validacao = validarDados();
-  if (!validacao.valido) {
-    alert("⚠️ Preencha os dados obrigatórios antes de enviar:\n\n" + validacao.erros.join('\n'));
-    return;
-  }
-
+  if (!validacao.valido) { alert("⚠️ Preencha os dados obrigatórios antes de enviar:\n\n" + validacao.erros.join('\n')); return; }
   const cliente = g('cliente').trim();
   const num = g('numProposta').trim();
   const telefone = g('telefone').replace(/\D/g, '');
-  const totalValor = calcularTotal();
-
-  const totalText = fmt(totalValor);
-  const msg = `Olá, ${cliente}! Tudo bem?\n\nAqui é da *Soluciona Acústica*. Sua proposta técnica (Nº ${num}) já está pronta.\nO valor total do projeto ficou em *${totalText}*.\n\nEstou enviando o arquivo PDF com todos os detalhes aqui abaixo. Qualquer dúvida, estou à disposição!`;
-  const url = telefone.length >= 10
-    ? `https://wa.me/55${telefone}?text=${encodeURIComponent(msg)}`
-    : `https://wa.me/?text=${encodeURIComponent(msg)}`;
+  const msg = `Olá, ${cliente}! Tudo bem?\n\nAqui é da *Soluciona Acústica*. Sua proposta técnica (Nº ${num}) já está pronta.\nO valor total do projeto ficou em *${fmt(calcularTotal())}*.\n\nEstou enviando o arquivo PDF com todos os detalhes aqui abaixo. Qualquer dúvida, estou à disposição!`;
+  const url = telefone.length >= 10 ? `https://wa.me/55${telefone}?text=${encodeURIComponent(msg)}` : `https://wa.me/?text=${encodeURIComponent(msg)}`;
   window.open(url, '_blank');
 }
 
-// ─── LISTENERS E INICIALIZAÇÃO ───
+// ─── LISTENERS E BOOT ───
 let _debounceTimer = null;
 function onFormChange() {
   render();
@@ -1066,6 +986,7 @@ if (formPanel) {
   formPanel.addEventListener('change', onFormChange);
 }
 
+// Inicia renderização
 carregarRascunho();
 </script>
 </body>
