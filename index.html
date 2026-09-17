@@ -622,15 +622,47 @@ async function salvarNoHistorico() {
     vendedor: dadosAtuais.vendedor || null,
     telefone: dadosAtuais.telefone || null,
     email: dadosAtuais.email || null,
+    cep: dadosAtuais.cep || null,
+    prazo: dadosAtuais.prazo || null,
+    garantia: dadosAtuais.garantia || null,
+    garantia_base: dadosAtuais.garantiaBase || null,
     total: calcularTotal(),
     dados_completos: dadosAtuais
   };
 
-  const { error } = await supabaseClient.from('propostas').insert(registro);
+  const { data: propostaSalva, error } = await supabaseClient
+    .from('propostas')
+    .insert(registro)
+    .select()
+    .single();
 
   if (error) {
     console.error('Erro ao salvar no Supabase:', error);
     alert("⚠️ Não foi possível salvar no banco de dados: " + error.message);
+    return;
+  }
+
+  // Salva cada item da proposta na tabela itens_proposta
+  const itensParaSalvar = itens.map((it, idx) => ({
+    proposta_id: propostaSalva.id,
+    ordem: idx,
+    nome_produto: it.nome || null,
+    caracteristica: it.produto || null,
+    espessura: it.espessura || null,
+    largura: it.largura || null,
+    altura: it.altura || null,
+    acabamento: it.acabamento || null,
+    linha: it.linha || null,
+    quantidade: parseFloat(it.qtd) || null,
+    valor_unitario: parseFloat(it.unit) || null,
+    total: (parseFloat(it.qtd) || 0) * (parseFloat(it.unit) || 0)
+  }));
+
+  const { error: erroItens } = await supabaseClient.from('itens_proposta').insert(itensParaSalvar);
+
+  if (erroItens) {
+    console.error('Erro ao salvar itens no Supabase:', erroItens);
+    alert("⚠️ Proposta salva, mas houve um erro ao salvar os itens: " + erroItens.message);
     return;
   }
 
