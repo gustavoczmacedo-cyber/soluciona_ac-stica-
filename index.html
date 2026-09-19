@@ -1335,7 +1335,7 @@ function renderPagamentos(){
             <span class="parcela-desc">${esc(pa.desc||'Parcela '+(idx+1))}</span>
             <span class="parcela-valor">${fmt(parseFloat(pa.valor)||0)}</span>
             <span class="parcela-venc">${pa.vencimento?fmtData(pa.vencimento):'—'}</span>
-            <button class="parcela-status ${stPa}" onclick="togglePagamentoParcela('${p.id}',${idx})" title="Clique para alternar">
+            <button class="parcela-status ${stPa}" onclick="togglePagamentoParcela('${p.id}',${idx},this)" title="Clique para alternar">
               ${stPa==='pago'?'✅ Pago':stPa==='atrasado'?'🔴 Atrasado':'⏰ A receber'}
             </button>
             <span class="parcela-pago-em">${pa.pago_em?fmtData(pa.pago_em):'—'}</span>
@@ -1376,23 +1376,73 @@ function toggleParcelas(id){
   if(ch) ch.textContent=el.classList.contains('aberto')?'▲':'▼';
 }
 
-async function togglePagamentoParcela(pagId,parcelaIdx){
-  const pag=pagamentos.find(p=>p.id===pagId);
-  if(!pag) return;
-  const pa=pag.parcelas[parcelaIdx];
-  if(pa.status==='pago'){
-    pa.status='a-receber'; delete pa.pago_em;
+async function togglePagamentoParcela(pagId, parcelaIdx, btn){
+  const pag = pagamentos.find(p => p.id === pagId);
+  if (!pag) return;
+
+  // Feedback imediato no botão
+  if (btn) { btn.style.opacity = '0.5'; btn.disabled = true; }
+
+  const pa = pag.parcelas[parcelaIdx];
+  const hoje = new Date(); hoje.setHours(0,0,0,0);
+
+  if (pa.status === 'pago') {
+    pa.status = 'a-receber'; delete pa.pago_em;
   } else {
-    pa.status='pago'; pa.pago_em=new Date().toISOString().split('T')[0];
+    pa.status = 'pago'; pa.pago_em = new Date().toISOString().split('T')[0];
   }
-  // Verifica se quitou tudo → atualiza status da proposta vinculada
-  const todas=pag.parcelas.every(p=>p.status==='pago');
-  if(todas&&pag.proposta_id){
-    await sb.from('propostas').update({status:'Aprovada'}).eq('id',pag.proposta_id);
+
+  // Salva no banco
+  const err = await salvarPagamentoSupabase({...pag});
+  if (err) { await notif('Erro ao salvar: ' + err.message, {icon:'❌'}); if(btn){btn.style.opacity='1';btn.disabled=false;} return; }
+
+  // Verifica quitação total → atualiza proposta vinculada
+  const todas = pag.parcelas.every(p => p.status === 'pago');
+  if (todas && pag.proposta_id) {
+    await sb.from('propostas').update({status:'Aprovada'}).eq('id', pag.proposta_id);
   }
-  const err=await salvarPagamentoSupabase({...pag});
-  if(err){await notif('Erro ao salvar: '+err.message,{icon:'❌'});return;}
-  await carregarPagamentos();
+
+  // Atualiza SOMENTE os elementos visuais deste card, sem recarregar tudo
+  const stPa = calcStatusParcela(pa, hoje);
+
+  // Botão da parcela
+  if (btn) {
+    btn.className = 'parcela-status ' + stPa;
+    btn.textContent = stPa === 'pago' ? '✅ Pago' : stPa === 'atrasado' ? '🔴 Atrasado' : '⏰ A receber';
+    btn.style.opacity = '1'; btn.disabled = false;
+  }
+
+  // Data pago em
+  const rowEl = btn ? btn.closest('.parcela-row') : null;
+  if (rowEl) {
+    const pagoEmEl = rowEl.querySelector('.parcela-pago-em');
+    if (pagoEmEl) pagoEmEl.textContent = pa.pago_em ? fmtData(pa.pago_em) : '—';
+  }
+
+  // Recalcula totais do card
+  const totalPago = pag.parcelas.filter(p => p.status === 'pago').reduce((s,p) => s + (parseFloat(p.valor)||0), 0);
+  const totalGeral = pag.parcelas.reduce((s,p) => s + (parseFloat(p.valor)||0), 0) || parseFloat(pag.total) || 0;
+  const pct = totalGeral ? Math.round((totalPago / totalGeral) * 100) : 0;
+  const stGeral = calcStatusGeral(pag, hoje);
+  const barClass = pct === 100 ? 'completo' : pct > 0 ? 'parcial' : 'zero';
+
+  // Barra de progresso
+  const barEl = document.querySelector('#pag-' + pagId + ' .pag-progress-bar');
+  if (barEl) { barEl.style.width = pct + '%'; barEl.className = 'pag-progress-bar ' + barClass; }
+
+  // Subtítulo (valor recebido %)
+  const subEl = document.querySelector('#pag-' + pagId + ' .total-sub');
+  if (subEl) subEl.textContent = fmt(totalPago) + ' recebido (' + pct + '%)';
+
+  // Badge geral
+  const badgeEl = document.querySelector('#pag-' + pagId + ' .pag-badge');
+  if (badgeEl) {
+    badgeEl.className = 'pag-badge ' + stGeral;
+    badgeEl.textContent = stGeral === 'quitado' ? '✅ Quitado' : stGeral === 'parcial' ? '⏳ Parcial' : stGeral === 'atrasado' ? '🔴 Em atraso' : '⏰ A receber';
+  }
+
+  // Atualiza cards de resumo do topo
+  calcResumo();
 }
 
 async function addParcelaExistente(pagId){
